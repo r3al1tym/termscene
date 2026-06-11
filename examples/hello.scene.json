@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "aspect": "wide",
+    "theme": { "preset": "claude" },
+    "window": { "chrome": "mac", "title": "termscene — demo" },
+    "fontSize": 26,
+    "prompt": "❯"
+  },
+  "steps": [
+    { "cmd": "npm install termscene" },
+    {
+      "out": [
+        "added 1 package in 1.2s",
+        "1 package is looking for funding"
+      ],
+      "style": "dim"
+    },
+    { "wait": 0.5 },
+    { "div": true },
+    { "cmd": "termscene render demo.scene.json --out demo.gif" },
+    {
+      "out": [
+        "rendering 7 events · 8.4s · 1600×900 → demo.gif",
+        "  100%  (252/252 frames)"
+      ],
+      "style": "dim"
+    },
+    { "out": "wrote demo.gif", "style": "ok" },
+    { "wait": 0.4 },
+    { "div": true },
+    {
+      "out": "Mock terminals you fully control — rendered to crisp, deterministic video.",
+      "style": "accent",
+      "stream": 1.6
+    }
+  ]
+}
