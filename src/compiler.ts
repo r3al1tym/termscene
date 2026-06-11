@@ -3,6 +3,7 @@ import type {
   SceneStep,
   CmdStep,
   OutStep,
+  ProgressStep,
   WaitStep,
   DivStep,
   CompiledScene,
@@ -34,6 +35,9 @@ function isOut(s: SceneStep): s is OutStep {
 function isWait(s: SceneStep): s is WaitStep {
   return (s as WaitStep).wait !== undefined
 }
+function isProgress(s: SceneStep): s is ProgressStep {
+  return (s as ProgressStep).progress !== undefined
+}
 function isDiv(s: SceneStep): s is DivStep {
   return (s as DivStep).div !== undefined
 }
@@ -60,6 +64,21 @@ export function compile(scene: Scene): CompiledScene {
   for (const step of scene.steps) {
     if (isWait(step)) {
       t += step.wait
+      continue
+    }
+    if (isProgress(step)) {
+      const appearAt = t
+      const fillEnd = appearAt + step.duration
+      events.push({
+        kind: "progress",
+        label: step.progress,
+        appearAt: round(appearAt),
+        fillEnd: round(fillEnd),
+        width: step.width ?? 22,
+        cls: step.style,
+        pct: step.pct ?? true,
+      })
+      t = fillEnd + DEFAULTS.lineDelay
       continue
     }
     if (isDiv(step)) {

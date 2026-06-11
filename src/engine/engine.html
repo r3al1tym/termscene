@@ -39,7 +39,7 @@ html,body{font-family:var(--font);font-variant-emoji:text;background:var(--page,
 .bar .t b{color:var(--barTextStrong);font-weight:500}
 /* the scrolling transcript */
 .scroll{flex:1;padding:var(--pad);overflow:hidden;line-height:var(--lh);
-  display:flex;flex-direction:column;justify-content:flex-end}
+  display:flex;flex-direction:column;justify-content:var(--align,flex-end)}
 .e{white-space:pre-wrap;word-break:break-word;margin:var(--lineGap) 0}
 .e .prompt{color:var(--prompt);margin-right:.7em}
 .e.cmd{color:var(--fg)}
@@ -86,6 +86,16 @@ function renderEvent(ev, t, meta){
     var pr = ev.prompt!=null ? '<span class="prompt">'+esc(ev.prompt)+'</span>' : '';
     var cur = active ? '<span class="cur" style="opacity:'+(Math.floor(t*1.6)%2?1:.25)+'"></span>' : '';
     return '<div class="e cmd">'+pr+esc(shown)+cur+'</div>';
+  }
+  if(ev.kind==='progress'){
+    if(t < ev.appearAt) return '';
+    var pf = (ev.fillEnd>ev.appearAt) ? clamp((t-ev.appearAt)/(ev.fillEnd-ev.appearAt),0,1) : 1;
+    var w = ev.width||22;
+    var filled = Math.round(pf*w);
+    var bar = '█'.repeat(filled) + '░'.repeat(w-filled);
+    var col = 'var(--'+(ev.cls||'accent')+')';
+    var pct = ev.pct ? ('  '+Math.round(pf*100)+'%') : '';
+    return '<div class="e out">'+esc(ev.label)+' <span style="color:'+col+'">'+bar+'</span>'+pct+'</div>';
   }
   if(ev.kind==='out'){
     if(t < ev.appearAt) return '';
@@ -134,6 +144,7 @@ function boot(){
     '--barFont': Math.round((M.fontSize||22)*0.62)+'px',
     '--barH': ((M.window&&M.window.chrome!=='none') ? Math.round((M.fontSize||22)*1.9) : 0)+'px',
     '--barPad':'16px','--dot':'12px','--dotGap':'9px',
+    '--align': ({top:'flex-start',center:'center',bottom:'flex-end'})[M.align||'bottom'] || 'flex-end',
   };
   document.getElementById('themeVars').textContent =
     ':root{'+Object.keys(V).map(function(k){return k+':'+V[k]}).join(';')+'}';
