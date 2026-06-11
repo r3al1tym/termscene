@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>termscene engine</title>
+<style>
+/* ============================================================================
+   TERMSCENE ENGINE — one deterministic page, rendered as a pure function of
+   ?t=<seconds>. No animation loop, no real time: window.__render(t) paints
+   every pixel from the single scalar t, so a renderer can screenshot each frame
+   with zero drift (and a reviewer can scrub the timeline freely).
+
+   The page consumes a COMPILED scene on window.SCENE (see compiler.ts):
+     meta   — { width, height, fps, theme, window, padding, fontSize,
+                lineHeight, cursorBlink, marginFill }
+     events — flat, time-stamped terminal lines (the compiler flattens the
+              authored .scene.{json,ts} into this). Each event:
+       { kind:'cmd',  prompt, text, typeStart, typeEnd, commitAt }   a typed input line
+       { kind:'out',  text, appearAt, streamEnd? }                   an output line
+       { kind:'div',  appearAt }                                     a blank spacer line
+   The engine is a dumb, deterministic renderer; ALL timing lives in the events.
+   ============================================================================ */
+@font-face{font-family:JBM;src:url(fonts/jbm-Regular.woff2) format("woff2");font-weight:400;font-display:block}
+@font-face{font-family:JBM;src:url(fonts/jbm-Bold.woff2) format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:JBM;src:url(fonts/jbm-Italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:block}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font);font-variant-emoji:text;background:var(--page,#0c0b09)}
+/* .stage is sized to the scene's aspect; .fill paints the margin behind the window */
+.fill{position:absolute;inset:0;z-index:0}
+.stage{position:absolute;inset:0;margin:auto;overflow:hidden;z-index:1;display:flex}
+.win{margin:auto;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--term);color:var(--fg);box-shadow:var(--winShadow)}
+/* title bar (mac traffic-lights / plain / none) */
+.bar{flex:none;display:flex;align-items:center;gap:var(--dotGap);padding:0 var(--barPad);
+  height:var(--barH);background:var(--bar)}
+.bar i{width:var(--dot);height:var(--dot);border-radius:50%}
+.bar .r{background:#f25f57}.bar .y{background:#fbbe2e}.bar .g{background:#28c93f}
+.bar .t{flex:1;text-align:center;color:var(--barText);font-size:var(--barFont);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 12px}
+.bar .t b{color:var(--barTextStrong);font-weight:500}
+/* the scrolling transcript */
+.scroll{flex:1;padding:var(--pad);overflow:hidden;line-height:var(--lh);
+  display:flex;flex-direction:column;justify-content:flex-end}
+.e{white-space:pre-wrap;word-break:break-word;margin:var(--lineGap) 0}
+.e .prompt{color:var(--prompt);margin-right:.7em}
+.e.cmd{color:var(--fg)}
+.e.out{color:var(--out)}
+.e.dim{color:var(--dim)}
+.e.ok{color:var(--ok)} .e.warn{color:var(--warn)} .e.err{color:var(--err)}
+.e.accent{color:var(--accent)}
+.cur{display:inline-block;width:.55em;height:1.05em;background:var(--cursor);
+  vertical-align:text-bottom;transform:translateY(-.08em)}
+</style>
+<style id="themeVars"></style>
+<style id="sceneCss"></style>
+</head>
+<body>
+<div class="fill" id="fill"></div>
+<div class="stage" id="stage">
+  <div class="win" id="win">
+    <div class="bar" id="bar"></div>
+    <div class="scroll" id="scroll"></div>
+  </div>
+</div>
+
+<script>
+function clamp(x,a,b){return x<a?a:(x>b?b:x)}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+// Render one transcript event at time t. Returns an HTML string (or '' if not yet visible).
+function renderEvent(ev, t, meta){
+  if(ev.kind==='div'){
+    return (t>=ev.appearAt) ? '<div class="e">&nbsp;</div>' : '';
+  }
+  if(ev.kind==='cmd'){
+    if(t < ev.typeStart) return '';
+    var full = ev.text || '';
+    var shown, active;
+    if(t < ev.typeEnd){
+      var f = (ev.typeEnd>ev.typeStart) ? clamp((t-ev.typeStart)/(ev.typeEnd-ev.typeStart),0,1) : 1;
+      shown = full.slice(0, Math.floor(f*full.length));
+      active = true;                                  // cursor follows the typing
+    } else {
+      shown = full;
+      active = (ev.commitAt!=null && t < ev.commitAt); // cursor sits at end until Enter commits
+    }
+    var pr = ev.prompt!=null ? '<span class="prompt">'+esc(ev.prompt)+'</span>' : '';
+    var cur = active ? '<span class="cur" style="opacity:'+(Math.floor(t*1.6)%2?1:.25)+'"></span>' : '';
+    return '<div class="e cmd">'+pr+esc(shown)+cur+'</div>';
+  }
+  if(ev.kind==='out'){
+    if(t < ev.appearAt) return '';
+    var cls = ev.cls ? (' '+ev.cls) : '';
+    var txt = ev.text || '';
+    if(ev.streamEnd!=null && ev.streamEnd>ev.appearAt){     // typewriter on output (AI-style streaming)
+      var sf = clamp((t-ev.appearAt)/(ev.streamEnd-ev.appearAt),0,1);
+      txt = txt.slice(0, Math.floor(sf*txt.length));
+      var streaming = sf<1;
+      // allow pre-escaped rich html only when not streaming a plain string
+      var inner = ev.html ? ev.text : esc(txt);
+      var cur = streaming ? '<span class="cur" style="opacity:'+(Math.floor(t*1.6)%2?1:.25)+'"></span>' : '';
+      return '<div class="e out'+cls+'">'+inner+cur+'</div>';
+    }
+    var body = ev.html ? ev.text : esc(txt);
+    return '<div class="e out'+cls+'">'+body+'</div>';
+  }
+  return '';
+}
+
+function boot(){
+  var S = window.SCENE, M = S.meta;
+  var TH = M.theme || {};
+
+  // ---- apply theme as CSS variables (everything is themeable, nothing hardcoded) ----
+  var V = {
+    '--font': TH.font || 'JBM,"DejaVu Sans Mono",monospace',
+    '--page': TH.page || '#0c0b09',
+    '--term': TH.bg || '#15140f',
+    '--fg': TH.fg || '#ece9e1',
+    '--out': TH.out || TH.fg || '#b1aea5',
+    '--dim': TH.dim || '#5d5a52',
+    '--prompt': TH.prompt || '#6f9f6f',
+    '--cursor': TH.cursor || TH.fg || '#ece9e1',
+    '--accent': TH.accent || '#d97757',
+    '--ok': TH.ok || '#28c93f',
+    '--warn': TH.warn || '#fbbe2e',
+    '--err': TH.err || '#f25f57',
+    '--bar': TH.bar || '#211f1a',
+    '--barText': TH.barText || '#7f7b71',
+    '--barTextStrong': TH.barTextStrong || '#b1aea5',
+    '--lh': (M.lineHeight || 1.5),
+    '--lineGap': (M.lineGap!=null ? M.lineGap : 4) + 'px',
+    '--pad': (M.padding!=null ? M.padding : 36) + 'px',
+    '--winShadow': TH.windowShadow || 'none',
+    '--barFont': Math.round((M.fontSize||22)*0.62)+'px',
+    '--barH': ((M.window&&M.window.chrome!=='none') ? Math.round((M.fontSize||22)*1.9) : 0)+'px',
+    '--barPad':'16px','--dot':'12px','--dotGap':'9px',
+  };
+  document.getElementById('themeVars').textContent =
+    ':root{'+Object.keys(V).map(function(k){return k+':'+V[k]}).join(';')+'}';
+  document.getElementById('sceneCss').textContent = M.css || '';
+
+  // ---- size the stage to the scene's aspect; paint the margin fill behind ----
+  var W=M.width||1200, H=M.height||700, pad=(M.marginPad||0);
+  var stage=document.getElementById('stage'), win=document.getElementById('win'), fill=document.getElementById('fill');
+  stage.style.width=W+'px'; stage.style.height=H+'px';
+  stage.style.padding=pad+'px';
+  fill.style.width=W+'px'; fill.style.height=H+'px';
+  fill.style.left='50%'; fill.style.top='50%'; fill.style.transform='translate(-50%,-50%)';
+  fill.style.background = M.marginFill || TH.page || '#0c0b09';
+  if(TH.windowRadius){ win.style.borderRadius=TH.windowRadius+'px'; }
+  document.body.style.width=W+'px'; document.body.style.height=H+'px';
+  document.body.style.position='relative';
+
+  // ---- font size on the scroll ----
+  document.getElementById('scroll').style.fontSize=(M.fontSize||22)+'px';
+
+  // ---- window title bar ----
+  var chrome = (M.window&&M.window.chrome) || 'mac';
+  var bar=document.getElementById('bar');
+  if(chrome==='none'){ bar.style.display='none'; }
+  else {
+    var dots = (chrome==='mac') ? '<i class="r"></i><i class="y"></i><i class="g"></i>' : '';
+    var title = (M.window&&M.window.title) ? M.window.title : '';
+    bar.innerHTML = dots + '<div class="t">'+ (title?title:'') +'</div>'
+      + (chrome==='mac' ? '<div style="width:54px"></div>' : '');  // balance the dots → center title
+  }
+
+  window.__render = function(t){
+    var scroll=document.getElementById('scroll');
+    var html='';
+    for(var i=0;i<S.events.length;i++){ html += renderEvent(S.events[i], t, M); }
+    scroll.innerHTML = html;
+    scroll.scrollTop = scroll.scrollHeight;     // auto-follow the newest line
+    // a hook for custom-scene overlays (escape hatch); core terminal needs none
+    if(window.__overlay) window.__overlay(t, S, M);
+  };
+
+  var q=new URLSearchParams(location.search);
+  var t=parseFloat(q.get('t')); if(isNaN(t)) t=Math.min(2.0, S.duration||2.0);
+  document.fonts.ready.then(function(){ window.__render(t); document.body.setAttribute('data-ready','1'); });
+  window.__render(t);
+}
+
+(function(){
+  // scene can be injected (window.SCENE already set) or loaded from ?scene=<url>
+  function start(){ if(window.SCENE) boot(); else setTimeout(start,16); }
+  var q=new URLSearchParams(location.search);
+  var src=q.get('scene');
+  if(src && !window.SCENE){
+    var s=document.createElement('script'); s.src=src; s.onload=boot; s.onerror=boot;
+    document.head.appendChild(s);
+  } else { start(); }
+})();
+</script>
+</body></html>

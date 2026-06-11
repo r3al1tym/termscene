@@ -1,0 +1,42 @@
+{
+  "name": "termscene",
+  "version": "0.1.0",
+  "description": "Design-forward, deterministic videos of terminal experiences — author a scene, render to mp4/gif/webm. Mock terminals you fully control, not a live recording.",
+  "type": "module",
+  "bin": {
+    "termscene": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src/engine"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('node:fs').cpSync('src/engine','dist/engine',{recursive:true})\"",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "terminal",
+    "video",
+    "gif",
+    "mp4",
+    "demo",
+    "screencast",
+    "mock",
+    "animation",
+    "cli-demo"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer-core": "^23.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
