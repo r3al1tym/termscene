@@ -46,6 +46,8 @@ export interface SceneMeta {
   marginFill?: string
   theme?: SceneTheme
   window?: { chrome?: WindowChrome; title?: string }
+  /** vertical alignment of the transcript within the window (default "bottom") */
+  align?: "top" | "center" | "bottom"
   /** default prompt glyph for `cmd` steps (e.g. "❯", "$", "➜ ~") */
   prompt?: string
   /** typing speed in chars/sec for `cmd` steps (default 22) */
@@ -78,6 +80,18 @@ export interface OutStep {
   lineDelay?: number
 }
 
+/** An animated progress bar that fills 0→100% in place over `duration` seconds. */
+export interface ProgressStep {
+  progress: string // label shown before the bar
+  duration: number // seconds to fill
+  /** bar width in characters (default 22) */
+  width?: number
+  /** semantic color for the filled bar */
+  style?: "dim" | "ok" | "warn" | "err" | "accent"
+  /** show a trailing percentage (default true) */
+  pct?: boolean
+}
+
 /** Pause the virtual clock. */
 export interface WaitStep {
   wait: number
@@ -88,7 +102,7 @@ export interface DivStep {
   div: true
 }
 
-export type SceneStep = CmdStep | OutStep | WaitStep | DivStep
+export type SceneStep = CmdStep | OutStep | ProgressStep | WaitStep | DivStep
 
 export interface Scene {
   meta?: SceneMeta
@@ -117,7 +131,16 @@ export interface DivEvent {
   kind: "div"
   appearAt: number
 }
-export type CompiledEvent = CmdEvent | OutEvent | DivEvent
+export interface ProgressEvent {
+  kind: "progress"
+  label: string
+  appearAt: number
+  fillEnd: number
+  width: number
+  cls?: string
+  pct: boolean
+}
+export type CompiledEvent = CmdEvent | OutEvent | DivEvent | ProgressEvent
 
 export interface CompiledScene {
   meta: Required<Pick<SceneMeta, "width" | "height" | "fps">> & SceneMeta

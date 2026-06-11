@@ -6,3 +6,4 @@ dist/
 !examples/*.mp4
 .DS_Store
 *.log
+workbench/out/
