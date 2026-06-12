@@ -74,7 +74,11 @@ Run termscene from its project dir (or `npx termscene` once published). In dev:
 `cd <termscene> && pnpm exec tsx src/cli.ts <command>`.
 
 1. **Write the scene** to a file, e.g. `my-demo.scene.json`, from the user's intent.
-2. **Preview — pick one:**
+2. **Lint — ALWAYS, after every edit.** `termscene lint my-demo.scene.json`
+   Fix every error before continuing. Render refuses on errors; warnings (e.g. an
+   emoji that renders as tofu) are advisory but usually worth fixing. This is the
+   quality gate — don't declare a scene done until lint is clean.
+3. **Preview — pick one:**
    - *Standalone scrubber* (default; works anywhere, shareable):
      `termscene scrub my-demo.scene.json --out preview.html` → one self-contained
      HTML file (engine + scene + fonts inlined, no server). Open it, drag the
@@ -83,10 +87,17 @@ Run termscene from its project dir (or `npx termscene` once published). In dev:
      `http://localhost:5180/`; recompiles the scene file on ↻ reload.
    - To QA visually yourself without a browser MCP: render to a few PNG frames
      (`--format frames`) or screenshot the scrubber via headless Chrome, and look.
-3. **Render** once they're happy:
+4. **Render** once they're happy:
    `termscene render my-demo.scene.json --out my-demo.gif`
    (format inferred from extension: `.mp4` `.gif` `.webm`; `--fps` to override).
-4. **Report** the output path. Offer a different aspect/format if useful.
+   Multi-format in one pass: `--also my-demo.mp4,my-demo.webm`.
+5. **Report** the output path. Offer a different aspect/format if useful.
+
+## Other commands
+- `termscene docs <topic>` — offline reference: `steps | meta | themes | glyphs | render`.
+  Prefer this over guessing syntax.
+- `termscene init [dir]` — scaffold a project: drops a `CLAUDE.md`/`AGENTS.md` so any
+  coding assistant opening that repo knows the rules, plus an example scene.
 
 ## Notes
 - Rendering needs Chrome/Chromium + ffmpeg on the machine. termscene auto-detects
@@ -94,4 +105,6 @@ Run termscene from its project dir (or `npx termscene` once published). In dev:
 - The render is a pure function of the timeline — fully deterministic and
   reproducible, frame for frame. The `scrub` file is the same engine, so what you
   scrub is exactly what renders.
+- `meta.loopOffset` (frame or `"25%"`) starts a looping gif/webm mid-animation for a
+  seamless loop — no cursor-blink seam.
 - See `examples/` for a complete scene; `showcase/scenes.ts` for the 8 brand looks.

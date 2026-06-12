@@ -1,6 +1,6 @@
 {
   "name": "termscene",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Design-forward, deterministic videos of terminal experiences — author a scene, render to mp4/gif/webm. Mock terminals you fully control, not a live recording.",
   "type": "module",
   "bin": {

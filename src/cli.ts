@@ -4,20 +4,26 @@ import { loadScene } from "./load.js"
 import { render, type OutputFormat } from "./renderer.js"
 import { serve } from "./server.js"
 import { buildScrubber } from "./scrub.js"
+import { lint, summarize } from "./lint.js"
+import { scaffold } from "./init.js"
+import { docs, DOC_TOPICS } from "./docs.js"
 import { writeFile } from "node:fs/promises"
 
 const HELP = `termscene — design-forward, deterministic videos of terminal experiences
 
 USAGE
-  termscene render <scene> [--out file] [--format mp4|gif|webm] [--fps N]
-  termscene preview <scene> [--port N]              live scrubber server (recompiles on reload)
-  termscene scrub <scene> [--out file.html]         standalone self-contained scrubber file
+  termscene render <scene> [--out file] [--format mp4|gif|webm] [--fps N] [--also a.gif,b.webm]
+  termscene lint <scene> [--json]                    validate a scene (run after every edit)
+  termscene preview <scene> [--port N]               live scrubber server (recompiles on reload)
+  termscene scrub <scene> [--out file.html]          standalone self-contained scrubber file
+  termscene init [dir]                               scaffold a project (CLAUDE.md + example)
+  termscene docs [topic]                             offline reference (${Object.keys(DOC_TOPICS).join(", ")})
   termscene compile <scene>                          print the compiled timeline (debug)
 
 EXAMPLES
   termscene render demo.scene.json --out demo.mp4
-  termscene render demo.scene.json --out demo.gif        # format inferred from ext
-  termscene preview demo.scene.json                       # scrub & iterate in browser
+  termscene render demo.scene.json --out demo.gif --also demo.mp4,demo.webm
+  termscene lint demo.scene.json                          # gate before render
   termscene scrub demo.scene.json --out preview.html      # one shareable scrubber file
 
 A scene is a .json / .ts / .js file: { meta?, steps: [...] }. See examples/.
@@ -69,6 +75,38 @@ async function main() {
     return // keep the server alive
   }
 
+  if (cmd === "lint") {
+    requireScene(scenePath)
+    const findings = lint(await loadScene(scenePath))
+    const { errors, warns, infos } = summarize(findings)
+    if (args.json) {
+      console.log(JSON.stringify({ findings, summary: { errors, warns, infos } }, null, 2))
+    } else {
+      for (const x of findings) {
+        const where = x.step == null ? "scene" : `step ${x.step}`
+        console.log(`  ${x.level.toUpperCase().padEnd(5)} ${where.padEnd(8)} ${x.code} — ${x.message}`)
+      }
+      console.log(findings.length
+        ? `\n${errors} error(s), ${warns} warning(s), ${infos} info`
+        : "clean — no issues")
+    }
+    process.exit(errors > 0 ? 1 : 0)
+  }
+
+  if (cmd === "init") {
+    const dir = scenePath || "."
+    const created = await scaffold(dir)
+    console.log(`scaffolded termscene project in ${dir}:`)
+    for (const f of created) console.log(`  + ${f}`)
+    console.log(`\nnext: termscene scrub demo.scene.json --out preview.html`)
+    return
+  }
+
+  if (cmd === "docs") {
+    console.log(docs(scenePath))
+    return
+  }
+
   if (cmd === "scrub") {
     requireScene(scenePath)
     const compiled = compile(await loadScene(scenePath))
@@ -80,11 +118,22 @@ async function main() {
 
   if (cmd === "render") {
     requireScene(scenePath)
-    const compiled = compile(await loadScene(scenePath))
+    const scene = await loadScene(scenePath)
+    // gate: refuse to render a scene with errors (warnings are advisory)
+    const findings = lint(scene)
+    const errs = findings.filter((x) => x.level === "error")
+    if (errs.length) {
+      console.error(`refusing to render — ${errs.length} lint error(s):`)
+      for (const x of errs) console.error(`  ${x.step == null ? "scene" : "step " + x.step}: ${x.message}`)
+      console.error(`(run \`termscene lint ${scenePath}\` for the full report)`)
+      process.exit(1)
+    }
+    const compiled = compile(scene)
     const format = (args.format as OutputFormat) || undefined
     const out =
       (args.out as string) ||
       scenePath.replace(/\.(scene\.)?(json|ts|js|mjs)$/i, "") + "." + (format || "mp4")
+    const also = args.also ? String(args.also).split(",").map((s) => s.trim()).filter(Boolean) : undefined
     const fps = args.fps ? parseInt(String(args.fps), 10) : undefined
 
     const total = Math.round(compiled.duration * (fps ?? compiled.meta.fps))
@@ -97,6 +146,7 @@ async function main() {
       out,
       format,
       fps,
+      also,
       onProgress: (done, t) => {
         const pct = Math.floor((done / t) * 100)
         if (pct !== lastPct && pct % 5 === 0) {
@@ -105,7 +155,7 @@ async function main() {
         }
       },
     })
-    process.stdout.write(`\rwrote ${out}                         \n`)
+    process.stdout.write(`\rwrote ${[out, ...(also ?? [])].join(", ")}                         \n`)
     return
   }
 
