@@ -1,161 +1,673 @@
 import type { Scene } from "../src/types.js"
 
-// The 8 terminals showcased on the splash page. Each scene is scripted to sell
-// that terminal's signature look in one short loop. Order = gallery wall order.
-// (Curated with Fable: variety, instant recognition, "I want that".)
+// The 8 terminals showcased on the splash page. Each scene was authored to match
+// what a REAL session in that terminal actually feels like — the right commands,
+// output shapes, and rhythm (generated via the authentic-scenes workflow, then
+// lint-clean). Order = gallery wall order. Curated with Fable.
 
 export interface ShowcaseScene {
   id: string
-  name: string // display name on the card
-  blurb: string // one-line default-style description
+  name: string
+  blurb: string
   scene: Scene
 }
 
-const wide = { aspect: "wide" as const, fontSize: 24 }
-
 export const SHOWCASE: ShowcaseScene[] = [
-  // 1. Claude Code — warm dark, terracotta ❯, ✻ thinking, ● tool calls
   {
     id: "claude-code",
     name: "Claude Code",
-    blurb: "warm dark · terracotta ❯ · ✻ thinking lines · ● tool calls",
+    blurb: "warm dark · terracotta ❯ · ✻ thinking · ● tool calls",
     scene: {
-      meta: { ...wide, theme: { preset: "claude" }, window: { chrome: "mac", title: "claude code" }, prompt: "❯" },
-      steps: [
-        { cmd: "add a /health endpoint" },
-        { wait: 0.3 },
-        { out: "✻ Thinking… I'll add a route returning status + uptime.", style: "dim", stream: 1.3 },
-        { out: "● Read(src/server.ts)", style: "accent" },
-        { out: "● Edit(src/server.ts)  +9", style: "accent" },
-        { out: "● Bash(curl localhost:3000/health)", style: "accent" },
-        { out: "{ \"status\": \"ok\", \"uptime\": 12.4 }", style: "ok" },
-        { wait: 0.3 },
-        { out: "Added — /health returns status and uptime.", style: "ok", stream: 1.2 },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "claude"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "claude code"
+                },
+                "prompt": "❯",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "add a Retry-After header to the 429 responses in the rate limiter",
+                      "prompt": "❯",
+                      "typeSpeed": 42
+                },
+                {
+                      "out": "✻ Thinking… locating the rate-limit middleware, then setting the header on the 429 branch.",
+                      "style": "dim"
+                },
+                {
+                      "out": [
+                            "● Grep(pattern: \"429\", glob: \"src/**/*.ts\")",
+                            "  └─ 3 matches in src/middleware/rateLimit.ts"
+                      ],
+                      "style": "accent"
+                },
+                {
+                      "out": [
+                            "● Read(src/middleware/rateLimit.ts)",
+                            "  └─ Read 84 lines"
+                      ],
+                      "style": "accent"
+                },
+                {
+                      "wait": 1
+                },
+                {
+                      "out": [
+                            "● Edit(src/middleware/rateLimit.ts +4 -1)",
+                            "  └─ Set Retry-After from limiter.msBeforeNext on the 429 branch"
+                      ],
+                      "style": "accent"
+                },
+                {
+                      "out": "● Bash(npm test -- rateLimit)",
+                      "style": "accent"
+                },
+                {
+                      "progress": "jest src/middleware/rateLimit.test.ts",
+                      "duration": 2.4
+                },
+                {
+                      "out": [
+                            "  PASS  src/middleware/rateLimit.test.ts",
+                            "  Tests: 9 passed, 9 total"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "div": true
+                },
+                {
+                      "out": [
+                            "● Done. 429 responses now send Retry-After in seconds, computed from the",
+                            "  limiter's reset window, with a test asserting the header value."
+                      ],
+                      "style": "ok",
+                      "stream": 1.6
+                }
+          ]
     },
   },
-
-  // 2. Gemini CLI — gradient logo bloom, sparkle accents
   {
     id: "gemini-cli",
     name: "Gemini CLI",
-    blurb: "dark slate · blue→violet gradient logo · ✦ sparkle accents",
+    blurb: "dark slate · blue→violet · ✦ sparkle accents",
     scene: {
-      meta: { ...wide, theme: { preset: "gemini" }, window: { chrome: "mac", title: "gemini" }, prompt: ">" },
-      steps: [
-        { out: ["  ✦ ✦ ✦   G E M I N I", "  ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔  cli"], style: "accent", stream: 1.2 },
-        { div: true },
-        { cmd: "explain this regex /\\b\\d{3}-\\d{4}\\b/" },
-        { wait: 0.3 },
-        { out: "✦ It matches a 7-digit phone number: three digits, a hyphen, four digits, on word boundaries.", stream: 2.0 },
-        { out: "✦ Tip: add \\d{3}[-.] for area codes.", style: "accent", stream: 1.1 },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "gemini"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "gemini"
+                },
+                "prompt": ">",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "out": [
+                            "",
+                            "  ✦  G E M I N I",
+                            "  ─────────────",
+                            "  gemini-2.5-pro  ·  ~/projects/api  ·  ctrl+c to quit",
+                            ""
+                      ],
+                      "style": "accent"
+                },
+                {
+                      "cmd": "explain why my rate limiter lets bursts through, then fix it",
+                      "prompt": "> "
+                },
+                {
+                      "progress": "Reading middleware/ratelimit.go",
+                      "duration": 1.6
+                },
+                {
+                      "out": [
+                            "✦ The bug is a classic fixed-window reset. You count requests per",
+                            "  calendar minute, so a client can fire N requests at 0:59 and another",
+                            "  N at 1:00 — 2N within two seconds, all \"within limits.\"",
+                            "",
+                            "  A token-bucket fixes this: refill at a steady rate, cap the burst."
+                      ],
+                      "stream": 1.6
+                },
+                {
+                      "out": [
+                            "  ┌─ middleware/ratelimit.go",
+                            "  │  - if reqs[ip].minute != now.Minute() { reqs[ip].n = 0 }",
+                            "  │  - reqs[ip].n++; if reqs[ip].n > limit { return Deny }",
+                            "  │  + b := buckets[ip]; b.refill(now, rate, burst)",
+                            "  │  + if !b.take(1) { return Deny }",
+                            "  └─"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "cmd": "apply it and add a table test",
+                      "prompt": "> "
+                },
+                {
+                      "progress": "Writing ratelimit.go, ratelimit_test.go",
+                      "duration": 2
+                },
+                {
+                      "out": [
+                            "  ✓ ratelimit.go      (+22 -6)",
+                            "  ✓ ratelimit_test.go (+41 new)"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "cmd": "!go test ./middleware/ -run RateLimit",
+                      "prompt": "> "
+                },
+                {
+                      "out": "ok  \tapi/middleware\t0.118s",
+                      "style": "ok"
+                },
+                {
+                      "out": [
+                            "✦ Tip: the burst is now configurable via RATELIMIT_BURST.",
+                            "  Set it to 1 for strict per-request pacing."
+                      ],
+                      "style": "accent",
+                      "stream": 1.4
+                }
+          ]
     },
   },
-
-  // 3. OpenAI Codex CLI — minimal, sparse, green/white
   {
     id: "codex-cli",
     name: "Codex CLI",
-    blurb: "near-black · sparse green/white · › prompt · minimal chrome",
+    blurb: "near-black · sparse green/white · minimal chrome",
     scene: {
-      meta: { ...wide, theme: { preset: "codex" }, window: { chrome: "mac", title: "codex" }, prompt: "›" },
-      steps: [
-        { cmd: "fix the failing test in cart.test.ts" },
-        { wait: 0.4 },
-        { out: "patching cart.ts — total() ignored discounts", style: "dim" },
-        { out: "● apply patch  +4 −2", style: "ok" },
-        { out: "npm test cart", style: "dim" },
-        { out: "PASS  cart.test.ts (6 tests)", style: "ok" },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "codex"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "codex"
+                },
+                "prompt": "›",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "fix the retry backoff in fetcher.py — it caps too early, should be exponential up to 30s"
+                },
+                {
+                      "out": "reading fetcher.py, found the backoff loop",
+                      "style": "dim"
+                },
+                {
+                      "out": "● apply patch  src/fetcher.py  +6 -3",
+                      "style": "accent"
+                },
+                {
+                      "out": [
+                            "    delay = min(base * 2 ** attempt, 30.0)",
+                            "    delay += random.uniform(0, delay * 0.1)"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "div": true
+                },
+                {
+                      "cmd": "pytest tests/test_fetcher.py -q"
+                },
+                {
+                      "progress": "running 14 tests",
+                      "duration": 2.2
+                },
+                {
+                      "out": [
+                            "..............",
+                            "14 passed in 0.91s"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "wait": 0.6
+                },
+                {
+                      "out": "Backoff now doubles per attempt, caps at 30s, and adds 10% jitter. Tests green.",
+                      "stream": 1.6
+                }
+          ]
     },
   },
-
-  // 4. Warp — block-based output, blue accent, rounded
   {
     id: "warp",
     name: "Warp",
-    blurb: "dark · rounded block output · blue accent · modern GUI terminal",
+    blurb: "dark · rounded block output · modern GUI terminal",
     scene: {
-      meta: { ...wide, theme: { preset: "warp" }, window: { chrome: "mac", title: "warp — ~/app" }, prompt: "❯" },
-      steps: [
-        { cmd: "pnpm build" },
-        { progress: "compiling", duration: 1.4, style: "accent" },
-        { out: ["▸ tsc      done in 2.1s", "▸ bundle   done in 0.8s", "▸ assets   copied"], style: "dim" },
-        { out: "build succeeded · 3.0s", style: "ok" },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "warp"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "warp — ~/app"
+                },
+                "prompt": "❯",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "pnpm install"
+                },
+                {
+                      "out": [
+                            "Lockfile is up to date, resolution step is skipped",
+                            "Packages: +312",
+                            "Progress: resolved 312, reused 312, downloaded 0, added 312, done"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "progress": "installing dependencies",
+                      "duration": 2.2
+                },
+                {
+                      "out": "Done in 1.9s",
+                      "style": "ok"
+                },
+                {
+                      "div": true
+                },
+                {
+                      "cmd": "pnpm build"
+                },
+                {
+                      "out": [
+                            "▸ tsc --build            done in 1.4s",
+                            "▸ vite bundle client     done in 2.1s",
+                            "▸ vite bundle server     done in 0.9s",
+                            "✓ build complete → dist/  (482 kB · gzip 138 kB)"
+                      ],
+                      "style": "accent"
+                },
+                {
+                      "cmd": "pnpm test"
+                },
+                {
+                      "out": [
+                            "✓ src/auth.test.ts        (14)",
+                            "✓ src/router.test.ts      (9)",
+                            "✓ src/cache.test.ts       (11)",
+                            "",
+                            "Test Files  3 passed (3)",
+                            "     Tests  34 passed (34)",
+                            "  Duration  3.06s"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "cmd": "git commit -am \"feat: edge cache + auth guard\""
+                },
+                {
+                      "out": [
+                            "[main 9f3c2a1] feat: edge cache + auth guard",
+                            " 6 files changed, 218 insertions(+), 41 deletions(-)"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "out": "● working tree clean → ready to push",
+                      "style": "accent",
+                      "stream": 1.4
+                }
+          ]
     },
   },
-
-  // 5. iTerm2 + Powerlevel10k — powerline segments, two-line git prompt
   {
     id: "iterm2-p10k",
     name: "iTerm2 · Powerlevel10k",
-    blurb: "dark · powerline segments · two-line git prompt",
+    blurb: "powerline segments · two-line git prompt",
     scene: {
-      meta: { ...wide, theme: { preset: "iterm2" }, window: { chrome: "mac", title: "iTerm2" }, prompt: "❯" },
-      steps: [
-        { out: " ~/app   main ✔   v20.11 ", style: "accent" },
-        { cmd: "git checkout -b feat/login" },
-        { out: "Switched to a new branch 'feat/login'", style: "dim" },
-        { out: " ~/app   feat/login ✚2   v20.11 ", style: "accent" },
-        { cmd: "git commit -am 'add login form'" },
-        { out: "[feat/login 9c1f2a0] add login form", style: "ok" },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "iterm2"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "iTerm2"
+                },
+                "prompt": "❯",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "git status",
+                      "prompt": " ~/projects/brand-engine   main ✔   node v20 "
+                },
+                {
+                      "out": [
+                            "On branch main",
+                            "Your branch is up to date with 'origin/main'.",
+                            "",
+                            "nothing to commit, working tree clean"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "cmd": "git checkout -b feat/streaming-tokens",
+                      "prompt": " ~/projects/brand-engine   main ✔   node v20 "
+                },
+                {
+                      "out": "Switched to a new branch 'feat/streaming-tokens'"
+                },
+                {
+                      "cmd": "nvim src/pipeline/stream.ts",
+                      "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✔   node v20 "
+                },
+                {
+                      "cmd": "git status -s",
+                      "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✚1   node v20 "
+                },
+                {
+                      "out": " M src/pipeline/stream.ts",
+                      "style": "warn"
+                },
+                {
+                      "cmd": "git commit -am 'feat: stream Opus tokens via SSE'",
+                      "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✚1   node v20 "
+                },
+                {
+                      "out": [
+                            "[feat/streaming-tokens 9c1af7e] feat: stream Opus tokens via SSE",
+                            " 1 file changed, 34 insertions(+), 6 deletions(-)"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "cmd": "git push -u origin feat/streaming-tokens",
+                      "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✔   node v20 "
+                },
+                {
+                      "progress": "Writing objects to origin",
+                      "duration": 1.6
+                },
+                {
+                      "out": [
+                            "remote: ",
+                            "remote: Create a pull request for 'feat/streaming-tokens' on GitHub by visiting:",
+                            "remote:   https://github.com/santos/brand-engine/pull/new/feat/streaming-tokens",
+                            "To github.com:santos/brand-engine.git",
+                            " * [new branch]      feat/streaming-tokens -> feat/streaming-tokens",
+                            "branch 'feat/streaming-tokens' set up to track 'origin/feat/streaming-tokens'."
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "cmd": "gh pr create --fill --web",
+                      "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✔   node v20 "
+                },
+                {
+                      "out": "Opening github.com/santos/brand-engine/pull/247 in your browser  ✓",
+                      "style": "accent",
+                      "stream": 1.4
+                }
+          ]
     },
   },
-
-  // 6. macOS Terminal (zsh) — white, unstyled, % prompt
   {
     id: "macos-zsh",
     name: "macOS Terminal",
-    blurb: "white bg · black SF Mono · user dir % · the everyman shell",
+    blurb: "white bg · black SF Mono · the everyman shell",
     scene: {
-      meta: { ...wide, theme: { preset: "macos" }, window: { chrome: "mac", title: "zsh — 80×24" }, prompt: "sanju@mac ~ %" },
-      steps: [
-        { cmd: "brew install jq", typeSpeed: 30 },
-        { out: ["==> Downloading https://formulae.brew.sh/jq", "==> Pouring jq--1.7.1.arm64.bottle.tar.gz"], style: "dim" },
-        { out: "==> /opt/homebrew/Cellar/jq/1.7.1: 18 files, 2.1MB", style: "dim" },
-        { cmd: "jq --version", typeSpeed: 30 },
-        { out: "jq-1.7.1" },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "macos"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "zsh — 80×24"
+                },
+                "prompt": "sanju@mac ~ %",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "brew update"
+                },
+                {
+                      "out": [
+                            "==> Updating Homebrew...",
+                            "Already up-to-date."
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "cmd": "brew install jq"
+                },
+                {
+                      "out": [
+                            "==> Fetching jq",
+                            "==> Downloading https://ghcr.io/v2/homebrew/core/jq/manifests/1.7.1"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "progress": "==> Downloading jq--1.7.1.arm64_sequoia.bottle.tar.gz",
+                      "duration": 2.4
+                },
+                {
+                      "out": [
+                            "==> Pouring jq--1.7.1.arm64_sequoia.bottle.tar.gz",
+                            "==> Summary",
+                            "  /opt/homebrew/Cellar/jq/1.7.1: 31 files, 1.2MB"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "div": true
+                },
+                {
+                      "cmd": "curl -s https://api.github.com/repos/jqlang/jq | jq .stargazers_count"
+                },
+                {
+                      "out": "31487"
+                },
+                {
+                      "cmd": "git -C ~/projects/dotfiles status -sb"
+                },
+                {
+                      "out": [
+                            "## main...origin/main",
+                            " M zsh/.zshrc",
+                            "?? brew/Brewfile.lock.json"
+                      ]
+                },
+                {
+                      "cmd": "echo \"$(jq --version) ready\""
+                },
+                {
+                      "out": "jq-1.7.1 ready",
+                      "style": "ok",
+                      "stream": 1.2
+                }
+          ]
     },
   },
-
-  // 7. Ubuntu GNOME Terminal — aubergine, green user@host
   {
     id: "ubuntu-bash",
     name: "Ubuntu Terminal",
-    blurb: "aubergine #300a24 · green user@host · $ prompt · peak Linux",
+    blurb: "aubergine #300a24 · green user@host · peak Linux",
     scene: {
-      meta: { ...wide, theme: { preset: "ubuntu" }, window: { chrome: "plain", title: "sanju@ubuntu: ~" }, prompt: "sanju@ubuntu:~$" },
-      steps: [
-        { cmd: "sudo apt update", typeSpeed: 28 },
-        { out: ["Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease", "Reading package lists... Done"], style: "dim" },
-        { out: "12 packages can be upgraded.", style: "warn" },
-        { cmd: "sudo apt upgrade -y", typeSpeed: 28 },
-        { progress: "unpacking", duration: 1.3, style: "ok" },
-        { out: "Setting up... done.", style: "ok" },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "ubuntu"
+                },
+                "window": {
+                      "chrome": "plain",
+                      "title": "sanju@ubuntu: ~"
+                },
+                "prompt": "sanju@ubuntu:~$",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "sudo apt update"
+                },
+                {
+                      "out": [
+                            "Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease",
+                            "Hit:2 http://security.ubuntu.com/ubuntu noble-security InRelease",
+                            "Get:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]",
+                            "Fetched 126 kB in 1s (171 kB/s)",
+                            "Reading package lists... Done",
+                            "Building dependency tree... Done",
+                            "Checking package upgradability... Done"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "out": "18 packages can be upgraded. Run 'apt list --upgradable' to see them.",
+                      "style": "warn"
+                },
+                {
+                      "cmd": "sudo apt upgrade -y"
+                },
+                {
+                      "progress": "Unpacking and configuring 18 packages",
+                      "duration": 3.5
+                },
+                {
+                      "out": [
+                            "Setting up linux-image-6.11.0-29-generic (6.11.0-29.29) ...",
+                            "Processing triggers for man-db (2.12.0-4) ...",
+                            "Processing triggers for initramfs-tools (0.142ubuntu25.5) ..."
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "div": true
+                },
+                {
+                      "cmd": "sudo systemctl restart nginx && systemctl status nginx --no-pager"
+                },
+                {
+                      "out": [
+                            "● nginx.service - A high performance web server and a reverse proxy server",
+                            "     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)",
+                            "     Active: active (running) since Fri 2026-06-12 09:14:02 UTC; 11ms ago",
+                            "   Main PID: 4471 (nginx)",
+                            "      Tasks: 5 (limit: 9489)",
+                            "     Memory: 5.2M (peak: 6.1M)"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "cmd": "df -h /"
+                },
+                {
+                      "out": [
+                            "Filesystem      Size  Used Avail Use% Mounted on",
+                            "/dev/nvme0n1p2   78G   31G   43G  42% /"
+                      ]
+                },
+                {
+                      "out": "all systems nominal -- kernel staged, reboot at next maintenance window.",
+                      "style": "ok",
+                      "stream": 1.5
+                }
+          ]
     },
   },
-
-  // 8. Starship — segmented multicolor cross-shell prompt morphing by repo
   {
     id: "starship",
     name: "Starship",
-    blurb: "segmented multicolor prompt · morphs per language/repo",
+    blurb: "segmented prompt · morphs per language/repo",
     scene: {
-      meta: { ...wide, theme: { preset: "starship" }, window: { chrome: "mac", title: "starship" }, prompt: "❯" },
-      steps: [
-        { out: " ~/rust-svc   main   rust v1.78 ", style: "accent" },
-        { cmd: "cd ../node-api" },
-        { out: " ~/node-api   main   ⬢ node v20.11 ", style: "ok" },
-        { cmd: "cd ../py-worker" },
-        { out: " ~/py-worker   main   py v3.12 ", style: "warn" },
-        { wait: 0.3 },
-        { out: "one prompt, every stack.", style: "accent", stream: 1.0 },
-      ],
+          "meta": {
+                "aspect": "wide",
+                "theme": {
+                      "preset": "starship"
+                },
+                "window": {
+                      "chrome": "mac",
+                      "title": "starship"
+                },
+                "prompt": "❯",
+                "fontSize": 24
+          },
+          "steps": [
+                {
+                      "cmd": "cargo build --release",
+                      "prompt": " ~/rust-svc   main  rust v1.84 "
+                },
+                {
+                      "out": [
+                            "   Compiling rust-svc v0.4.1 (/home/dev/rust-svc)",
+                            "    Finished `release` profile [optimized] in 8.31s"
+                      ],
+                      "style": "dim"
+                },
+                {
+                      "cmd": "cd ../node-api",
+                      "prompt": " ~/rust-svc   main  rust v1.84 "
+                },
+                {
+                      "cmd": "pnpm test",
+                      "prompt": " ~/node-api   main  ⬢ node v22.14 "
+                },
+                {
+                      "out": [
+                            " ✓ src/routes.test.ts (14)",
+                            "   Test Files  1 passed (1)",
+                            "        Tests  14 passed (14)",
+                            "     Duration  612ms"
+                      ],
+                      "style": "ok"
+                },
+                {
+                      "cmd": "cd ../py-worker && git status -sb",
+                      "prompt": " ~/node-api   main  ⬢ node v22.14 "
+                },
+                {
+                      "out": [
+                            "## main...origin/main",
+                            " M tasks/ingest.py"
+                      ],
+                      "style": "warn"
+                },
+                {
+                      "cmd": "uv run ruff check .",
+                      "prompt": " ~/py-worker   main !1  py v3.13 "
+                },
+                {
+                      "out": "All checks passed!",
+                      "style": "ok"
+                },
+                {
+                      "cmd": "git commit -am \"fix: stream ingest in chunks\"",
+                      "prompt": " ~/py-worker   main !1  py v3.13   42s "
+                },
+                {
+                      "out": [
+                            "[main 9f2c1ab] fix: stream ingest in chunks",
+                            " 1 file changed, 7 insertions(+), 3 deletions(-)"
+                      ],
+                      "style": "accent",
+                      "stream": 1.4
+                }
+          ]
     },
   },
 ]

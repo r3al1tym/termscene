@@ -116,6 +116,13 @@
   .verdict{margin-top:30px;font-family:var(--serif);font-style:italic;font-size:clamp(19px,2.4vw,26px);
     line-height:1.4;color:var(--ink);max-width:46ch}
   .verdict b{font-style:normal;color:var(--accent);font-weight:600}
+  /* what-it's-for grid */
+  .uses{margin-top:44px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .use{border:1px solid var(--hair);border-radius:14px;padding:26px 26px 28px;background:var(--panel);
+    transition:.22s}
+  .use:hover{border-color:var(--accent-dim)}
+  .use-h{font-family:var(--serif);font-size:23px;letter-spacing:-.01em;margin-bottom:10px}
+  .use p{color:var(--soft);font-size:14px;line-height:1.65;max-width:46ch}
 
   /* ---------- how it works ---------- */
   .steps{margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
@@ -153,6 +160,7 @@
   @media (max-width:760px){
     .grid{grid-template-columns:1fr}
     .cols{grid-template-columns:1fr;gap:22px}
+    .uses{grid-template-columns:1fr}
     .steps{grid-template-columns:1fr 1fr}
     .code-row{grid-template-columns:1fr}
     .hero{padding:54px 0 24px}
@@ -172,18 +180,18 @@
 <div class="hero">
   <div class="wrap">
     <div class="eyebrow reveal">designed terminal video · rendered deterministically</div>
-    <h1 class="reveal">Make a clean video of a terminal — <em>without recording one.</em></h1>
-    <p class="lede reveal">termscene renders a mock terminal you fully control. Script the commands and their output in a small declarative file; get crisp, frame-perfect mp4 or GIF. Idealized output, any theme, any aspect — built for a coding assistant to drive.</p>
+    <h1 class="reveal">Show the terminal experience <em>before you build it.</em></h1>
+    <p class="lede reveal">termscene turns a few lines of script into a clean terminal video — for an idea you want to pitch, a flow that doesn't exist yet, a concept for a deck or a social post. You write the commands and the output; it renders crisp, frame-perfect mp4 or GIF. Any theme, any aspect.</p>
     <div class="cta reveal">
       <a class="btn primary" href="#gallery">See the gallery ↓</a>
-      <a class="btn ghost" href="#why">Why not just build it yourself?</a>
+      <a class="btn ghost" href="#for">What it's for</a>
     </div>
     <div class="install reveal">
       <code><span class="p">$</span> npm install termscene</code>
       <span>MIT · needs Chrome + ffmpeg</span>
     </div>
     <div class="hero-clip reveal">
-      <span class="tag">claude code · live render</span>
+      <span class="tag">a claude code session, mocked</span>
       <video src="clips/claude-code.mp4" autoplay muted loop playsinline></video>
     </div>
   </div>
@@ -195,39 +203,39 @@
     <div class="gallery-head">
       <div>
         <div class="kicker reveal">eight terminals, one engine</div>
-        <h2 class="reveal">The look you know, <em>rendered to video.</em></h2>
+        <h2 class="reveal">Pick a look, <em>tell your story.</em></h2>
       </div>
-      <p class="sub reveal" style="max-width:38ch">Every clip below is a ~15-line scene file sharing one deterministic engine. Each is a built-in theme preset.</p>
+      <p class="sub reveal" style="max-width:38ch">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes.</p>
     </div>
     <div class="grid" id="grid"></div>
   </div>
 </section>
 
-<!-- WHY / VALUE PROP -->
-<section id="why" class="why">
+<!-- WHAT IT'S FOR -->
+<section id="for" class="why">
   <div class="wrap">
-    <div class="kicker reveal">the honest pitch</div>
-    <h2 class="reveal">Why not just vibe-code <em>your own?</em></h2>
-    <p class="sub reveal">You can fake a terminal div with a typing animation in twenty minutes. The hard part isn't the look — it's everything after.</p>
-    <div class="cols">
-      <div class="vibe reveal">
-        <div class="col-tag">vibe-coding it yourself</div>
-        <div class="pt"><span class="ic">·</span><span>Screen-record a CSS animation → <b>dropped frames, jitter</b>, a cursor caught mid-blink on the loop seam.</span></div>
-        <div class="pt"><span class="ic">·</span><span>The capture looks <b>different every take</b> — not reproducible.</span></div>
-        <div class="pt"><span class="ic">·</span><span>Change one word of narration → <b>re-perform the whole take</b> by hand.</span></div>
-        <div class="pt"><span class="ic">·</span><span>Eight on-brand, same-pacing clips? <b>Eight separate fights.</b></span></div>
-        <div class="pt"><span class="ic">·</span><span>Fine for <b>one GIF, once.</b> The detour you were trying to avoid.</span></div>
+    <div class="kicker reveal">what it's for</div>
+    <h2 class="reveal">For the experience <em>you haven't built yet.</em></h2>
+    <p class="sub reveal">Recording tools capture a CLI that already works. termscene is for the other moment — when the thing is still an idea, and you need to show it clearly.</p>
+    <div class="uses">
+      <div class="use reveal">
+        <div class="use-h">Pitch a concept</div>
+        <p>Mock the CLI you're proposing so a room can see how it'd feel — before a line of it exists.</p>
       </div>
-      <div class="scene reveal">
-        <div class="col-tag">termscene</div>
-        <div class="pt"><span class="ic">→</span><span>Rendered as a <b>pure function of time</b> — byte-identical every run, any fps, scrubbable.</span></div>
-        <div class="pt"><span class="ic">→</span><span>Deterministic capture pipeline (headless Chrome + ffmpeg) is <b>solved for you.</b></span></div>
-        <div class="pt"><span class="ic">→</span><span>Edit a line → <b>re-render the identical-but-updated clip.</b> No re-performing.</span></div>
-        <div class="pt"><span class="ic">→</span><span>Eight clips from eight scene files <b>sharing one engine</b> — consistent by construction.</span></div>
-        <div class="pt"><span class="ic">→</span><span>Earns its keep on the <b>2nd, 5th, 20th clip</b> — and across a set.</span></div>
+      <div class="use reveal">
+        <div class="use-h">Explain an idea</div>
+        <p>Turn "imagine you just type what you want…" into a clip that shows it, idealized and clean.</p>
+      </div>
+      <div class="use reveal">
+        <div class="use-h">Slides &amp; social</div>
+        <p>Drop a crisp, looping terminal moment into a deck, a launch post, or a README hero.</p>
+      </div>
+      <div class="use reveal">
+        <div class="use-h">Simplify the real thing</div>
+        <p>Show the five steps that matter, not the forty that happened. A stylized version of the truth.</p>
       </div>
     </div>
-    <p class="verdict reveal">The moat isn't the terminal look. It's <b>deterministic video out of animated HTML</b> — and an assistant that writes the scene for you.</p>
+    <p class="verdict reveal">You decide every line of output, so the demo is exactly the story you want to tell — calm, clear, and the same every time.</p>
   </div>
 </section>
 
