@@ -25,19 +25,19 @@ the same way every time.
 
 ## Install
 
-Not on npm yet — clone and build:
+```bash
+npm install termscene        # or pnpm add termscene
+```
+
+Then render a scene:
 
 ```bash
-git clone https://github.com/r3al1tymonster/termscene
-cd termscene && pnpm install && pnpm build
-node dist/cli.js render demo.scene.json --out demo.gif
+npx termscene render demo.scene.json --out demo.gif
 ```
 
 Needs Chrome/Chromium and ffmpeg available on the machine. termscene auto-detects
 Chrome (including puppeteer's cached copy); set `TERMSCENE_CHROME=/path/to/chrome`
 to point at a specific binary.
-
-> `npm install termscene` and the Claude skill install land once it's published.
 
 ## A scene
 
