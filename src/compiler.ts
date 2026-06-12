@@ -26,19 +26,19 @@ const DEFAULTS = {
   tailHold: 1.2, // hold on the final frame so the end reads
 }
 
-function isCmd(s: SceneStep): s is CmdStep {
+export function isCmd(s: SceneStep): s is CmdStep {
   return (s as CmdStep).cmd !== undefined
 }
-function isOut(s: SceneStep): s is OutStep {
+export function isOut(s: SceneStep): s is OutStep {
   return (s as OutStep).out !== undefined
 }
-function isWait(s: SceneStep): s is WaitStep {
+export function isWait(s: SceneStep): s is WaitStep {
   return (s as WaitStep).wait !== undefined
 }
-function isProgress(s: SceneStep): s is ProgressStep {
+export function isProgress(s: SceneStep): s is ProgressStep {
   return (s as ProgressStep).progress !== undefined
 }
-function isDiv(s: SceneStep): s is DivStep {
+export function isDiv(s: SceneStep): s is DivStep {
   return (s as DivStep).div !== undefined
 }
 

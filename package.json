@@ -1,31 +1,46 @@
 {
   "name": "termscene",
-  "version": "0.2.0",
-  "description": "Design-forward, deterministic videos of terminal experiences — author a scene, render to mp4/gif/webm. Mock terminals you fully control, not a live recording.",
+  "version": "0.2.1",
+  "description": "Author a mock terminal you fully control and render it to a deterministic mp4/gif/webm. Script the commands and output in a small scene file — no recording, no real shell. Built for a coding agent to drive.",
   "type": "module",
   "bin": {
     "termscene": "./dist/cli.js"
   },
   "files": [
-    "dist",
-    "src/engine"
+    "dist"
   ],
   "scripts": {
     "build": "tsc && node -e \"require('node:fs').cpSync('src/engine','dist/engine',{recursive:true})\"",
     "dev": "tsx src/cli.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "terminal",
+    "terminal-gif",
+    "readme-gif",
     "video",
     "gif",
     "mp4",
+    "webm",
     "demo",
     "screencast",
     "mock",
     "animation",
-    "cli-demo"
+    "deterministic",
+    "vhs",
+    "asciinema",
+    "puppeteer"
   ],
+  "homepage": "https://r3al1tymonster.github.io/termscene/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r3al1tymonster/termscene.git"
+  },
+  "bugs": {
+    "url": "https://github.com/r3al1tymonster/termscene/issues"
+  },
+  "author": "r3al1tymonster",
   "license": "MIT",
   "dependencies": {
     "puppeteer-core": "^23.0.0"

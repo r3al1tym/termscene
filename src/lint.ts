@@ -1,5 +1,6 @@
 import type { Scene, SceneStep } from "./types.js"
 import { THEMES, ASPECTS } from "./themes.js"
+import { isCmd, isOut, isProgress } from "./compiler.js"
 
 export interface LintFinding {
   level: "error" | "warn" | "info"
@@ -23,11 +24,18 @@ const POWERLINE_RE = /[\u{E0A0}-\u{E0D7}]/u
 
 function stepText(s: SceneStep): string {
   const parts: string[] = []
-  if ((s as any).cmd) parts.push((s as any).cmd)
-  if ((s as any).out) parts.push(...[].concat((s as any).out as any))
-  if ((s as any).progress) parts.push((s as any).progress)
-  if ((s as any).prompt) parts.push((s as any).prompt)
+  if (isCmd(s)) {
+    parts.push(s.cmd)
+    if (s.prompt) parts.push(s.prompt)
+  }
+  if (isOut(s)) parts.push(...(Array.isArray(s.out) ? s.out : [s.out]))
+  if (isProgress(s)) parts.push(s.progress)
   return parts.join(" ")
+}
+
+/** A finite, positive number (rejects NaN, Infinity, 0, negatives). */
+function isFinitePositive(n: unknown): boolean {
+  return typeof n === "number" && Number.isFinite(n) && n > 0
 }
 
 /**
@@ -68,7 +76,21 @@ export function lint(scene: Scene): LintFinding[] {
       f.push({ level: "error", step: null, code: "bad-loop-offset", message: `loopOffset string must be a percentage like "25%"` })
     }
   }
-  if ((m.fontSize ?? 24) < 8) {
+  // numeric meta must be finite + positive — a bad value can OOM Chrome (huge
+  // width/height), collapse the render to a single frame (fps≤0), or break layout.
+  for (const key of ["width", "height", "fps", "fontSize"] as const) {
+    const v = m[key]
+    if (v != null && !isFinitePositive(v)) {
+      f.push({ level: "error", step: null, code: "bad-meta-number", message: `meta.${key} must be a finite positive number (got ${v})` })
+    }
+  }
+  if (m.width != null && m.width > 7680) {
+    f.push({ level: "warn", step: null, code: "huge-width", message: `meta.width ${m.width} is very large — may exhaust memory while rendering` })
+  }
+  if (m.height != null && m.height > 4320) {
+    f.push({ level: "warn", step: null, code: "huge-height", message: `meta.height ${m.height} is very large — may exhaust memory while rendering` })
+  }
+  if (typeof m.fontSize === "number" && m.fontSize > 0 && m.fontSize < 8) {
     f.push({ level: "warn", step: null, code: "tiny-font", message: `fontSize ${m.fontSize} is very small` })
   }
 

@@ -172,7 +172,7 @@ function boot(){
   else {
     var dots = (chrome==='mac') ? '<i class="r"></i><i class="y"></i><i class="g"></i>' : '';
     var title = (M.window&&M.window.title) ? M.window.title : '';
-    bar.innerHTML = dots + '<div class="t">'+ (title?title:'') +'</div>'
+    bar.innerHTML = dots + '<div class="t">'+ esc(title) +'</div>'
       + (chrome==='mac' ? '<div style="width:54px"></div>' : '');  // balance the dots → center title
   }
 
@@ -193,14 +193,11 @@ function boot(){
 }
 
 (function(){
-  // scene can be injected (window.SCENE already set) or loaded from ?scene=<url>
+  // the scene is always injected before boot (window.SCENE) — by the renderer, the
+  // scrubber, or the preview server. We deliberately do NOT load a scene from a
+  // ?scene=<url> param: that would be an arbitrary-script-injection sink.
   function start(){ if(window.SCENE) boot(); else setTimeout(start,16); }
-  var q=new URLSearchParams(location.search);
-  var src=q.get('scene');
-  if(src && !window.SCENE){
-    var s=document.createElement('script'); s.src=src; s.onload=boot; s.onerror=boot;
-    document.head.appendChild(s);
-  } else { start(); }
+  start();
 })();
 </script>
 </body></html>
