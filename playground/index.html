@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>termscene · playground</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg?v=1">
+<meta name="description" content="Author a terminal scene in the browser, scrub the timeline, and export to mp4, webm, gif, or png — entirely client-side.">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0a0b;--panel:#111113;--panel-2:#16161a;--line:#232326;--line-2:#2e2e33;
+    --ink:#fafafa;--soft:#a1a1aa;--muted:#6b6b73;--faint:#46464d;
+    --accent:#d97757;--accent-soft:#e89478;--accent-dim:#a8543a;
+    --ok:#4ade80;--warn:#fbbe2e;--err:#f25f57;
+    --mono:'JBM','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  @font-face{font-family:JBM;src:url(fonts/jbm-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:JBM;src:url(fonts/jbm-Bold.woff2) format("woff2");font-weight:700;font-display:swap}
+  html,body{height:100%}
+  /* ultra-minimal scrollbars — 4px, barely visible, everywhere */
+  *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+  *::-webkit-scrollbar{width:4px;height:4px}
+  *::-webkit-scrollbar-track{background:transparent}
+  *::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+  *::-webkit-scrollbar-thumb:hover{background:var(--faint)}
+  *::-webkit-scrollbar-corner{background:transparent}
+  body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:54px 54px;opacity:.16;mask-image:radial-gradient(ellipse 90% 60% at 50% -10%,#000,transparent 75%)}
+
+  /* nav */
+  header{position:relative;z-index:2;border-bottom:1px solid var(--line);flex:none}
+  header .in{display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 18px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700}
+  .brand a{color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:9px}
+  .brand .d{width:9px;height:9px;background:var(--accent);border-radius:2px}
+  .brand .tag{color:var(--muted);font-weight:400;font-size:12px}
+  header .right{display:flex;gap:14px;align-items:center}
+  header a.lnk{color:var(--soft);text-decoration:none;font-size:12px}
+  header a.lnk:hover{color:var(--ink)}
+
+  /* layout: editor | preview */
+  main{flex:1;display:grid;grid-template-columns:minmax(360px,440px) 1fr;min-height:0;position:relative;z-index:1}
+  .col{display:flex;flex-direction:column;min-height:0;min-width:0}
+  .col.left{border-right:1px solid var(--line)}
+
+  .bar{flex:none;display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);
+    background:var(--panel);min-height:44px;flex-wrap:wrap}
+  .bar .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .bar .grow{flex:1}
+  select{background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:6px;
+    padding:5px 8px;font-family:inherit;font-size:12px;cursor:pointer}
+  select:hover{border-color:var(--accent-dim)}
+
+  /* editor */
+  #editor{flex:1;width:100%;resize:none;border:0;background:#0c0c0e;color:#e6e6e6;
+    font-family:var(--mono);font-size:12.5px;line-height:1.65;padding:14px 16px;tab-size:2;outline:none;
+    white-space:pre;overflow:auto}
+  #editor:focus{box-shadow:inset 0 0 0 1px var(--accent-dim)}
+
+  /* lint panel */
+  #lint{flex:none;max-height:34%;overflow:auto;border-top:1px solid var(--line);background:var(--panel);
+    padding:10px 14px;font-size:12px}
+  .linthead{margin-bottom:6px;display:flex;gap:14px}
+  #lint .ok{color:var(--ok)} #lint .err{color:var(--err)} #lint .warn{color:var(--warn)}
+  .finding{display:grid;grid-template-columns:54px 60px 1fr;gap:8px;padding:3px 0;align-items:start;border-top:1px solid var(--line)}
+  .finding .lv{text-transform:uppercase;font-size:10px;letter-spacing:.06em;padding-top:2px}
+  .finding.error .lv{color:var(--err)} .finding.warn .lv{color:var(--warn)} .finding.info .lv{color:var(--soft)}
+  .finding .wh{color:var(--muted);font-size:11px;padding-top:1px}
+  .finding .msg{color:var(--soft);line-height:1.5}
+
+  /* preview */
+  #frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:24px;background:
+    radial-gradient(60% 50% at 50% 30%,rgba(217,119,87,.05),transparent 70%)}
+  #stage{background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px var(--line-2);border-radius:4px;
+    max-width:100%;max-height:100%}
+
+  /* controls + export */
+  .controls{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:11px 16px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  button.pill{background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:7px;
+    padding:7px 14px;font-family:inherit;font-size:12px;cursor:pointer;transition:.15s}
+  button.pill:hover:not(:disabled){border-color:var(--accent-dim);color:var(--accent-soft)}
+  button.pill:disabled{opacity:.38;cursor:not-allowed}
+  #scrub{flex:1;min-width:120px;accent-color:var(--accent);cursor:pointer}
+  #time{color:var(--muted);font-variant-numeric:tabular-nums;min-width:108px;text-align:right;font-size:12px}
+  #export{display:flex;gap:7px}
+  #export button{background:var(--panel-2);color:var(--soft);border:1px solid var(--line-2);border-radius:7px;
+    padding:7px 12px;font-family:inherit;font-size:11.5px;cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:.05em}
+  #export button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-soft);background:rgba(217,119,87,.07)}
+  #export button:disabled{opacity:.32;cursor:not-allowed}
+  #export button.primary{border-color:var(--accent-dim);color:var(--accent-soft)}
+
+  .statusrow{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:8px 16px;
+    display:flex;align-items:center;gap:14px;min-height:38px;font-size:12px}
+  #status{color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #examples{display:flex;gap:6px;flex-wrap:wrap}
+  .ex{background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--soft);
+    padding:4px 9px;font-family:inherit;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+  .ex:hover{border-color:var(--line-2);color:var(--ink)}
+  .ex .sw{width:8px;height:8px;border-radius:2px;flex:none}
+
+  /* progress */
+  #progressbar{flex:none;height:0;overflow:hidden;background:var(--panel-2);transition:height .2s;border-top:1px solid transparent}
+  #progressbar.show{height:34px;border-top-color:var(--line)}
+  #progressbar .in{display:flex;align-items:center;gap:12px;padding:7px 16px;height:34px}
+  #progressfill{height:5px;background:var(--accent);border-radius:3px;width:0;transition:width .12s;flex:none;min-width:5px}
+  .ptrack{flex:1;height:5px;background:var(--line);border-radius:3px;overflow:hidden;display:flex}
+  #progresslabel{color:var(--soft);font-size:11.5px;min-width:160px;font-variant-numeric:tabular-nums}
+
+  .note{font-size:11px;color:var(--faint);padding:7px 16px;border-top:1px solid var(--line);background:var(--panel);flex:none}
+  .note b{color:var(--muted);font-weight:500}
+
+  @media (max-width:860px){
+    main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+    .col.left{border-right:0;border-bottom:1px solid var(--line)}
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<header>
+  <div class="in">
+    <div class="brand"><a href="../"><span class="d"></span>termscene</a><span class="tag">· playground</span></div>
+    <div class="right">
+      <a class="lnk" href="../#gallery">Gallery</a>
+      <a class="lnk" href="https://github.com/r3al1tymonster/termscene" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- EDITOR -->
+  <section class="col left">
+    <div class="bar">
+      <span class="label">scene.json</span>
+      <span class="grow"></span>
+      <span class="label">theme</span>
+      <select id="theme"></select>
+      <span class="label">aspect</span>
+      <select id="aspect"></select>
+    </div>
+    <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+    <div id="lint"></div>
+  </section>
+
+  <!-- PREVIEW -->
+  <section class="col">
+    <div id="frame"><canvas id="stage" width="1080" height="1080"></canvas></div>
+    <div class="controls">
+      <button class="pill" id="play">▶ play</button>
+      <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
+      <span id="time">0.00 / 0.00s</span>
+      <div id="export">
+        <button class="primary" data-fmt="mp4">mp4</button>
+        <button data-fmt="webm">webm</button>
+        <button data-fmt="gif">gif</button>
+        <button data-fmt="png">png</button>
+      </div>
+    </div>
+    <div id="progressbar"><div class="in"><div class="ptrack"><div id="progressfill"></div></div><span id="progresslabel"></span></div></div>
+    <div class="statusrow">
+      <span id="status">loading…</span>
+      <div id="examples"></div>
+    </div>
+    <div class="note">Browser export is visually faithful but not byte-identical to the CLI. For reproducible, diffable renders use <b>termscene render</b>. mp4/webm need WebCodecs (Chrome/Edge/Safari 16.4+/Firefox 130+); png &amp; gif work everywhere.</div>
+  </section>
+</main>
+
+<script type="module" src="playground.js"></script>
+</body>
+</html>

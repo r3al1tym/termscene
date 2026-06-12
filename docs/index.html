@@ -19,6 +19,13 @@
     --maxw:1200px;
   }
   html{scroll-behavior:smooth}
+  /* ultra-minimal scrollbars — 4px, barely visible, everywhere */
+  *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+  *::-webkit-scrollbar{width:4px;height:4px}
+  *::-webkit-scrollbar-track{background:transparent}
+  *::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+  *::-webkit-scrollbar-thumb:hover{background:var(--faint)}
+  *::-webkit-scrollbar-corner{background:transparent}
   body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:14px;line-height:1.65;
     -webkit-font-smoothing:antialiased;overflow-x:hidden}
   /* faint grid backdrop, fading toward the middle — the product's own aesthetic */
@@ -82,8 +89,17 @@
   .grid{margin-top:40px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
   .card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);transition:.22s;cursor:pointer}
   .card:hover{border-color:var(--line-2);transform:translateY(-3px);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
-  .card .frame{background:#000;aspect-ratio:16/9;overflow:hidden}
+  .card .frame{background:#000;aspect-ratio:16/9;overflow:hidden;position:relative}
   .card video{width:100%;height:100%;object-fit:cover;display:block}
+  /* hover overlay → open this scene in the playground */
+  .card .customize{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(0deg,rgba(8,8,9,.62),rgba(8,8,9,.30));opacity:0;transition:.2s;text-decoration:none}
+  .card:hover .customize{opacity:1}
+  .card .customize .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#1a1108;
+    font-weight:700;font-size:13px;padding:10px 18px;border-radius:9px;letter-spacing:.01em;
+    box-shadow:0 10px 30px -10px rgba(217,119,87,.8);transform:translateY(6px);transition:.2s}
+  .card:hover .customize .btn{transform:none}
+  .card .customize .btn:hover{background:var(--accent-soft)}
   .card .meta{padding:14px 17px 16px;border-top:1px solid var(--line)}
   .card .name{font-weight:700;font-size:14px;display:flex;align-items:center;gap:9px}
   .card .name .sw{width:9px;height:9px;border-radius:2px}
@@ -151,6 +167,7 @@
     <div class="right">
       <a class="lnk" href="#gallery">Gallery</a>
       <a class="lnk" href="#for">What it's for</a>
+      <a class="lnk" href="playground/">Playground</a>
       <a class="lnk" href="https://github.com/r3al1tymonster/termscene" rel="noopener" target="_blank">GitHub ↗</a>
     </div>
   </div>
@@ -174,6 +191,7 @@
       </div>
     </div>
     <p class="installs-hint reveal"><b>cli</b> renders scenes · <b>skill</b> installs the termscene skill into Claude Code, Cursor, Codex &amp; more (or run <code>npx termscene skills</code>), so your coding agent can write &amp; render scenes from a plain description</p>
+    <p class="installs-hint reveal" style="margin-top:9px">or skip the install — <a href="playground/" style="color:var(--accent);text-decoration:none;font-weight:500">try it in the playground →</a> author, preview &amp; export to mp4/gif right in your browser</p>
   </div>
 </section>
 <div class="stage">
@@ -190,7 +208,7 @@
         <div class="kicker reveal">eight terminals, one engine</div>
         <h2 class="reveal">Pick a look, <span class="g">tell your story.</span></h2>
       </div>
-      <p class="sub reveal" style="max-width:36ch">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes.</p>
+      <p class="sub reveal" style="max-width:36ch">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes — hover any clip to <b style="color:var(--accent);font-weight:500">open it in the playground</b> and make it yours.</p>
     </div>
     <div class="grid" id="grid"></div>
   </div>
@@ -277,7 +295,10 @@
   ];
   document.getElementById('grid').innerHTML = TERMINALS.map(t => `
     <figure class="card reveal">
-      <div class="frame"><video src="clips/${t.id}.mp4" muted loop playsinline preload="metadata"></video></div>
+      <div class="frame">
+        <video src="clips/${t.id}.mp4" muted loop playsinline preload="metadata"></video>
+        <a class="customize" href="playground/?scene=${t.id}"><span class="btn">Customize in playground →</span></a>
+      </div>
       <figcaption class="meta">
         <div class="name"><span class="sw" style="background:${t.sw}"></span>${t.name}</div>
         <div class="blurb">${t.blurb}</div>
@@ -287,7 +308,11 @@
   document.querySelectorAll('.card').forEach(card => {
     const v = card.querySelector('video');
     card.addEventListener('mouseenter', () => v.play());
-    card.addEventListener('click', () => { v.currentTime = 0; v.play(); });
+    // click the frame (not the Customize button) replays the clip
+    card.querySelector('.frame').addEventListener('click', (e) => {
+      if (e.target.closest('.customize')) return;
+      v.currentTime = 0; v.play();
+    });
   });
 
   // copy buttons

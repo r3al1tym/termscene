@@ -8,3 +8,5 @@ dist/
 *.log
 workbench/out/
 showcase/out/
+playground/test/out/
+docs/playground/*.map

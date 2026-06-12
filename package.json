@@ -1,6 +1,6 @@
 {
   "name": "termscene",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Author a mock terminal you fully control and render it to a deterministic mp4/gif/webm. Script the commands and output in a small scene file — no recording, no real shell. Built for a coding agent to drive.",
   "type": "module",
   "bin": {
@@ -13,6 +13,9 @@
     "build": "tsc && node -e \"require('node:fs').cpSync('src/engine','dist/engine',{recursive:true})\"",
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
+    "playground": "tsx playground/build.ts",
+    "playground:check": "tsc -p tsconfig.playground.json",
+    "playground:test": "tsx playground/test/e2e.ts",
     "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
@@ -47,6 +50,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "esbuild": "0.28.1",
+    "gifenc": "1.0.3",
+    "mediabunny": "1.46.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",
     "vitest": "^2.0.0"

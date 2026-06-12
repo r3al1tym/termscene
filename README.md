@@ -107,6 +107,21 @@ reload, watch it. `scrub` bakes the same scrubber into a single self-contained H
 file you can drop into a PR or hand to someone. Both are where you tune pacing
 before rendering.
 
+## Playground (no install)
+
+Don't want to install anything? The
+[**playground**](https://r3al1tymonster.github.io/termscene/playground/) runs the
+whole loop in your browser — author a scene in a live editor (with the same lint
+gate the CLI uses), scrub the timeline on a canvas preview, and export to **mp4,
+webm, gif, or png** entirely client-side. No server, no upload; your scene never
+leaves the page. Hover any clip in the [gallery](https://r3al1tymonster.github.io/termscene/#gallery)
+to open it in the playground and make it yours.
+
+It's great for trying termscene, tweaking a theme, or grabbing a quick clip. For
+**reproducible, diffable, byte-stable** renders, use the CLI — that stays the
+reference renderer (see below). Video export needs WebCodecs (Chrome/Edge, Safari
+16.4+, Firefox 130+); png and gif work everywhere.
+
 ## Themes
 
 Eleven built-in looks, each modeled on a terminal your audience recognizes:
@@ -123,6 +138,14 @@ The engine renders the whole scene as a pure function of one number — the time
 There's no animation loop and no real clock, so the renderer can ask for any frame
 directly and get a perfectly reproducible image. That's what makes the video smooth
 and the output stable across machines.
+
+The **CLI** is the reference renderer for this: it screenshots the real DOM engine
+in headless Chrome and encodes with a pinned ffmpeg, so the same scene yields the
+same frames every run. The **playground** re-draws those frames on a canvas and
+encodes with the browser's own codecs — visually faithful, but text anti-aliasing
+and codec bitstreams vary by browser/OS, so it's "looks the same," not byte-for-byte
+identical. Reach for the CLI when reproducibility matters; the playground when reach
+and instant feedback do.
 
 ## Using it from a script
 
