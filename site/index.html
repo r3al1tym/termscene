@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>termscene — designed terminal video, rendered deterministically</title>
+<meta name="description" content="Author a mock terminal you fully control and render it to crisp, deterministic video or GIF. Built for a coding assistant to drive.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#0c0b09; --panel:#15140f; --panel-2:#1b1914;
+    --ink:#ece9e1; --soft:#b1aea5; --muted:#7f7b71; --faint:#46433d;
+    --hair:#2a2620; --accent:#d97757; --accent-dim:#a8543a;
+    --paper:#faf8f3; --paper-ink:#23211c;
+    --serif:'Fraunces',Georgia,serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ground);color:var(--ink);font-family:var(--mono);
+    font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* warm grain + vignette atmosphere */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(217,119,87,.07), transparent 55%),
+      radial-gradient(100% 60% at 50% 120%, rgba(217,119,87,.04), transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  /* ---------- top bar ---------- */
+  header.nav{position:relative;z-index:3;border-bottom:1px solid var(--hair)}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.02em}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 3px rgba(217,119,87,.18)}
+  .brand b{font-size:16px}
+  .nav a.gh{color:var(--soft);text-decoration:none;font-size:13px;border:1px solid var(--hair);
+    padding:8px 15px;border-radius:8px;transition:.2s}
+  .nav a.gh:hover{border-color:var(--accent-dim);color:var(--ink)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:78px 0 36px;position:relative}
+  .eyebrow{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:26px}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,6.6vw,82px);
+    line-height:1.02;letter-spacing:-.02em;max-width:16ch}
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede{margin-top:26px;max-width:60ch;color:var(--soft);font-size:clamp(15px,1.7vw,18px);line-height:1.7}
+  .cta{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{font-family:var(--mono);font-size:14px;font-weight:500;text-decoration:none;
+    padding:13px 22px;border-radius:10px;transition:.2s;display:inline-flex;gap:9px;align-items:center}
+  .btn.primary{background:var(--accent);color:#1b0e08;font-weight:700}
+  .btn.primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px -10px rgba(217,119,87,.5)}
+  .btn.ghost{color:var(--ink);border:1px solid var(--hair)}
+  .btn.ghost:hover{border-color:var(--accent-dim)}
+  .install{margin-top:22px;font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:12px}
+  .install code{background:var(--panel);border:1px solid var(--hair);padding:8px 14px;border-radius:8px;
+    color:var(--soft)}
+  .install code .p{color:var(--accent)}
+
+  /* hero clip */
+  .hero-clip{margin-top:52px;border-radius:16px;overflow:hidden;border:1px solid var(--hair);
+    background:#000;box-shadow:0 40px 100px -40px rgba(0,0,0,.8);position:relative}
+  .hero-clip video{display:block;width:100%;height:auto}
+  .hero-clip .tag{position:absolute;top:14px;left:16px;z-index:2;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);background:rgba(12,11,9,.7);
+    backdrop-filter:blur(8px);padding:5px 11px;border-radius:6px;border:1px solid var(--hair)}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding:72px 0;position:relative}
+  .kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.08;
+    letter-spacing:-.015em;max-width:20ch}
+  h2 em{font-style:italic;color:var(--accent)}
+  .sub{margin-top:16px;max-width:62ch;color:var(--soft)}
+
+  /* ---------- gallery ---------- */
+  .gallery-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .grid{margin-top:42px;display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .card{border:1px solid var(--hair);border-radius:14px;overflow:hidden;background:var(--panel);
+    transition:.25s;cursor:pointer}
+  .card:hover{border-color:var(--accent-dim);transform:translateY(-3px);
+    box-shadow:0 24px 50px -28px rgba(0,0,0,.7)}
+  .card .frame{background:#000;aspect-ratio:16/9;overflow:hidden;position:relative}
+  .card video{width:100%;height:100%;object-fit:cover;display:block}
+  .card .meta{padding:15px 18px 17px}
+  .card .name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px}
+  .card .name .swatch{width:10px;height:10px;border-radius:3px}
+  .card .blurb{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.55}
+
+  /* ---------- why / value prop ---------- */
+  .why{border-top:1px solid var(--hair)}
+  .cols{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:start}
+  .vibe,.scene{border-radius:14px;padding:28px 28px 30px;border:1px solid var(--hair)}
+  .vibe{background:var(--panel)}
+  .scene{background:linear-gradient(180deg,rgba(217,119,87,.06),transparent),var(--panel)}
+  .col-tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:18px;font-weight:700}
+  .vibe .col-tag{color:var(--muted)}
+  .scene .col-tag{color:var(--accent)}
+  .pt{display:flex;gap:13px;padding:11px 0;border-top:1px solid var(--hair);align-items:flex-start}
+  .pt:first-of-type{border-top:0}
+  .pt .ic{flex:none;width:18px;color:var(--accent);font-weight:700}
+  .vibe .pt .ic{color:var(--faint)}
+  .pt span{color:var(--soft);font-size:13.5px;line-height:1.6}
+  .pt b{color:var(--ink)}
+  .verdict{margin-top:30px;font-family:var(--serif);font-style:italic;font-size:clamp(19px,2.4vw,26px);
+    line-height:1.4;color:var(--ink);max-width:46ch}
+  .verdict b{font-style:normal;color:var(--accent);font-weight:600}
+
+  /* ---------- how it works ---------- */
+  .steps{margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+  .step{border:1px solid var(--hair);border-radius:12px;padding:22px 20px;background:var(--panel);position:relative}
+  .step::before{counter-increment:s;content:"0" counter(s);font-family:var(--serif);font-size:30px;
+    color:var(--accent);opacity:.5;display:block;margin-bottom:12px}
+  .step h3{font-size:14px;font-weight:700;margin-bottom:7px}
+  .step p{color:var(--muted);font-size:12.5px;line-height:1.6}
+
+  /* ---------- code example ---------- */
+  .code-row{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
+  pre{background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:24px;
+    overflow-x:auto;font-size:13px;line-height:1.75}
+  pre code{font-family:var(--mono)}
+  .tk-key{color:var(--accent)} .tk-str{color:#9bb38a} .tk-num{color:#d4a259}
+  .tk-pun{color:var(--muted)} .tk-com{color:var(--faint);font-style:italic}
+  .code-note{color:var(--soft)}
+  .code-note h3{font-family:var(--serif);font-weight:400;font-size:26px;margin-bottom:14px;letter-spacing:-.01em}
+  .code-note p{color:var(--muted);font-size:14px;margin-bottom:14px}
+  .code-note .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .chip{font-size:11.5px;color:var(--soft);border:1px solid var(--hair);padding:5px 11px;border-radius:20px}
+  .chip b{color:var(--accent)}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--hair);padding:54px 0 60px;color:var(--muted);font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+  footer a{color:var(--soft);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+  .made{font-size:12px;color:var(--faint)}
+
+  /* reveal-on-load + scroll */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr}
+    .cols{grid-template-columns:1fr;gap:22px}
+    .steps{grid-template-columns:1fr 1fr}
+    .code-row{grid-template-columns:1fr}
+    .hero{padding:54px 0 24px}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span><b>termscene</b></div>
+    <a class="gh" href="#" rel="noopener">GitHub ↗</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow reveal">designed terminal video · rendered deterministically</div>
+    <h1 class="reveal">Make a clean video of a terminal — <em>without recording one.</em></h1>
+    <p class="lede reveal">termscene renders a mock terminal you fully control. Script the commands and their output in a small declarative file; get crisp, frame-perfect mp4 or GIF. Idealized output, any theme, any aspect — built for a coding assistant to drive.</p>
+    <div class="cta reveal">
+      <a class="btn primary" href="#gallery">See the gallery ↓</a>
+      <a class="btn ghost" href="#why">Why not just build it yourself?</a>
+    </div>
+    <div class="install reveal">
+      <code><span class="p">$</span> npm install termscene</code>
+      <span>MIT · needs Chrome + ffmpeg</span>
+    </div>
+    <div class="hero-clip reveal">
+      <span class="tag">claude code · live render</span>
+      <video src="clips/claude-code.mp4" autoplay muted loop playsinline></video>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="gallery-head">
+      <div>
+        <div class="kicker reveal">eight terminals, one engine</div>
+        <h2 class="reveal">The look you know, <em>rendered to video.</em></h2>
+      </div>
+      <p class="sub reveal" style="max-width:38ch">Every clip below is a ~15-line scene file sharing one deterministic engine. Each is a built-in theme preset.</p>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- WHY / VALUE PROP -->
+<section id="why" class="why">
+  <div class="wrap">
+    <div class="kicker reveal">the honest pitch</div>
+    <h2 class="reveal">Why not just vibe-code <em>your own?</em></h2>
+    <p class="sub reveal">You can fake a terminal div with a typing animation in twenty minutes. The hard part isn't the look — it's everything after.</p>
+    <div class="cols">
+      <div class="vibe reveal">
+        <div class="col-tag">vibe-coding it yourself</div>
+        <div class="pt"><span class="ic">·</span><span>Screen-record a CSS animation → <b>dropped frames, jitter</b>, a cursor caught mid-blink on the loop seam.</span></div>
+        <div class="pt"><span class="ic">·</span><span>The capture looks <b>different every take</b> — not reproducible.</span></div>
+        <div class="pt"><span class="ic">·</span><span>Change one word of narration → <b>re-perform the whole take</b> by hand.</span></div>
+        <div class="pt"><span class="ic">·</span><span>Eight on-brand, same-pacing clips? <b>Eight separate fights.</b></span></div>
+        <div class="pt"><span class="ic">·</span><span>Fine for <b>one GIF, once.</b> The detour you were trying to avoid.</span></div>
+      </div>
+      <div class="scene reveal">
+        <div class="col-tag">termscene</div>
+        <div class="pt"><span class="ic">→</span><span>Rendered as a <b>pure function of time</b> — byte-identical every run, any fps, scrubbable.</span></div>
+        <div class="pt"><span class="ic">→</span><span>Deterministic capture pipeline (headless Chrome + ffmpeg) is <b>solved for you.</b></span></div>
+        <div class="pt"><span class="ic">→</span><span>Edit a line → <b>re-render the identical-but-updated clip.</b> No re-performing.</span></div>
+        <div class="pt"><span class="ic">→</span><span>Eight clips from eight scene files <b>sharing one engine</b> — consistent by construction.</span></div>
+        <div class="pt"><span class="ic">→</span><span>Earns its keep on the <b>2nd, 5th, 20th clip</b> — and across a set.</span></div>
+      </div>
+    </div>
+    <p class="verdict reveal">The moat isn't the terminal look. It's <b>deterministic video out of animated HTML</b> — and an assistant that writes the scene for you.</p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">the loop</div>
+    <h2 class="reveal">Intent in, <em>finished clip out.</em></h2>
+    <div class="steps">
+      <div class="step reveal"><h3>Describe</h3><p>Tell the assistant the terminal moment you want — or write a scene file by hand.</p></div>
+      <div class="step reveal"><h3>Preview</h3><p>It generates a scrubber — drag the timeline, tune the pacing, reload on edit.</p></div>
+      <div class="step reveal"><h3>Render</h3><p>One command to mp4, GIF, or WebM. Square, landscape, or portrait.</p></div>
+      <div class="step reveal"><h3>Re-edit</h3><p>Change a line, render again. Identical pipeline, updated clip.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE EXAMPLE -->
+<section>
+  <div class="wrap">
+    <div class="code-row">
+      <pre class="reveal"><code><span class="tk-pun">{</span>
+  <span class="tk-key">"meta"</span><span class="tk-pun">:</span> <span class="tk-pun">{</span>
+    <span class="tk-key">"theme"</span><span class="tk-pun">:</span> <span class="tk-pun">{</span> <span class="tk-key">"preset"</span><span class="tk-pun">:</span> <span class="tk-str">"claude"</span> <span class="tk-pun">},</span>
+    <span class="tk-key">"aspect"</span><span class="tk-pun">:</span> <span class="tk-str">"wide"</span><span class="tk-pun">,</span>
+    <span class="tk-key">"window"</span><span class="tk-pun">:</span> <span class="tk-pun">{</span> <span class="tk-key">"chrome"</span><span class="tk-pun">:</span> <span class="tk-str">"mac"</span> <span class="tk-pun">}</span>
+  <span class="tk-pun">},</span>
+  <span class="tk-key">"steps"</span><span class="tk-pun">:</span> <span class="tk-pun">[</span>
+    <span class="tk-pun">{</span> <span class="tk-key">"cmd"</span><span class="tk-pun">:</span> <span class="tk-str">"add a /health endpoint"</span> <span class="tk-pun">},</span>
+    <span class="tk-pun">{</span> <span class="tk-key">"out"</span><span class="tk-pun">:</span> <span class="tk-str">"● Edit(server.ts)  +9"</span><span class="tk-pun">,</span> <span class="tk-key">"style"</span><span class="tk-pun">:</span> <span class="tk-str">"accent"</span> <span class="tk-pun">},</span>
+    <span class="tk-pun">{</span> <span class="tk-key">"out"</span><span class="tk-pun">:</span> <span class="tk-str">"{ status: ok }"</span><span class="tk-pun">,</span> <span class="tk-key">"style"</span><span class="tk-pun">:</span> <span class="tk-str">"ok"</span> <span class="tk-pun">}</span>
+  <span class="tk-pun">]</span>
+<span class="tk-pun">}</span></code></pre>
+      <div class="code-note reveal">
+        <h3>A scene is just steps on a clock.</h3>
+        <p><code style="color:var(--accent)">cmd</code> types a command. <code style="color:var(--accent)">out</code> prints output — with a style and optional char-by-char streaming. <code style="color:var(--accent)">progress</code> animates a bar. <code style="color:var(--accent)">wait</code> pauses. You never write timecodes; the compiler lays them out.</p>
+        <p>Then one command renders it — deterministically.</p>
+        <div class="chips">
+          <span class="chip"><b>themes:</b> claude · gemini · codex · warp</span>
+          <span class="chip"><b>aspects:</b> 16:9 · 1:1 · 9:16</span>
+          <span class="chip"><b>out:</b> mp4 · gif · webm</span>
+          <span class="chip"><b>chrome:</b> mac · plain · none</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span><b>termscene</b></div>
+    <div>MIT licensed · <a href="#">GitHub</a> · <a href="#gallery">Gallery</a></div>
+    <div class="made">built with termscene · every clip on this page is a scene file</div>
+  </div>
+</footer>
+
+<script>
+  const TERMINALS = [
+    { id:'claude-code', name:'Claude Code', sw:'#d97757', blurb:'warm dark · terracotta ❯ · ✻ thinking · ● tool calls' },
+    { id:'gemini-cli', name:'Gemini CLI', sw:'#a78bfa', blurb:'dark slate · blue→violet · ✦ sparkle accents' },
+    { id:'codex-cli', name:'Codex CLI', sw:'#10a37f', blurb:'near-black · sparse green/white · minimal chrome' },
+    { id:'warp', name:'Warp', sw:'#4c8dff', blurb:'dark · rounded block output · modern GUI terminal' },
+    { id:'iterm2-p10k', name:'iTerm2 · Powerlevel10k', sw:'#00d7af', blurb:'powerline segments · two-line git prompt' },
+    { id:'macos-zsh', name:'macOS Terminal', sw:'#1a1a1a', blurb:'white bg · black SF Mono · the everyman shell' },
+    { id:'ubuntu-bash', name:'Ubuntu Terminal', sw:'#8ae234', blurb:'aubergine #300a24 · green user@host · peak Linux' },
+    { id:'starship', name:'Starship', sw:'#88c0d0', blurb:'segmented prompt · morphs per language/repo' },
+  ];
+  const grid = document.getElementById('grid');
+  grid.innerHTML = TERMINALS.map(t => `
+    <figure class="card reveal">
+      <div class="frame"><video src="clips/${t.id}.mp4" muted loop playsinline preload="metadata"></video></div>
+      <figcaption class="meta">
+        <div class="name"><span class="swatch" style="background:${t.sw}"></span>${t.name}</div>
+        <div class="blurb">${t.blurb}</div>
+      </figcaption>
+    </figure>`).join('');
+
+  // play on hover, replay on click, autoplay when scrolled into view
+  document.querySelectorAll('.card').forEach(card => {
+    const v = card.querySelector('video');
+    card.addEventListener('mouseenter', () => v.play());
+    card.addEventListener('click', () => { v.currentTime = 0; v.play(); });
+  });
+
+  // staggered load reveal for the hero
+  const heroReveals = new Set(document.querySelectorAll('.hero .reveal'));
+  [...heroReveals].forEach((el,i)=> setTimeout(()=>el.classList.add('in'), 90*i));
+
+  // scroll reveal for everything outside the hero
+  const io = new IntersectionObserver((es)=>es.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in');
+      const vv = e.target.querySelector && e.target.querySelector('video');
+      if(vv && vv.loop) vv.play().catch(()=>{});
+      io.unobserve(e.target);
+    }
+  }), { threshold:.12 });
+  document.querySelectorAll('.reveal').forEach(el=>{ if(!heroReveals.has(el)) io.observe(el); });
+
+  // safety net: if IO never fires (e.g. headless full-page capture), reveal all after 2.5s
+  setTimeout(()=>document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in')), 2500);
+</script>
+</body>
+</html>

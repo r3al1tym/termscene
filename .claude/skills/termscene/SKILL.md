@@ -39,11 +39,24 @@ Step types:
 
 `meta` (all optional, good defaults):
 - `aspect`: `square | landscape | wide | portrait` (or set `width`/`height`).
-- `theme.preset`: `claude | midnight | matrix | paper`. Override any color via
-  `theme.{bg,fg,prompt,accent,...}`.
+- `theme.preset` — generic: `claude | midnight | matrix | paper`. Brand-recognizable
+  terminal looks: `gemini | codex | warp | iterm2 | macos | ubuntu | starship`.
+  Override any color via `theme.{bg,fg,prompt,accent,ok,warn,err,...}`.
 - `window`: `{ "chrome": "mac" | "plain" | "none", "title": "..." }`.
+- `align`: `"top" | "center" | "bottom"` (default bottom — terminal-authentic; use
+  `center` on tall/large frames so a short scene fills instead of clinging to the floor).
 - `fontSize`, `prompt` (default `❯`), `typeSpeed`, `padding`, `marginPad` +
   `marginFill` (a gutter of color around the window — nice for social cards).
+
+Two more step types beyond `cmd`/`out`/`wait`/`div`:
+- `{ "progress": "downloading", "duration": 1.4, "style": "accent" }` — an animated
+  bar that fills 0→100% in place (installs, uploads, builds). Optional `width`, `pct`.
+
+### Picking a brand preset
+When the user names a terminal/CLI ("make it look like Claude Code / Warp / a Mac
+terminal"), use the matching preset. Glyph notes: the engine forces text-presentation,
+so language/brand EMOJI (🦀 🐍 🍺) render as tofu — use text labels or geometric
+symbols (`●▸✦⬢▔`) instead. Powerline arrows () won't render in the bundled mono.
 
 ### Authoring guidance (make it look intentional)
 - Keep commands realistic and output plausible — this is a *demo*, fidelity sells it.
@@ -61,11 +74,15 @@ Run termscene from its project dir (or `npx termscene` once published). In dev:
 `cd <termscene> && pnpm exec tsx src/cli.ts <command>`.
 
 1. **Write the scene** to a file, e.g. `my-demo.scene.json`, from the user's intent.
-2. **Preview**: `termscene preview my-demo.scene.json` → open the printed
-   `http://localhost:5180/` URL. It serves a scrubber: play, drag the timeline,
-   and click ↻ reload after you edit the file. Iterate with the user here.
-   - If you have a browser tool, open it, screenshot a couple of timestamps, and
-     show the user. Adjust the scene and reload.
+2. **Preview — pick one:**
+   - *Standalone scrubber* (default; works anywhere, shareable):
+     `termscene scrub my-demo.scene.json --out preview.html` → one self-contained
+     HTML file (engine + scene + fonts inlined, no server). Open it, drag the
+     timeline, space to play. Hand it to the user or drop it in a PR.
+   - *Live server* (when iterating fast): `termscene preview my-demo.scene.json` →
+     `http://localhost:5180/`; recompiles the scene file on ↻ reload.
+   - To QA visually yourself without a browser MCP: render to a few PNG frames
+     (`--format frames`) or screenshot the scrubber via headless Chrome, and look.
 3. **Render** once they're happy:
    `termscene render my-demo.scene.json --out my-demo.gif`
    (format inferred from extension: `.mp4` `.gif` `.webm`; `--fps` to override).
@@ -75,5 +92,6 @@ Run termscene from its project dir (or `npx termscene` once published). In dev:
 - Rendering needs Chrome/Chromium + ffmpeg on the machine. termscene auto-detects
   Chrome (incl. puppeteer's cached copy); set `TERMSCENE_CHROME=/path` to force one.
 - The render is a pure function of the timeline — fully deterministic and
-  reproducible, frame for frame.
-- See `examples/` for a complete scene.
+  reproducible, frame for frame. The `scrub` file is the same engine, so what you
+  scrub is exactly what renders.
+- See `examples/` for a complete scene; `showcase/scenes.ts` for the 8 brand looks.

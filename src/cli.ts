@@ -3,18 +3,22 @@ import { compile } from "./compiler.js"
 import { loadScene } from "./load.js"
 import { render, type OutputFormat } from "./renderer.js"
 import { serve } from "./server.js"
+import { buildScrubber } from "./scrub.js"
+import { writeFile } from "node:fs/promises"
 
 const HELP = `termscene — design-forward, deterministic videos of terminal experiences
 
 USAGE
   termscene render <scene> [--out file] [--format mp4|gif|webm] [--fps N]
-  termscene preview <scene> [--port N]
-  termscene compile <scene>                 print the compiled timeline (debug)
+  termscene preview <scene> [--port N]              live scrubber server (recompiles on reload)
+  termscene scrub <scene> [--out file.html]         standalone self-contained scrubber file
+  termscene compile <scene>                          print the compiled timeline (debug)
 
 EXAMPLES
   termscene render demo.scene.json --out demo.mp4
   termscene render demo.scene.json --out demo.gif        # format inferred from ext
   termscene preview demo.scene.json                       # scrub & iterate in browser
+  termscene scrub demo.scene.json --out preview.html      # one shareable scrubber file
 
 A scene is a .json / .ts / .js file: { meta?, steps: [...] }. See examples/.
 `
@@ -63,6 +67,15 @@ async function main() {
     console.log(`termscene preview → ${url}`)
     console.log("edit the scene file and click ↻ reload to iterate. ctrl-c to stop.")
     return // keep the server alive
+  }
+
+  if (cmd === "scrub") {
+    requireScene(scenePath)
+    const compiled = compile(await loadScene(scenePath))
+    const out = (args.out as string) || scenePath.replace(/\.(scene\.)?(json|ts|js|mjs)$/i, "") + ".scrubber.html"
+    await writeFile(out, await buildScrubber(compiled))
+    console.log(`wrote standalone scrubber → ${out} (${compiled.duration}s, ${compiled.meta.width}×${compiled.meta.height})`)
+    return
   }
 
   if (cmd === "render") {
