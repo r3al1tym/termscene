@@ -7,6 +7,8 @@
 
 Show the terminal experience before you build it.
 
+**[▶ Try it in the browser playground](https://r3al1tymonster.github.io/termscene/playground/)** — author, preview & export a clip with no install · **[Gallery](https://r3al1tymonster.github.io/termscene/#gallery)**
+
 termscene renders a *mock* terminal you fully control. You script the typed
 commands and their output in a small declarative file, and it renders to mp4, GIF,
 or WebM. The session doesn't have to be real — so you can show an experience that
