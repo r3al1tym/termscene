@@ -5,7 +5,7 @@ import { render, type OutputFormat } from "./renderer.js"
 import { serve } from "./server.js"
 import { buildScrubber } from "./scrub.js"
 import { lint, summarize } from "./lint.js"
-import { scaffold } from "./init.js"
+import { scaffold, installSkill, confirm } from "./init.js"
 import { docs, DOC_TOPICS } from "./docs.js"
 import { writeFile } from "node:fs/promises"
 
@@ -16,7 +16,8 @@ USAGE
   termscene lint <scene> [--json]                    validate a scene (run after every edit)
   termscene preview <scene> [--port N]               live scrubber server (recompiles on reload)
   termscene scrub <scene> [--out file.html]          standalone self-contained scrubber file
-  termscene init [dir]                               scaffold a project (CLAUDE.md + example)
+  termscene init [dir] [--skip-skills]               scaffold a project (CLAUDE.md + example) + offer skill install
+  termscene skills                                   install the termscene skill into your AI coding agents
   termscene docs [topic]                             offline reference (${Object.keys(DOC_TOPICS).join(", ")})
   termscene compile <scene>                          print the compiled timeline (debug)
 
@@ -98,8 +99,23 @@ async function main() {
     const created = await scaffold(dir)
     console.log(`scaffolded termscene project in ${dir}:`)
     for (const f of created) console.log(`  + ${f}`)
+
+    // Offer to install the skill into the user's AI coding agents (HyperFrames
+    // pattern). Skipped via --skip-skills. On non-TTY stdin (CI/agents/pipes)
+    // confirm() returns false without prompting — we just print the hint.
+    if (!args["skip-skills"]) {
+      const yes = await confirm("\nInstall the termscene skill? (Claude Code, Cursor, Codex, …)")
+      if (yes) await installSkill()
+      else console.log(`\nyou can install it later: termscene skills`)
+    }
+
     console.log(`\nnext: termscene scrub demo.scene.json --out preview.html`)
     return
+  }
+
+  if (cmd === "skills") {
+    const ok = await installSkill()
+    process.exit(ok ? 0 : 1)
   }
 
   if (cmd === "docs") {

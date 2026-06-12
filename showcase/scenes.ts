@@ -440,7 +440,7 @@ export const SHOWCASE: ShowcaseScene[] = [
                       "chrome": "mac",
                       "title": "zsh — 80×24"
                 },
-                "prompt": "sanju@mac ~ %",
+                "prompt": "dev@mac ~ %",
                 "fontSize": 24
           },
           "steps": [
@@ -518,9 +518,9 @@ export const SHOWCASE: ShowcaseScene[] = [
                 },
                 "window": {
                       "chrome": "plain",
-                      "title": "sanju@ubuntu: ~"
+                      "title": "dev@ubuntu: ~"
                 },
-                "prompt": "sanju@ubuntu:~$",
+                "prompt": "dev@ubuntu:~$",
                 "fontSize": 24
           },
           "steps": [

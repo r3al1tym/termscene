@@ -1,6 +1,6 @@
 {
   "name": "termscene",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Author a mock terminal you fully control and render it to a deterministic mp4/gif/webm. Script the commands and output in a small scene file — no recording, no real shell. Built for a coding agent to drive.",
   "type": "module",
   "bin": {
