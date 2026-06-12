@@ -42,9 +42,12 @@
   .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.01em}
   .brand .d{width:9px;height:9px;background:var(--accent);border-radius:2px}
-  .nav .right{display:flex;gap:8px;align-items:center}
-  .nav a.lnk{color:var(--soft);text-decoration:none;font-size:13px;padding:8px 13px;border-radius:7px;transition:.18s}
+  .nav .right{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
+  .nav a.lnk{color:var(--soft);text-decoration:none;font-size:13px;padding:8px 13px;border-radius:7px;transition:.18s;white-space:nowrap}
   .nav a.lnk:hover{color:var(--ink);background:var(--panel)}
+  /* Playground is the priority nav action — keep it accented on every width */
+  .nav a.lnk.cta-lnk{color:var(--accent)}
+  .nav a.lnk.cta-lnk:hover{color:var(--accent-soft);background:rgba(217,119,87,.08)}
 
   /* ---------- hero (centered midpoint: copy on top, large preview below) ---------- */
   .hero{padding:60px 0 34px;text-align:center}
@@ -172,6 +175,17 @@
     .grid,.uses,.code-row{grid-template-columns:1fr}
     .steps{grid-template-columns:1fr 1fr}
   }
+  /* ---- responsive nav: keep it on ONE row, shed low-priority links first ---- */
+  @media (max-width:680px){
+    .nav .wrap{height:56px}
+    .wrap{padding:0 18px}
+    .nav .right{gap:2px}
+    .nav a.lnk{padding:8px 9px;font-size:12.5px}
+    .nav-for{display:none}                        /* drop "What it's for" first */
+  }
+  @media (max-width:430px){
+    .nav-gallery{display:none}                    /* then "Gallery" — keep Playground + GitHub */
+  }
   @media (max-width:600px){
     .tbreak{display:none}                       /* let the title wrap naturally on small screens */
     .secondary-installs{flex-direction:column;gap:10px}
@@ -190,10 +204,10 @@
   <div class="wrap">
     <div class="brand"><span class="d"></span>termscene</div>
     <div class="right">
-      <a class="lnk" href="#gallery">Gallery</a>
-      <a class="lnk" href="#for">What it's for</a>
-      <a class="lnk" href="playground/">Playground</a>
-      <a class="lnk" href="https://github.com/r3al1tymonster/termscene" rel="noopener" target="_blank">GitHub ↗</a>
+      <a class="lnk nav-gallery" href="#gallery">Gallery</a>
+      <a class="lnk nav-for" href="#for">What it's for</a>
+      <a class="lnk cta-lnk" href="playground/">Playground</a>
+      <a class="lnk nav-gh" href="https://github.com/r3al1tymonster/termscene" rel="noopener" target="_blank">GitHub ↗</a>
     </div>
   </div>
 </header>
