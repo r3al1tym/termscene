@@ -40,7 +40,7 @@
 
   /* ---------- hero ---------- */
   .hero{padding:60px 0 30px}
-  .hero .wrap{display:grid;grid-template-columns:1fr 1.12fr;gap:52px;align-items:center}
+  .hero .wrap{display:grid;grid-template-columns:0.6fr 1fr;gap:72px;align-items:center}
   .badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);
     border:1px solid var(--line-2);border-radius:999px;padding:5px 14px;margin-bottom:24px}
   .badge .pdot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
@@ -55,7 +55,8 @@
   .inst:hover{border-color:var(--accent-dim)}
   .inst .lbl{flex:none;display:flex;align-items:center;padding:0 14px;background:var(--panel-2);
     border-right:1px solid var(--line);color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
-  .inst .cmd{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:12px 14px;font-size:13.5px;color:var(--ink);overflow-x:auto;white-space:nowrap}
+  .inst .cmd{flex:1;min-width:0;display:flex;align-items:flex-start;gap:9px;padding:12px 14px;font-size:13.5px;color:var(--ink);white-space:normal;word-break:break-word}
+  .inst .cmd .p{flex:none}
   .inst .cmd .p{color:var(--accent)}
   .inst .copy{flex:none;display:flex;align-items:center;padding:0 14px;background:transparent;border:0;border-left:1px solid var(--line);
     color:var(--muted);font-family:inherit;font-size:12px;cursor:pointer;transition:.15s}
