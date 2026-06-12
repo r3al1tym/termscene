@@ -16,8 +16,8 @@ clip for a deck or a post.
 It's built for a coding assistant to drive. Describe the terminal experience you
 want, and the assistant writes the scene, previews it with you, and renders it. A
 [skill](.claude/skills/termscene/SKILL.md) ships in this repo — install it into
-Claude Code, Cursor, Codex, and others with `termscene skills` (or
-`npx skills add r3al1tymonster/termscene`).
+Claude Code, Cursor, Codex, and others with `npx skills add r3al1tymonster/termscene`
+(or, inside the tool, `termscene skills`).
 
 ## How it differs from a recorder
 
