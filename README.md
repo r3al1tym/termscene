@@ -1,11 +1,12 @@
 # termscene
 
-Make a clean video or GIF of a terminal — without recording one.
+Show the terminal experience before you build it.
 
 termscene renders a *mock* terminal you fully control. You script the typed
 commands and their output in a small declarative file, and it renders to mp4, GIF,
-or WebM. The output is idealized: you decide what each command prints, so demos are
-perfect every time, and you can show commands that don't exist yet.
+or WebM. The session doesn't have to be real — so you can show an experience that
+only exists as an idea: a concept you're pitching, a flow that doesn't exist yet, a
+clip for a deck or a post.
 
 It's built for a coding assistant to drive. Describe the terminal experience you
 want, and the assistant writes the scene, previews it with you, and renders it. A
@@ -24,13 +25,19 @@ the same way every time.
 
 ## Install
 
+Not on npm yet — clone and build:
+
 ```bash
-npm install termscene        # or pnpm add termscene
+git clone https://github.com/r3al1tymonster/termscene
+cd termscene && pnpm install && pnpm build
+node dist/cli.js render demo.scene.json --out demo.gif
 ```
 
 Needs Chrome/Chromium and ffmpeg available on the machine. termscene auto-detects
 Chrome (including puppeteer's cached copy); set `TERMSCENE_CHROME=/path/to/chrome`
 to point at a specific binary.
+
+> `npm install termscene` and the Claude skill install land once it's published.
 
 ## A scene
 
