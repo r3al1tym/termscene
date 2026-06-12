@@ -28,7 +28,9 @@ export const SHOWCASE: ShowcaseScene[] = [
                       "title": "claude code"
                 },
                 "prompt": "❯",
-                "fontSize": 24
+                "fontSize": 24,
+                "align": "top",
+                "loopOffset": "80%"
           },
           "steps": [
                 {
