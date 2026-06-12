@@ -4,6 +4,10 @@ dist/
 *.gif
 *.webm
 !examples/*.mp4
+# Published site assets (landing-page gallery clips + README hero) are tracked.
+!docs/clips/*.mp4
+!docs/clips/*.gif
+!docs/clips/*.webm
 .DS_Store
 *.log
 workbench/out/

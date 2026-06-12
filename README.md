@@ -7,6 +7,12 @@
 
 Show the terminal experience before you build it.
 
+<p align="center">
+  <a href="https://r3al1tymonster.github.io/termscene/playground/">
+    <img src="https://raw.githubusercontent.com/r3al1tymonster/termscene/main/docs/clips/hero.gif" alt="termscene rendering a scripted Claude Code session into a clean, deterministic terminal clip" width="800">
+  </a>
+</p>
+
 **[▶ Try it in the browser playground](https://r3al1tymonster.github.io/termscene/playground/)** — author, preview & export a clip with no install · **[Gallery](https://r3al1tymonster.github.io/termscene/#gallery)**
 
 termscene renders a *mock* terminal you fully control. You script the typed
