@@ -48,6 +48,10 @@ export interface SceneMeta {
   window?: { chrome?: WindowChrome; title?: string }
   /** vertical alignment of the transcript within the window (default "bottom") */
   align?: "top" | "center" | "bottom"
+  /** seamless-loop entry point: a frame number or a percentage string like "25%".
+   *  The render rotates the frame sequence so a looping gif/webm starts here —
+   *  borrowed from VHS's LoopOffset. (Borrowed idea; deterministic for us.) */
+  loopOffset?: number | string
   /** default prompt glyph for `cmd` steps (e.g. "❯", "$", "➜ ~") */
   prompt?: string
   /** typing speed in chars/sec for `cmd` steps (default 22) */

@@ -20,6 +20,9 @@ export interface RenderOptions {
   /** progress callback (0..1) */
   onProgress?: (done: number, total: number) => void
   quiet?: boolean
+  /** extra output paths to encode from the SAME frame capture (multi-format in one
+   *  pass — borrowed from VHS's multiple Output lines). Format inferred per extension. */
+  also?: string[]
 }
 
 const CHROME_CANDIDATES = [
@@ -109,6 +112,11 @@ export async function render(scene: CompiledScene, opts: RenderOptions): Promise
     await browser.close()
     browser = undefined
 
+    // ---- loopOffset: rotate the frame sequence so the loop starts mid-animation ----
+    // (borrowed from VHS) — for a seamless looping gif/webm, no mid-blink seam.
+    const offFrames = resolveLoopOffset(scene.meta.loopOffset, total)
+    if (offFrames > 0) await rotateFrames(framesDir, total, offFrames)
+
     if (format === "frames") {
       const { cp } = await import("node:fs/promises")
       await cp(framesDir, opts.out, { recursive: true })
@@ -116,11 +124,40 @@ export async function render(scene: CompiledScene, opts: RenderOptions): Promise
     }
 
     await encode(framesDir, opts.out, format, fps, opts.quiet ?? true)
+    // multi-output: encode any additional targets from the same frames
+    for (const extra of opts.also ?? []) {
+      await encode(framesDir, extra, inferFormat(extra), fps, opts.quiet ?? true)
+    }
     return opts.out
   } finally {
     if (browser) await browser.close().catch(() => {})
     await rm(work, { recursive: true, force: true }).catch(() => {})
   }
+}
+
+/** Resolve a loopOffset (frame number or "NN%") to an integer frame index in [0,total). */
+function resolveLoopOffset(lo: number | string | undefined, total: number): number {
+  if (lo == null) return 0
+  let n: number
+  if (typeof lo === "string" && lo.trim().endsWith("%")) {
+    n = Math.round((parseFloat(lo) / 100) * total)
+  } else {
+    n = Math.round(Number(lo))
+  }
+  if (!Number.isFinite(n)) return 0
+  return ((n % total) + total) % total // wrap into range
+}
+
+/** Rotate frame files so frame `offset` becomes f00000 (cyclic). */
+async function rotateFrames(dir: string, total: number, offset: number): Promise<void> {
+  const { rename } = await import("node:fs/promises")
+  const name = (i: number) => join(dir, `f${String(i).padStart(5, "0")}.png`)
+  const tmp = (i: number) => join(dir, `r${String(i).padStart(5, "0")}.png`)
+  for (let i = 0; i < total; i++) {
+    const src = (i + offset) % total
+    await rename(name(src), tmp(i))
+  }
+  for (let i = 0; i < total; i++) await rename(tmp(i), name(i))
 }
 
 function inferFormat(out: string): OutputFormat {
