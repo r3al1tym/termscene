@@ -15,7 +15,9 @@ clip for a deck or a post.
 
 It's built for a coding assistant to drive. Describe the terminal experience you
 want, and the assistant writes the scene, previews it with you, and renders it. A
-[Claude Code skill](.claude/skills/termscene/SKILL.md) ships in this repo.
+[skill](.claude/skills/termscene/SKILL.md) ships in this repo — install it into
+Claude Code, Cursor, Codex, and others with `termscene skills` (or
+`npx skills add r3al1tymonster/termscene`).
 
 ## How it differs from a recorder
 
@@ -44,7 +46,8 @@ Chrome (including puppeteer's cached copy); set `TERMSCENE_CHROME=/path/to/chrom
 to point at a specific binary.
 
 New to it? `termscene init` scaffolds a project with a `CLAUDE.md`/`AGENTS.md` that
-teaches a coding agent the workflow, plus an example scene to render.
+teaches a coding agent the workflow, plus an example scene to render — and offers to
+install the skill into your agents. Use `--skip-skills` to skip that prompt.
 
 ## A scene
 

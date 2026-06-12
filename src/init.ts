@@ -1,5 +1,12 @@
 import { writeFile, mkdir, access } from "node:fs/promises"
 import { join } from "node:path"
+import { spawn, execFileSync } from "node:child_process"
+import { createInterface } from "node:readline"
+
+// The repo that hosts the termscene skill. The `skills` CLI (vercel-labs/skills)
+// git-clones this and installs the SKILL.md it finds into the user's agent dirs
+// (.claude/skills, .cursor, .codex, …). Hardcoded — no user input reaches the spawn.
+const SKILL_REPO = "r3al1tymonster/termscene"
 
 // Scaffold a termscene project. The point (borrowed from HyperFrames) is the
 // CLAUDE.md/AGENTS.md: the project itself teaches any coding assistant how to
@@ -23,6 +30,9 @@ you fully control, rendered to deterministic mp4/gif/webm. Not a live recorder.
 ## Reference (offline, no network)
 
 \`termscene docs steps | meta | themes | glyphs | render\`
+
+For a richer, always-loaded guide, install the termscene skill into your agent:
+\`termscene skills\` (or \`npx skills add ${SKILL_REPO}\`).
 
 ## Key rules
 
@@ -79,4 +89,54 @@ export async function scaffold(dir: string): Promise<string[]> {
     created.push(name)
   }
   return created
+}
+
+function hasNpx(): boolean {
+  try {
+    execFileSync("npx", ["--version"], { stdio: "ignore", timeout: 5000 })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Install the termscene skill into the user's AI coding agents via the `skills`
+ *  CLI (`npx skills add <repo> --all`). Mirrors HyperFrames: the skill lives in
+ *  the repo, the community CLI does the cloning + per-agent install. Returns true
+ *  on success. Never throws — a missing/declined install is non-fatal. */
+export async function installSkill(): Promise<boolean> {
+  if (!hasNpx()) {
+    console.error("npx not found — install Node.js, then run: npx skills add " + SKILL_REPO)
+    return false
+  }
+  console.log(`\ninstalling the termscene skill (npx skills add ${SKILL_REPO}) …\n`)
+  return new Promise((resolve) => {
+    const child = spawn("npx", ["skills", "add", SKILL_REPO, "--all"], {
+      stdio: "inherit",
+      // The upstream `skills` CLI shells out to `git clone`. Git's clone-hook
+      // protection (default-on in 2.45.1, still present on many CI/corp setups)
+      // can abort the clone via a global lfs post-checkout hook. The repo is
+      // hardcoded above — no user input reaches the spawn — so opting out is safe.
+      env: { ...process.env, GIT_CLONE_PROTECTION_ACTIVE: "0" },
+    })
+    child.on("close", (code) => resolve(code === 0))
+    child.on("error", () => {
+      console.error(`skill install skipped — run it later: npx skills add ${SKILL_REPO}`)
+      resolve(false)
+    })
+  })
+}
+
+/** Yes/no prompt on an interactive TTY. On non-interactive stdin (CI, agents,
+ *  pipes) returns false without prompting — we never fire a network git-clone
+ *  unprompted. `def` is the default for empty input at an interactive prompt. */
+export async function confirm(question: string, def = true): Promise<boolean> {
+  if (!process.stdin.isTTY) return false
+  const rl = createInterface({ input: process.stdin, output: process.stdout })
+  const hint = def ? "Y/n" : "y/N"
+  const answer = await new Promise<string>((res) => rl.question(`${question} (${hint}) `, res))
+  rl.close()
+  const a = answer.trim().toLowerCase()
+  if (!a) return def
+  return a === "y" || a === "yes"
 }
