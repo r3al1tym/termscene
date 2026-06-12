@@ -73,10 +73,9 @@
   .cta-sub b{color:var(--soft);font-weight:500}
 
   /* secondary: install options on ONE compact line, de-emphasized */
-  .secondary-installs{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  .secondary-installs{margin-top:20px;
     max-width:840px;margin-left:auto;margin-right:auto;
     display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
-  .secondary-installs .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
   .installs{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
   /* flat install pill — no internal separators; muted tag + command, copy on hover */
   .inst{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;
@@ -212,7 +211,6 @@
     <p class="cta-sub reveal">No install, no signup — <b>author a scene and export an mp4/gif right in your browser.</b></p>
 
     <div class="secondary-installs reveal">
-      <span class="eyebrow">prefer the terminal?</span>
       <div class="installs">
         <div class="inst">
           <span class="lbl">cli</span>
@@ -224,7 +222,6 @@
           <div class="cmd"><span class="p">$</span> npx skills add r3al1tymonster/termscene</div>
           <button class="copy" data-copy="npx skills add r3al1tymonster/termscene">copy</button>
         </div>
-        <p class="installs-hint"><b>cli</b> renders scenes · <b>skill</b> installs the termscene skill into Claude Code, Cursor, Codex &amp; more (or run <code>npx termscene skills</code>), so your coding agent can write &amp; render scenes from a plain description</p>
       </div>
     </div>
   </div>
