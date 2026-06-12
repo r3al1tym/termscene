@@ -55,8 +55,27 @@
   h1 .g{color:var(--accent)}
   .lede{color:var(--soft);margin:20px auto 0;max-width:60ch;font-size:15.5px;line-height:1.68}
 
+  /* primary CTA — the playground is the zero-install "value in 10s" path */
+  .cta-row{margin-top:30px;display:flex;gap:13px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .cta{display:inline-flex;align-items:center;gap:10px;text-decoration:none;border-radius:11px;
+    font-weight:600;font-size:15px;letter-spacing:-.01em;transition:.18s;padding:14px 24px}
+  .cta-primary{background:var(--accent);color:#1a1108;border:1px solid var(--accent);
+    box-shadow:0 14px 38px -12px rgba(217,119,87,.7)}
+  .cta-primary:hover{background:var(--accent-soft);transform:translateY(-2px);
+    box-shadow:0 20px 46px -12px rgba(217,119,87,.8)}
+  .cta-primary .play{font-size:13px}
+  .cta-ghost{background:var(--panel);color:var(--soft);border:1px solid var(--line-2)}
+  .cta-ghost:hover{color:var(--ink);border-color:var(--accent-dim)}
+  .cta-sub{margin-top:13px;font-size:12.5px;color:var(--faint)}
+  .cta-sub b{color:var(--soft);font-weight:500}
+
+  /* secondary: install options, de-emphasized below the primary CTA */
+  .secondary-installs{margin-top:34px;padding-top:26px;border-top:1px solid var(--line);
+    max-width:760px;margin-left:auto;margin-right:auto}
+  .secondary-installs .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:15px}
+
   /* dual install CTAs — centered row */
-  .installs{margin-top:28px;display:flex;gap:11px;justify-content:center;flex-wrap:wrap;align-items:stretch}
+  .installs{margin-top:0;display:flex;gap:11px;justify-content:center;flex-wrap:wrap;align-items:stretch}
   .inst{display:inline-flex;align-items:stretch;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;
     background:var(--panel);transition:.18s}
   .inst:hover{border-color:var(--accent-dim)}
@@ -178,20 +197,29 @@
   <div class="wrap">
     <h1 class="reveal">Show the terminal experience <span class="g">before you build it.</span></h1>
     <p class="lede reveal">Write the commands and the output in a few lines of script; termscene renders a clean, frame-perfect terminal video — to pitch a CLI concept, explain an idea, or drop a crisp terminal moment into a deck, demo, or launch post.</p>
-    <div class="installs reveal">
-      <div class="inst">
-        <span class="lbl">cli</span>
-        <div class="cmd"><span class="p">$</span> npx termscene render demo.scene.json</div>
-        <button class="copy" data-copy="npx termscene render demo.scene.json --out demo.gif">copy</button>
-      </div>
-      <div class="inst">
-        <span class="lbl">skill</span>
-        <div class="cmd"><span class="p">$</span> npx skills add r3al1tymonster/termscene</div>
-        <button class="copy" data-copy="npx skills add r3al1tymonster/termscene">copy</button>
-      </div>
+
+    <div class="cta-row reveal">
+      <a class="cta cta-primary" href="playground/"><span class="play">▶</span> Open the playground</a>
+      <a class="cta cta-ghost" href="#gallery">See the gallery</a>
     </div>
-    <p class="installs-hint reveal"><b>cli</b> renders scenes · <b>skill</b> installs the termscene skill into Claude Code, Cursor, Codex &amp; more (or run <code>npx termscene skills</code>), so your coding agent can write &amp; render scenes from a plain description</p>
-    <p class="installs-hint reveal" style="margin-top:9px">or skip the install — <a href="playground/" style="color:var(--accent);text-decoration:none;font-weight:500">try it in the playground →</a> author, preview &amp; export to mp4/gif right in your browser</p>
+    <p class="cta-sub reveal">No install, no signup — <b>author a scene and export an mp4/gif right in your browser.</b></p>
+
+    <div class="secondary-installs reveal">
+      <div class="eyebrow">prefer the terminal? install the CLI or the agent skill</div>
+      <div class="installs">
+        <div class="inst">
+          <span class="lbl">cli</span>
+          <div class="cmd"><span class="p">$</span> npx termscene render demo.scene.json</div>
+          <button class="copy" data-copy="npx termscene render demo.scene.json --out demo.gif">copy</button>
+        </div>
+        <div class="inst">
+          <span class="lbl">skill</span>
+          <div class="cmd"><span class="p">$</span> npx skills add r3al1tymonster/termscene</div>
+          <button class="copy" data-copy="npx skills add r3al1tymonster/termscene">copy</button>
+        </div>
+      </div>
+      <p class="installs-hint"><b>cli</b> renders scenes · <b>skill</b> installs the termscene skill into Claude Code, Cursor, Codex &amp; more (or run <code>npx termscene skills</code>), so your coding agent can write &amp; render scenes from a plain description</p>
+    </div>
   </div>
 </section>
 <div class="stage">
