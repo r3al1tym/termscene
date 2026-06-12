@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http"
 import { readFile } from "node:fs/promises"
-import { resolve, dirname, join } from "node:path"
+import { resolve, dirname, join, basename } from "node:path"
 import { fileURLToPath } from "node:url"
 import { compile } from "./compiler.js"
 import { loadScene } from "./load.js"
@@ -46,7 +46,13 @@ export async function serve(scenePath: string, port = 5180): Promise<string> {
         return
       }
       if (url.pathname.startsWith("/fonts/")) {
-        const name = url.pathname.replace("/fonts/", "")
+        // basename() strips any path so "../../etc/passwd" can't escape the fonts dir
+        const name = basename(url.pathname.replace("/fonts/", ""))
+        if (!name.endsWith(".woff2")) {
+          res.writeHead(404)
+          res.end("not found")
+          return
+        }
         const buf = await readFile(join(ENGINE_DIR, "fonts", name))
         res.writeHead(200, { "content-type": "font/woff2", "cache-control": "max-age=3600" })
         res.end(buf)
@@ -61,7 +67,8 @@ export async function serve(scenePath: string, port = 5180): Promise<string> {
   }
 
   const server = createServer(handler)
-  await new Promise<void>((r) => server.listen(port, r))
+  // bind to loopback only — this is a local review surface, never exposed
+  await new Promise<void>((r) => server.listen(port, "127.0.0.1", r))
   return `http://localhost:${port}/`
 }
 

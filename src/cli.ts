@@ -12,7 +12,7 @@ import { writeFile } from "node:fs/promises"
 const HELP = `termscene — design-forward, deterministic videos of terminal experiences
 
 USAGE
-  termscene render <scene> [--out file] [--format mp4|gif|webm] [--fps N] [--also a.gif,b.webm]
+  termscene render <scene> [--out file] [--format mp4|gif|webm|frames] [--fps N] [--also a.gif,b.webm]
   termscene lint <scene> [--json]                    validate a scene (run after every edit)
   termscene preview <scene> [--port N]               live scrubber server (recompiles on reload)
   termscene scrub <scene> [--out file.html]          standalone self-contained scrubber file
@@ -136,7 +136,6 @@ async function main() {
     const also = args.also ? String(args.also).split(",").map((s) => s.trim()).filter(Boolean) : undefined
     const fps = args.fps ? parseInt(String(args.fps), 10) : undefined
 
-    const total = Math.round(compiled.duration * (fps ?? compiled.meta.fps))
     process.stdout.write(
       `rendering ${compiled.events.length} events · ${compiled.duration}s · ` +
         `${compiled.meta.width}×${compiled.meta.height} → ${out}\n`,
