@@ -3,249 +3,218 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>termscene — designed terminal video, rendered deterministically</title>
-<meta name="description" content="Author a mock terminal you fully control and render it to crisp, deterministic video or GIF. Built for a coding assistant to drive.">
+<title>termscene — show the terminal experience before you build it</title>
+<meta name="description" content="Turn a few lines of script into a clean terminal video — for an idea you want to pitch, a flow that doesn't exist yet, a concept for a deck or a social post.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  *{margin:0;padding:0;box-sizing:border-box}
   :root{
-    --ground:#0c0b09; --panel:#15140f; --panel-2:#1b1914;
-    --ink:#ece9e1; --soft:#b1aea5; --muted:#7f7b71; --faint:#46433d;
-    --hair:#2a2620; --accent:#d97757; --accent-dim:#a8543a;
-    --paper:#faf8f3; --paper-ink:#23211c;
-    --serif:'Fraunces',Georgia,serif; --mono:'JetBrains Mono',ui-monospace,monospace;
-    --maxw:1180px;
+    --bg:#0a0a0b; --panel:#111113; --panel-2:#16161a; --line:#232326; --line-2:#2e2e33;
+    --ink:#fafafa; --soft:#a1a1aa; --muted:#6b6b73; --faint:#46464d;
+    --accent:#d97757; --accent-soft:#e89478; --accent-dim:#a8543a;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --maxw:1200px;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{
-    background:var(--ground);color:var(--ink);font-family:var(--mono);
-    font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  /* warm grain + vignette atmosphere */
-  body::before{
-    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:
-      radial-gradient(120% 80% at 50% -10%, rgba(217,119,87,.07), transparent 55%),
-      radial-gradient(100% 60% at 50% 120%, rgba(217,119,87,.04), transparent 60%);
-  }
-  body::after{
-    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:14px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  /* faint grid backdrop, fading toward the middle — the product's own aesthetic */
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:54px 54px;opacity:.22;
+    mask-image:radial-gradient(ellipse 90% 55% at 50% -5%,#000,transparent 75%)}
+  .glow{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(50% 35% at 78% 8%,rgba(217,119,87,.10),transparent 60%)}
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 32px}
 
-  /* ---------- top bar ---------- */
-  header.nav{position:relative;z-index:3;border-bottom:1px solid var(--hair)}
-  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
-  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.02em}
-  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);
-    box-shadow:0 0 0 3px rgba(217,119,87,.18)}
-  .brand b{font-size:16px}
-  .nav a.gh{color:var(--soft);text-decoration:none;font-size:13px;border:1px solid var(--hair);
-    padding:8px 15px;border-radius:8px;transition:.2s}
-  .nav a.gh:hover{border-color:var(--accent-dim);color:var(--ink)}
+  /* ---------- nav ---------- */
+  header.nav{position:relative;z-index:3;border-bottom:1px solid var(--line)}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.01em}
+  .brand .d{width:9px;height:9px;background:var(--accent);border-radius:2px}
+  .nav .right{display:flex;gap:8px;align-items:center}
+  .nav a.lnk{color:var(--soft);text-decoration:none;font-size:13px;padding:8px 13px;border-radius:7px;transition:.18s}
+  .nav a.lnk:hover{color:var(--ink);background:var(--panel)}
 
   /* ---------- hero ---------- */
-  .hero{padding:78px 0 36px;position:relative}
-  .eyebrow{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);
-    margin-bottom:26px}
-  h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,6.6vw,82px);
-    line-height:1.02;letter-spacing:-.02em;max-width:16ch}
-  h1 em{font-style:italic;color:var(--accent)}
-  .lede{margin-top:26px;max-width:60ch;color:var(--soft);font-size:clamp(15px,1.7vw,18px);line-height:1.7}
-  .cta{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-  .btn{font-family:var(--mono);font-size:14px;font-weight:500;text-decoration:none;
-    padding:13px 22px;border-radius:10px;transition:.2s;display:inline-flex;gap:9px;align-items:center}
-  .btn.primary{background:var(--accent);color:#1b0e08;font-weight:700}
-  .btn.primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px -10px rgba(217,119,87,.5)}
-  .btn.ghost{color:var(--ink);border:1px solid var(--hair)}
-  .btn.ghost:hover{border-color:var(--accent-dim)}
-  .install{margin-top:22px;font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:12px}
-  .install code{background:var(--panel);border:1px solid var(--hair);padding:8px 14px;border-radius:8px;
-    color:var(--soft)}
-  .install code .p{color:var(--accent)}
+  .hero{padding:60px 0 30px}
+  .hero .wrap{display:grid;grid-template-columns:1fr 1.12fr;gap:52px;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);
+    border:1px solid var(--line-2);border-radius:999px;padding:5px 14px;margin-bottom:24px}
+  .badge .pdot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  h1{font-size:clamp(33px,3.9vw,54px);line-height:1.04;letter-spacing:-.035em;font-weight:700}
+  h1 .g{color:var(--accent)}
+  .lede{color:var(--soft);margin-top:22px;max-width:48ch;font-size:15px;line-height:1.7}
 
-  /* hero clip */
-  .hero-clip{margin-top:52px;border-radius:16px;overflow:hidden;border:1px solid var(--hair);
-    background:#000;box-shadow:0 40px 100px -40px rgba(0,0,0,.8);position:relative}
+  /* dual install CTAs */
+  .installs{margin-top:30px;display:flex;flex-direction:column;gap:12px;max-width:430px}
+  .inst{display:flex;align-items:stretch;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;
+    background:var(--panel);transition:.18s}
+  .inst:hover{border-color:var(--accent-dim)}
+  .inst .lbl{flex:none;display:flex;align-items:center;padding:0 14px;background:var(--panel-2);
+    border-right:1px solid var(--line);color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .inst .cmd{flex:1;display:flex;align-items:center;gap:9px;padding:12px 14px;font-size:13.5px;color:var(--ink);overflow-x:auto;white-space:nowrap}
+  .inst .cmd .p{color:var(--accent)}
+  .inst .copy{flex:none;display:flex;align-items:center;padding:0 14px;background:transparent;border:0;border-left:1px solid var(--line);
+    color:var(--muted);font-family:inherit;font-size:12px;cursor:pointer;transition:.15s}
+  .inst .copy:hover{color:var(--ink);background:var(--panel-2)}
+  .installs .hint{font-size:12px;color:var(--faint);margin-top:2px}
+  .installs .hint b{color:var(--soft);font-weight:500}
+
+  /* hero clip — its own mac titlebar carries the label, no overlay caption */
+  .hero-clip{border:1px solid var(--line-2);border-radius:13px;overflow:hidden;background:#000;
+    box-shadow:0 36px 90px -34px rgba(0,0,0,.9)}
   .hero-clip video{display:block;width:100%;height:auto}
-  .hero-clip .tag{position:absolute;top:14px;left:16px;z-index:2;font-size:11px;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--muted);background:rgba(12,11,9,.7);
-    backdrop-filter:blur(8px);padding:5px 11px;border-radius:6px;border:1px solid var(--hair)}
 
-  /* ---------- section scaffolding ---------- */
-  section{padding:72px 0;position:relative}
-  .kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
-  h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.08;
-    letter-spacing:-.015em;max-width:20ch}
-  h2 em{font-style:italic;color:var(--accent)}
-  .sub{margin-top:16px;max-width:62ch;color:var(--soft)}
+  /* ---------- sections ---------- */
+  section{padding:74px 0;position:relative}
+  .kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  h2{font-size:clamp(26px,3.4vw,40px);line-height:1.1;letter-spacing:-.025em;font-weight:700;max-width:22ch}
+  h2 .g{color:var(--accent)}
+  .sub{margin-top:15px;max-width:60ch;color:var(--soft);font-size:14.5px}
+  .divtop{border-top:1px solid var(--line)}
 
   /* ---------- gallery ---------- */
   .gallery-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
-  .grid{margin-top:42px;display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
-  .card{border:1px solid var(--hair);border-radius:14px;overflow:hidden;background:var(--panel);
-    transition:.25s;cursor:pointer}
-  .card:hover{border-color:var(--accent-dim);transform:translateY(-3px);
-    box-shadow:0 24px 50px -28px rgba(0,0,0,.7)}
-  .card .frame{background:#000;aspect-ratio:16/9;overflow:hidden;position:relative}
+  .grid{margin-top:40px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);transition:.22s;cursor:pointer}
+  .card:hover{border-color:var(--line-2);transform:translateY(-3px);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
+  .card .frame{background:#000;aspect-ratio:16/9;overflow:hidden}
   .card video{width:100%;height:100%;object-fit:cover;display:block}
-  .card .meta{padding:15px 18px 17px}
-  .card .name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px}
-  .card .name .swatch{width:10px;height:10px;border-radius:3px}
-  .card .blurb{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.55}
+  .card .meta{padding:14px 17px 16px;border-top:1px solid var(--line)}
+  .card .name{font-weight:700;font-size:14px;display:flex;align-items:center;gap:9px}
+  .card .name .sw{width:9px;height:9px;border-radius:2px}
+  .card .blurb{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.5}
 
-  /* ---------- why / value prop ---------- */
-  .why{border-top:1px solid var(--hair)}
-  .cols{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:start}
-  .vibe,.scene{border-radius:14px;padding:28px 28px 30px;border:1px solid var(--hair)}
-  .vibe{background:var(--panel)}
-  .scene{background:linear-gradient(180deg,rgba(217,119,87,.06),transparent),var(--panel)}
-  .col-tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:18px;font-weight:700}
-  .vibe .col-tag{color:var(--muted)}
-  .scene .col-tag{color:var(--accent)}
-  .pt{display:flex;gap:13px;padding:11px 0;border-top:1px solid var(--hair);align-items:flex-start}
-  .pt:first-of-type{border-top:0}
-  .pt .ic{flex:none;width:18px;color:var(--accent);font-weight:700}
-  .vibe .pt .ic{color:var(--faint)}
-  .pt span{color:var(--soft);font-size:13.5px;line-height:1.6}
-  .pt b{color:var(--ink)}
-  .verdict{margin-top:30px;font-family:var(--serif);font-style:italic;font-size:clamp(19px,2.4vw,26px);
-    line-height:1.4;color:var(--ink);max-width:46ch}
-  .verdict b{font-style:normal;color:var(--accent);font-weight:600}
-  /* what-it's-for grid */
-  .uses{margin-top:44px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-  .use{border:1px solid var(--hair);border-radius:14px;padding:26px 26px 28px;background:var(--panel);
-    transition:.22s}
-  .use:hover{border-color:var(--accent-dim)}
-  .use-h{font-family:var(--serif);font-size:23px;letter-spacing:-.01em;margin-bottom:10px}
-  .use p{color:var(--soft);font-size:14px;line-height:1.65;max-width:46ch}
+  /* ---------- what it's for ---------- */
+  .uses{margin-top:40px;display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .use{border:1px solid var(--line);border-radius:12px;padding:24px;background:var(--panel);transition:.2s}
+  .use:hover{border-color:var(--line-2)}
+  .use .n{font-size:12px;color:var(--accent);margin-bottom:11px}
+  .use h3{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:8px}
+  .use p{color:var(--soft);font-size:13.5px;line-height:1.6;max-width:46ch}
+  .closer{margin-top:30px;font-size:clamp(16px,2vw,21px);line-height:1.5;color:var(--ink);max-width:54ch;letter-spacing:-.01em}
+  .closer b{color:var(--accent);font-weight:600}
 
   /* ---------- how it works ---------- */
-  .steps{margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
-  .step{border:1px solid var(--hair);border-radius:12px;padding:22px 20px;background:var(--panel);position:relative}
-  .step::before{counter-increment:s;content:"0" counter(s);font-family:var(--serif);font-size:30px;
-    color:var(--accent);opacity:.5;display:block;margin-bottom:12px}
-  .step h3{font-size:14px;font-weight:700;margin-bottom:7px}
-  .step p{color:var(--muted);font-size:12.5px;line-height:1.6}
+  .steps{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  .step{border:1px solid var(--line);border-radius:11px;padding:20px;background:var(--panel);position:relative}
+  .step::before{counter-increment:s;content:"0" counter(s);font-size:13px;color:var(--accent);
+    display:block;margin-bottom:12px;font-weight:700}
+  .step h3{font-size:13.5px;font-weight:700;margin-bottom:6px}
+  .step p{color:var(--muted);font-size:12.5px;line-height:1.55}
 
   /* ---------- code example ---------- */
-  .code-row{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
-  pre{background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:24px;
-    overflow-x:auto;font-size:13px;line-height:1.75}
-  pre code{font-family:var(--mono)}
-  .tk-key{color:var(--accent)} .tk-str{color:#9bb38a} .tk-num{color:#d4a259}
-  .tk-pun{color:var(--muted)} .tk-com{color:var(--faint);font-style:italic}
-  .code-note{color:var(--soft)}
-  .code-note h3{font-family:var(--serif);font-weight:400;font-size:26px;margin-bottom:14px;letter-spacing:-.01em}
-  .code-note p{color:var(--muted);font-size:14px;margin-bottom:14px}
-  .code-note .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-  .chip{font-size:11.5px;color:var(--soft);border:1px solid var(--hair);padding:5px 11px;border-radius:20px}
+  .code-row{margin-top:40px;display:grid;grid-template-columns:1.05fr 1fr;gap:26px;align-items:center}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;overflow-x:auto;
+    font-size:12.5px;line-height:1.75}
+  .tk-key{color:var(--accent-soft)} .tk-str{color:#9bb38a} .tk-pun{color:var(--muted)}
+  .code-note h3{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:13px}
+  .code-note p{color:var(--soft);font-size:14px;margin-bottom:14px}
+  .code-note code{color:var(--accent)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{font-size:11.5px;color:var(--soft);border:1px solid var(--line);padding:5px 11px;border-radius:7px}
   .chip b{color:var(--accent)}
 
   /* ---------- footer ---------- */
-  footer{border-top:1px solid var(--hair);padding:54px 0 60px;color:var(--muted);font-size:13px}
-  footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+  footer{border-top:1px solid var(--line);padding:40px 0 56px;color:var(--muted);font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
   footer a{color:var(--soft);text-decoration:none}
   footer a:hover{color:var(--accent)}
   .made{font-size:12px;color:var(--faint)}
 
-  /* reveal-on-load + scroll */
-  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
 
-  @media (max-width:760px){
-    .grid{grid-template-columns:1fr}
-    .cols{grid-template-columns:1fr;gap:22px}
-    .uses{grid-template-columns:1fr}
+  @media (max-width:820px){
+    .hero .wrap{grid-template-columns:1fr;gap:34px}
+    .grid,.uses,.code-row{grid-template-columns:1fr}
     .steps{grid-template-columns:1fr 1fr}
-    .code-row{grid-template-columns:1fr}
-    .hero{padding:54px 0 24px}
   }
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="glow"></div>
 
 <header class="nav">
   <div class="wrap">
-    <div class="brand"><span class="dot"></span><b>termscene</b></div>
-    <a class="gh" href="#" rel="noopener">GitHub ↗</a>
+    <div class="brand"><span class="d"></span>termscene</div>
+    <div class="right">
+      <a class="lnk" href="#gallery">Gallery</a>
+      <a class="lnk" href="#for">What it's for</a>
+      <a class="lnk" href="#" rel="noopener">GitHub ↗</a>
+    </div>
   </div>
 </header>
 
 <!-- HERO -->
-<div class="hero">
+<section class="hero">
   <div class="wrap">
-    <div class="eyebrow reveal">designed terminal video · rendered deterministically</div>
-    <h1 class="reveal">Show the terminal experience <em>before you build it.</em></h1>
-    <p class="lede reveal">termscene turns a few lines of script into a clean terminal video — for an idea you want to pitch, a flow that doesn't exist yet, a concept for a deck or a social post. You write the commands and the output; it renders crisp, frame-perfect mp4 or GIF. Any theme, any aspect.</p>
-    <div class="cta reveal">
-      <a class="btn primary" href="#gallery">See the gallery ↓</a>
-      <a class="btn ghost" href="#for">What it's for</a>
-    </div>
-    <div class="install reveal">
-      <code><span class="p">$</span> npm install termscene</code>
-      <span>MIT · needs Chrome + ffmpeg</span>
+    <div>
+      <span class="badge reveal"><span class="pdot"></span>designed terminal video</span>
+      <h1 class="reveal">Show the terminal experience <span class="g">before you build it.</span></h1>
+      <p class="lede reveal">A few lines of script become a clean terminal video — for a concept you're pitching, a flow that doesn't exist yet, a clip for a deck or a post. You write the commands and the output; termscene renders it crisp and frame-perfect.</p>
+      <div class="installs reveal">
+        <div class="inst">
+          <span class="lbl">cli</span>
+          <div class="cmd"><span class="p">$</span> npm install termscene</div>
+          <button class="copy" data-copy="npm install termscene">copy</button>
+        </div>
+        <div class="inst">
+          <span class="lbl">skill</span>
+          <div class="cmd"><span class="p">$</span> npx skills add termscene</div>
+          <button class="copy" data-copy="npx skills add termscene">copy</button>
+        </div>
+        <div class="hint"><b>cli</b> renders scenes · <b>skill</b> lets your coding agent write &amp; render them from a plain description</div>
+      </div>
     </div>
     <div class="hero-clip reveal">
-      <span class="tag">a claude code session, mocked</span>
       <video src="clips/claude-code.mp4" autoplay muted loop playsinline></video>
     </div>
   </div>
-</div>
+</section>
 
 <!-- GALLERY -->
-<section id="gallery">
+<section id="gallery" class="divtop">
   <div class="wrap">
     <div class="gallery-head">
       <div>
         <div class="kicker reveal">eight terminals, one engine</div>
-        <h2 class="reveal">Pick a look, <em>tell your story.</em></h2>
+        <h2 class="reveal">Pick a look, <span class="g">tell your story.</span></h2>
       </div>
-      <p class="sub reveal" style="max-width:38ch">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes.</p>
+      <p class="sub reveal" style="max-width:36ch">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes.</p>
     </div>
     <div class="grid" id="grid"></div>
   </div>
 </section>
 
 <!-- WHAT IT'S FOR -->
-<section id="for" class="why">
+<section id="for" class="divtop">
   <div class="wrap">
     <div class="kicker reveal">what it's for</div>
-    <h2 class="reveal">For the experience <em>you haven't built yet.</em></h2>
+    <h2 class="reveal">For the experience <span class="g">you haven't built yet.</span></h2>
     <p class="sub reveal">Recording tools capture a CLI that already works. termscene is for the other moment — when the thing is still an idea, and you need to show it clearly.</p>
     <div class="uses">
-      <div class="use reveal">
-        <div class="use-h">Pitch a concept</div>
-        <p>Mock the CLI you're proposing so a room can see how it'd feel — before a line of it exists.</p>
-      </div>
-      <div class="use reveal">
-        <div class="use-h">Explain an idea</div>
-        <p>Turn "imagine you just type what you want…" into a clip that shows it, idealized and clean.</p>
-      </div>
-      <div class="use reveal">
-        <div class="use-h">Slides &amp; social</div>
-        <p>Drop a crisp, looping terminal moment into a deck, a launch post, or a README hero.</p>
-      </div>
-      <div class="use reveal">
-        <div class="use-h">Simplify the real thing</div>
-        <p>Show the five steps that matter, not the forty that happened. A stylized version of the truth.</p>
-      </div>
+      <div class="use reveal"><div class="n">01</div><h3>Pitch a concept</h3><p>Mock the CLI you're proposing so a room can see how it'd feel — before a line of it exists.</p></div>
+      <div class="use reveal"><div class="n">02</div><h3>Explain an idea</h3><p>Turn "imagine you just type what you want…" into a clip that shows it, idealized and clean.</p></div>
+      <div class="use reveal"><div class="n">03</div><h3>Slides &amp; social</h3><p>Drop a crisp, looping terminal moment into a deck, a launch post, or a README hero.</p></div>
+      <div class="use reveal"><div class="n">04</div><h3>Simplify the real thing</h3><p>Show the five steps that matter, not the forty that happened. A stylized version of the truth.</p></div>
     </div>
-    <p class="verdict reveal">You decide every line of output, so the demo is exactly the story you want to tell — calm, clear, and the same every time.</p>
+    <p class="closer reveal">You decide every line of output, so the demo is exactly the story you want to tell — <b>calm, clear, and the same every time.</b></p>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
-<section>
+<section class="divtop">
   <div class="wrap">
     <div class="kicker reveal">the loop</div>
-    <h2 class="reveal">Intent in, <em>finished clip out.</em></h2>
+    <h2 class="reveal">Intent in, <span class="g">finished clip out.</span></h2>
     <div class="steps">
-      <div class="step reveal"><h3>Describe</h3><p>Tell the assistant the terminal moment you want — or write a scene file by hand.</p></div>
+      <div class="step reveal"><h3>Describe</h3><p>Tell the agent the terminal moment you want — or write a scene file by hand.</p></div>
       <div class="step reveal"><h3>Preview</h3><p>It generates a scrubber — drag the timeline, tune the pacing, reload on edit.</p></div>
       <div class="step reveal"><h3>Render</h3><p>One command to mp4, GIF, or WebM. Square, landscape, or portrait.</p></div>
       <div class="step reveal"><h3>Re-edit</h3><p>Change a line, render again. Identical pipeline, updated clip.</p></div>
@@ -254,7 +223,7 @@
 </section>
 
 <!-- CODE EXAMPLE -->
-<section>
+<section class="divtop">
   <div class="wrap">
     <div class="code-row">
       <pre class="reveal"><code><span class="tk-pun">{</span>
@@ -271,13 +240,12 @@
 <span class="tk-pun">}</span></code></pre>
       <div class="code-note reveal">
         <h3>A scene is just steps on a clock.</h3>
-        <p><code style="color:var(--accent)">cmd</code> types a command. <code style="color:var(--accent)">out</code> prints output — with a style and optional char-by-char streaming. <code style="color:var(--accent)">progress</code> animates a bar. <code style="color:var(--accent)">wait</code> pauses. You never write timecodes; the compiler lays them out.</p>
-        <p>Then one command renders it — deterministically.</p>
+        <p><code>cmd</code> types a command. <code>out</code> prints output — with a style and optional char-by-char streaming. <code>progress</code> animates a bar. <code>wait</code> pauses. You never write timecodes; the compiler lays them out.</p>
+        <p>Then one command renders it — deterministically, the same every time.</p>
         <div class="chips">
-          <span class="chip"><b>themes:</b> claude · gemini · codex · warp</span>
-          <span class="chip"><b>aspects:</b> 16:9 · 1:1 · 9:16</span>
-          <span class="chip"><b>out:</b> mp4 · gif · webm</span>
-          <span class="chip"><b>chrome:</b> mac · plain · none</span>
+          <span class="chip"><b>themes</b> claude · gemini · codex · warp +4</span>
+          <span class="chip"><b>aspects</b> 16:9 · 1:1 · 9:16</span>
+          <span class="chip"><b>out</b> mp4 · gif · webm</span>
         </div>
       </div>
     </div>
@@ -286,8 +254,8 @@
 
 <footer>
   <div class="wrap">
-    <div class="brand"><span class="dot"></span><b>termscene</b></div>
-    <div>MIT licensed · <a href="#">GitHub</a> · <a href="#gallery">Gallery</a></div>
+    <div class="brand"><span class="d"></span>termscene</div>
+    <div>MIT · <a href="#">GitHub</a> · <a href="#gallery">Gallery</a></div>
     <div class="made">built with termscene · every clip on this page is a scene file</div>
   </div>
 </footer>
@@ -298,33 +266,34 @@
     { id:'gemini-cli', name:'Gemini CLI', sw:'#a78bfa', blurb:'dark slate · blue→violet · ✦ sparkle accents' },
     { id:'codex-cli', name:'Codex CLI', sw:'#10a37f', blurb:'near-black · sparse green/white · minimal chrome' },
     { id:'warp', name:'Warp', sw:'#4c8dff', blurb:'dark · rounded block output · modern GUI terminal' },
-    { id:'iterm2-p10k', name:'iTerm2 · Powerlevel10k', sw:'#00d7af', blurb:'powerline segments · two-line git prompt' },
-    { id:'macos-zsh', name:'macOS Terminal', sw:'#1a1a1a', blurb:'white bg · black SF Mono · the everyman shell' },
-    { id:'ubuntu-bash', name:'Ubuntu Terminal', sw:'#8ae234', blurb:'aubergine #300a24 · green user@host · peak Linux' },
+    { id:'iterm2-p10k', name:'iTerm2 · Powerlevel10k', sw:'#00d7af', blurb:'powerline segments · git prompt' },
+    { id:'macos-zsh', name:'macOS Terminal', sw:'#cfcfcf', blurb:'white bg · black SF Mono · the everyman shell' },
+    { id:'ubuntu-bash', name:'Ubuntu Terminal', sw:'#8ae234', blurb:'aubergine #300a24 · green user@host' },
     { id:'starship', name:'Starship', sw:'#88c0d0', blurb:'segmented prompt · morphs per language/repo' },
   ];
-  const grid = document.getElementById('grid');
-  grid.innerHTML = TERMINALS.map(t => `
+  document.getElementById('grid').innerHTML = TERMINALS.map(t => `
     <figure class="card reveal">
       <div class="frame"><video src="clips/${t.id}.mp4" muted loop playsinline preload="metadata"></video></div>
       <figcaption class="meta">
-        <div class="name"><span class="swatch" style="background:${t.sw}"></span>${t.name}</div>
+        <div class="name"><span class="sw" style="background:${t.sw}"></span>${t.name}</div>
         <div class="blurb">${t.blurb}</div>
       </figcaption>
     </figure>`).join('');
 
-  // play on hover, replay on click, autoplay when scrolled into view
   document.querySelectorAll('.card').forEach(card => {
     const v = card.querySelector('video');
     card.addEventListener('mouseenter', () => v.play());
     card.addEventListener('click', () => { v.currentTime = 0; v.play(); });
   });
 
-  // staggered load reveal for the hero
-  const heroReveals = new Set(document.querySelectorAll('.hero .reveal'));
-  [...heroReveals].forEach((el,i)=> setTimeout(()=>el.classList.add('in'), 90*i));
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); const o=b.textContent; b.textContent='copied'; setTimeout(()=>b.textContent=o,1400);} catch(e){}
+  }));
 
-  // scroll reveal for everything outside the hero
+  // hero reveal (staggered), then scroll reveal for the rest
+  const hero = new Set(document.querySelectorAll('.hero .reveal'));
+  [...hero].forEach((el,i)=> setTimeout(()=>el.classList.add('in'), 80*i));
   const io = new IntersectionObserver((es)=>es.forEach(e=>{
     if(e.isIntersecting){ e.target.classList.add('in');
       const vv = e.target.querySelector && e.target.querySelector('video');
@@ -332,9 +301,7 @@
       io.unobserve(e.target);
     }
   }), { threshold:.12 });
-  document.querySelectorAll('.reveal').forEach(el=>{ if(!heroReveals.has(el)) io.observe(el); });
-
-  // safety net: if IO never fires (e.g. headless full-page capture), reveal all after 2.5s
+  document.querySelectorAll('.reveal').forEach(el=>{ if(!hero.has(el)) io.observe(el); });
   setTimeout(()=>document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in')), 2500);
 </script>
 </body>
