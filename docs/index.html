@@ -40,12 +40,12 @@
 
   /* ---------- hero ---------- */
   .hero{padding:60px 0 30px}
-  .hero .wrap{display:grid;grid-template-columns:0.6fr 1fr;gap:72px;align-items:center}
+  .hero .wrap{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:64px;align-items:center}
   .badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);
     border:1px solid var(--line-2);border-radius:999px;padding:5px 14px;margin-bottom:24px}
   .badge .pdot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
   h1{font-size:clamp(33px,3.9vw,54px);line-height:1.04;letter-spacing:-.035em;font-weight:700;text-wrap:balance}
-  h1 .g{color:var(--accent);white-space:nowrap}
+  h1 .g{color:var(--accent)}
   .lede{color:var(--soft);margin-top:22px;max-width:48ch;font-size:15px;line-height:1.7}
 
   /* dual install CTAs */
@@ -133,7 +133,6 @@
   @media (max-width:820px){
     .hero .wrap{grid-template-columns:1fr;gap:34px}
     .hero .wrap>div{min-width:0}
-    h1 .g{white-space:normal}
     .grid,.uses,.code-row{grid-template-columns:1fr}
     .steps{grid-template-columns:1fr 1fr}
   }
