@@ -35,15 +35,15 @@
     "asciinema",
     "puppeteer"
   ],
-  "homepage": "https://r3al1tymonster.github.io/termscene/",
+  "homepage": "https://r3al1tym.github.io/termscene/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/r3al1tymonster/termscene.git"
+    "url": "git+https://github.com/r3al1tym/termscene.git"
   },
   "bugs": {
-    "url": "https://github.com/r3al1tymonster/termscene/issues"
+    "url": "https://github.com/r3al1tym/termscene/issues"
   },
-  "author": "r3al1tymonster",
+  "author": "r3al1tym",
   "license": "MIT",
   "dependencies": {
     "puppeteer-core": "^23.0.0"

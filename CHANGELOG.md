@@ -8,7 +8,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 - **Browser playground** (`docs/playground/`, published at
-  [`/playground/`](https://r3al1tymonster.github.io/termscene/playground/)). Author a
+  [`/playground/`](https://r3al1tym.github.io/termscene/playground/)). Author a
   scene in a live editor, scrub it on a canvas preview, and export to mp4 / webm /
   gif / png entirely client-side — no install, no server, the scene never leaves the
   page. Reuses the CLI's own `compiler`, `lint`, and `themes` modules so authoring

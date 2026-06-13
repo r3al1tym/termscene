@@ -1,19 +1,19 @@
 # termscene
 
 [![npm](https://img.shields.io/npm/v/termscene.svg)](https://www.npmjs.com/package/termscene)
-[![CI](https://github.com/r3al1tymonster/termscene/actions/workflows/ci.yml/badge.svg)](https://github.com/r3al1tymonster/termscene/actions/workflows/ci.yml)
+[![CI](https://github.com/r3al1tym/termscene/actions/workflows/ci.yml/badge.svg)](https://github.com/r3al1tym/termscene/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/termscene.svg)](LICENSE)
 [![node](https://img.shields.io/node/v/termscene.svg)](package.json)
 
 Show the terminal experience before you build it.
 
 <p align="center">
-  <a href="https://r3al1tymonster.github.io/termscene/playground/">
-    <img src="https://raw.githubusercontent.com/r3al1tymonster/termscene/main/docs/clips/hero.gif" alt="termscene rendering a scripted Claude Code session into a clean, deterministic terminal clip" width="800">
+  <a href="https://r3al1tym.github.io/termscene/playground/">
+    <img src="https://raw.githubusercontent.com/r3al1tym/termscene/main/docs/clips/hero.gif" alt="termscene rendering a scripted Claude Code session into a clean, deterministic terminal clip" width="800">
   </a>
 </p>
 
-**[▶ Try it in the browser playground](https://r3al1tymonster.github.io/termscene/playground/)** — author, preview & export a clip with no install · **[Gallery](https://r3al1tymonster.github.io/termscene/#gallery)**
+**[▶ Try it in the browser playground](https://r3al1tym.github.io/termscene/playground/)** — author, preview & export a clip with no install · **[Gallery](https://r3al1tym.github.io/termscene/#gallery)**
 
 termscene renders a *mock* terminal you fully control. You script the typed
 commands and their output in a small declarative file, and it renders to mp4, GIF,
@@ -24,7 +24,7 @@ clip for a deck or a post.
 It's built for a coding assistant to drive. Describe the terminal experience you
 want, and the assistant writes the scene, previews it with you, and renders it. A
 [skill](.claude/skills/termscene/SKILL.md) ships in this repo — install it into
-Claude Code, Cursor, Codex, and others with `npx skills add r3al1tymonster/termscene`
+Claude Code, Cursor, Codex, and others with `npx skills add r3al1tym/termscene`
 (or, inside the tool, `termscene skills`).
 
 ## How it differs from a recorder
@@ -118,11 +118,11 @@ before rendering.
 ## Playground (no install)
 
 Don't want to install anything? The
-[**playground**](https://r3al1tymonster.github.io/termscene/playground/) runs the
+[**playground**](https://r3al1tym.github.io/termscene/playground/) runs the
 whole loop in your browser — author a scene in a live editor (with the same lint
 gate the CLI uses), scrub the timeline on a canvas preview, and export to **mp4,
 webm, gif, or png** entirely client-side. No server, no upload; your scene never
-leaves the page. Hover any clip in the [gallery](https://r3al1tymonster.github.io/termscene/#gallery)
+leaves the page. Hover any clip in the [gallery](https://r3al1tym.github.io/termscene/#gallery)
 to open it in the playground and make it yours.
 
 It's great for trying termscene, tweaking a theme, or grabbing a quick clip. For
@@ -138,7 +138,7 @@ Eleven built-in looks, each modeled on a terminal your audience recognizes:
 `mac`, `plain`, or `none`, and aspect is `wide`, `landscape`, `square`, or
 `portrait`.
 
-See the full gallery on the [landing page](https://r3al1tymonster.github.io/termscene/).
+See the full gallery on the [landing page](https://r3al1tym.github.io/termscene/).
 
 ## Why "deterministic" matters
 

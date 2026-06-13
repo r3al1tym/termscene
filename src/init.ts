@@ -6,7 +6,7 @@ import { createInterface } from "node:readline"
 // The repo that hosts the termscene skill. The `skills` CLI (vercel-labs/skills)
 // git-clones this and installs the SKILL.md it finds into the user's agent dirs
 // (.claude/skills, .cursor, .codex, …). Hardcoded — no user input reaches the spawn.
-const SKILL_REPO = "r3al1tymonster/termscene"
+const SKILL_REPO = "r3al1tym/termscene"
 
 // Scaffold a termscene project. The point (borrowed from HyperFrames) is the
 // CLAUDE.md/AGENTS.md: the project itself teaches any coding assistant how to

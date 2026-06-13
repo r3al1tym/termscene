@@ -4,7 +4,7 @@
 
 Please report security issues privately rather than opening a public issue.
 
-Use GitHub's [private vulnerability reporting](https://github.com/r3al1tymonster/termscene/security/advisories/new)
+Use GitHub's [private vulnerability reporting](https://github.com/r3al1tym/termscene/security/advisories/new)
 (Security → Report a vulnerability) on this repository. I'll acknowledge the report,
 investigate, and coordinate a fix and disclosure timeline with you.
 

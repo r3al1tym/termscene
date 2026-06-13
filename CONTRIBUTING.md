@@ -27,6 +27,6 @@ You need Chrome/Chromium and ffmpeg on your PATH to render (see the README).
 
 ## Reporting bugs
 
-Open an [issue](https://github.com/r3al1tymonster/termscene/issues) with the scene
+Open an [issue](https://github.com/r3al1tym/termscene/issues) with the scene
 file (or a minimal repro), the command you ran, and what you expected vs. saw. For
 security issues, see [SECURITY.md](SECURITY.md) instead.
