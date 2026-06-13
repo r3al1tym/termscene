@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "aspect": "wide",
+    "theme": { "preset": "claude" },
+    "window": { "chrome": "mac", "title": "claude code" },
+    "align": "top",
+    "prompt": "❯",
+    "fontSize": 24,
+    "loopOffset": "80%"
+  },
+  "steps": [
+    { "cmd": "fix the failing test in the orders module", "typeSpeed": 46 },
+    { "wait": 0.3 },
+    { "out": "✻ Thinking… the partial-refund test is red — let me find where the amount is computed.", "style": "dim", "stream": 1.2 },
+    { "out": ["● Grep(\"partial_refund\", src/orders/)  3 matches", "● Read(src/orders/refund.py:40-60)", "● Edit(src/orders/refund.py +2 -1)"], "style": "accent" },
+    { "out": "● Bash(pytest tests/test_orders.py -q)", "style": "accent" },
+    { "progress": "running 48 tests", "duration": 1.8, "style": "accent" },
+    { "out": "✓ 48 passed in 0.9s", "style": "ok" },
+    { "div": true },
+    { "out": ["● Fixed. The fee was subtracted after rounding, double-counting it;", "  rounding now happens last. All 48 tests green."], "style": "ok", "stream": 1.6 }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "aspect": "wide",
+    "theme": { "preset": "midnight", "accent": "#34d399", "ok": "#34d399" },
+    "window": { "chrome": "mac", "title": "atlas — support agent" },
+    "align": "top",
+    "prompt": "❯",
+    "typeSpeed": 46
+  },
+  "steps": [
+    { "cmd": "atlas \"refund order 80421 and tell the customer why it was late\"" },
+    { "wait": 0.3 },
+    { "out": "✦ Pulling the order, the shipment trace, and the refund policy.", "style": "dim", "stream": 1.4 },
+    { "out": [
+        "┌─ check ──────────────┬─ result ───────────────────────────",
+        "● order   80421        │  $74.00 · 2 items",
+        "● trace   shipment     │  stuck 3d at MEM hub",
+        "● policy  late_delivery│  eligible · full refund",
+        "└──────────────────────┴────────────────────────────────────"
+      ], "style": "accent", "lineDelay": 0.18 },
+    { "wait": 0.4 },
+    { "out": [
+        "Carrier held it at the Memphis hub for 3 days — that's on us, so a full",
+        "refund qualifies. Issuing it and drafting the apology now."
+      ], "stream": 2.0 },
+    { "out": [
+        "● refund(order 80421)   $74.00 → card ···4417   ✓",
+        "● email(customer)       sent · \"sorry it ran late\""
+      ], "style": "accent", "lineDelay": 0.18 },
+    { "div": true },
+    { "out": "✦ Done. Refunded $74.00 and emailed the customer the reason. Avg handle time: 9s.", "style": "ok", "stream": 1.6 }
+  ]
+}

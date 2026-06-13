@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "aspect": "portrait",
+    "theme": { "preset": "midnight", "accent": "#7c5cff" },
+    "window": { "chrome": "mac", "title": "shipd" },
+    "align": "center",
+    "marginPad": 64,
+    "marginFill": "#120f24",
+    "typeSpeed": 40
+  },
+  "steps": [
+    { "cmd": "shipd deploy", "holdBeforeEnter": 0.15 },
+    { "out": "◇ detecting framework... Next.js", "style": "dim" },
+    { "progress": "building", "duration": 1.3, "style": "accent" },
+    { "progress": "uploading", "duration": 1.1, "style": "accent" },
+    { "out": ["✓ 0 cold starts", "✓ edge in 38 regions"], "style": "ok" },
+    { "div": true },
+    { "out": "● live → acme.shipd.app", "style": "accent", "stream": 0.9 },
+    { "out": "  shipped in 6s.", "style": "accent", "stream": 0.8 },
+    { "wait": 1.4 }
+  ]
+}

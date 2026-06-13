@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>termscene · use-case gallery (preview)</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0a0b;--panel:#111113;--panel-2:#16161a;--line:#232326;--line-2:#2e2e33;
+    --ink:#fafafa;--soft:#a1a1aa;--muted:#6b6b73;--faint:#46464d;
+    --accent:#d97757;--accent-soft:#e89478;--accent-dim:#a8543a;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --maxw:1240px;
+  }
+  html{scroll-behavior:smooth}
+  *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+  *::-webkit-scrollbar{width:6px;height:6px}
+  *::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+  body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:14px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:54px 54px;opacity:.18;mask-image:radial-gradient(ellipse 90% 55% at 50% -5%,#000,transparent 75%)}
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  /* preview banner */
+  .pvbar{position:relative;z-index:2;background:rgba(217,119,87,.08);border-bottom:1px solid var(--accent-dim);
+    font-size:12px;color:var(--accent-soft);text-align:center;padding:7px 16px}
+  .pvbar b{color:var(--accent)}
+
+  /* header */
+  header{padding:46px 0 18px}
+  .kick{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  h1{font-size:clamp(28px,4vw,44px);line-height:1.06;letter-spacing:-.035em;font-weight:700;max-width:24ch}
+  h1 .g{color:var(--accent)}
+  .lede{color:var(--soft);margin-top:14px;max-width:68ch;font-size:15px}
+  .lede b{color:var(--ink);font-weight:500}
+
+  /* style toggle (concept) */
+  .stylebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:26px;padding:14px 16px;
+    border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+  .stylebar .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .styles{display:flex;gap:7px;flex-wrap:wrap}
+  .sty{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line-2);border-radius:7px;
+    background:var(--panel-2);color:var(--soft);padding:5px 11px;font-size:12px;cursor:default;transition:.15s}
+  .sty .sw{width:9px;height:9px;border-radius:2px;flex:none}
+  .sty.on{border-color:var(--accent-dim);color:var(--ink)}
+  .stylenote{font-size:11.5px;color:var(--faint);margin-top:9px;width:100%}
+
+  /* hero band */
+  .heroband{margin-top:34px}
+  .sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+  .sec-h h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .sec-h .hint{font-size:12px;color:var(--faint)}
+  .hero-card{border:1px solid var(--line-2);border-radius:15px;overflow:hidden;background:#000;position:relative;
+    display:grid;grid-template-columns:1.55fr 1fr}
+  .hero-card video{display:block;width:100%;height:auto;background:#000}
+  .hero-meta{padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:12px;background:var(--panel)}
+  .hero-meta .tag{align-self:flex-start;font-size:11px;letter-spacing:.06em;color:var(--accent);
+    border:1px solid var(--accent-dim);border-radius:999px;padding:3px 11px}
+  .hero-meta h3{font-size:24px;letter-spacing:-.02em;line-height:1.15}
+  .hero-meta p{color:var(--soft);font-size:13.5px;line-height:1.6}
+  .personas{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+  .pchip{font-size:10.5px;letter-spacing:.05em;color:var(--muted);border:1px solid var(--line-2);
+    border-radius:5px;padding:2px 7px}
+  .moat{font-size:12px;color:var(--faint);border-left:2px solid var(--accent-dim);padding-left:11px;margin-top:4px}
+  .moat b{color:var(--soft);font-weight:500}
+  .cta{align-self:flex-start;margin-top:6px;display:inline-flex;align-items:center;gap:8px;background:var(--accent);
+    color:#1a1108;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;text-decoration:none;transition:.15s}
+  .cta:hover{background:var(--accent-soft)}
+
+  /* card grid */
+  .gridwrap{margin-top:40px;padding-bottom:60px}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:16px}
+  .card{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--panel);
+    display:flex;flex-direction:column;transition:.18s}
+  .card:hover{border-color:var(--line-2);transform:translateY(-3px);box-shadow:0 24px 50px -28px rgba(0,0,0,.8)}
+  .thumb{position:relative;background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .thumb video{width:100%;height:100%;object-fit:contain;background:#000}
+  .thumb.portrait video,.thumb.square video{object-fit:contain}
+  .thumb .fmt{position:absolute;top:9px;right:9px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--soft);background:rgba(0,0,0,.6);border:1px solid var(--line-2);border-radius:5px;padding:2px 7px;backdrop-filter:blur(4px)}
+  .cbody{padding:16px 18px 18px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .cbody h3{font-size:16px;letter-spacing:-.01em}
+  .cbody .job{color:var(--soft);font-size:12.5px;line-height:1.55;flex:1}
+  .cbody .reg{font-size:11.5px;color:var(--faint);line-height:1.5}
+  .cbody .reg b{color:var(--muted);font-weight:500}
+  .cfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:3px}
+  .editlink{font-size:12px;color:var(--accent);text-decoration:none;border:1px solid var(--accent-dim);
+    border-radius:7px;padding:5px 11px;transition:.15s}
+  .editlink:hover{background:rgba(217,119,87,.08);color:var(--accent-soft)}
+
+  footer{border-top:1px solid var(--line);padding:24px 0 50px;color:var(--faint);font-size:12px}
+  footer b{color:var(--soft);font-weight:500}
+
+  @media (max-width:880px){
+    .hero-card{grid-template-columns:1fr}
+    .cards{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="pvbar">PREVIEW — local design mock of the use-case gallery · <b>branch design/use-case-gallery</b> · not deployed</div>
+
+<div class="wrap">
+  <header>
+    <div class="kick">Gallery — rethought</div>
+    <h1>Start with the <span class="g">job</span>, not the terminal.</h1>
+    <p class="lede">The gallery used to be a wall of <b>terminals</b> (8 looks). This flips it: each tile is a
+      <b>job you came to do</b> — a README clip, a launch reel, an agent demo — and the terminal look becomes a
+      secondary toggle. Hover any tile, <b>make it yours</b> in the Composer. Every clip below was rendered by
+      termscene itself, lint-clean.</p>
+
+    <!-- STYLE TOGGLE (concept) -->
+    <div class="stylebar">
+      <span class="lbl">Style</span>
+      <div class="styles">
+        <span class="sty on"><span class="sw" style="background:#d97757"></span>claude</span>
+        <span class="sty"><span class="sw" style="background:#58a6ff"></span>midnight</span>
+        <span class="sty"><span class="sw" style="background:#37d837"></span>matrix</span>
+        <span class="sty"><span class="sw" style="background:#a8442a"></span>paper</span>
+        <span class="sty"><span class="sw" style="background:#a78bfa"></span>gemini</span>
+        <span class="sty"><span class="sw" style="background:#10a37f"></span>codex</span>
+        <span class="sty"><span class="sw" style="background:#4c8dff"></span>warp</span>
+        <span class="sty"><span class="sw" style="background:#88c0d0"></span>starship</span>
+        <span class="sty">+3</span>
+      </div>
+      <div class="stylenote">Secondary axis (concept). Re-skins the style-agnostic cards; constrained on the agent cards, locked on
+        lesson / ambient / launch so a re-skin can't dissolve a card's job-identity.</div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="heroband">
+    <div class="sec-h"><h2>The hero</h2><span class="hint">first impression · OG image · the proven wedge</span></div>
+    <div class="hero-card">
+      <video src="clips/hero-agent.mp4" autoplay muted loop playsinline></video>
+      <div class="hero-meta">
+        <span class="tag">Watch the agent do the work</span>
+        <h3>An AI agent, doing real work — perfectly.</h3>
+        <p>A typed instruction → Thinking → tool calls → a green test pass → a streamed summary. The on-zeitgeist
+          first frame of the whole gallery.</p>
+        <div class="personas"><span class="pchip">MNT</span><span class="pchip">DRA</span><span class="pchip">FDR</span></div>
+        <div class="moat"><b>Why mock:</b> a real run has dead air, retries, flaky tests — a flawless 9s take is a re-record lottery. termscene authors the ideal run.</div>
+        <a class="cta" href="#">Make this mine →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE 6 CARDS -->
+  <section class="gridwrap">
+    <div class="sec-h"><h2>Pick your job</h2><span class="hint">6 cards · each a distinct job AND a distinct visual register</span></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <footer>
+    <b>7 distinct registers:</b> terracotta tool-log · green receipt-table · red error dump · violet snap-reveal ·
+    chromeless loop · row-by-row verdict · light narrated before/after. The wall scans as “pick your job,” never “seven terminals.”
+    <br>Personas covered: MNT · DRA · FDR · EDU. Every clip rendered by termscene, lint-clean. Mock — not deployed.
+  </footer>
+</div>
+
+<script>
+const CARDS = [
+  { id:'card1-support-agent', title:'Your AI product, doing its job perfectly', aspect:'wide', fmt:'mp4',
+    personas:['FDR','DRA'],
+    job:'Show your AI product completing its real-world job flawlessly — even though the live system is half-built or flaky. (A support agent issuing a refund.)',
+    reg:'Green narrative-agent with a boxed result table + masked-PII receipts. Neutral base — reads as your product, not a branded CLI.' },
+  { id:'card2-repro', title:'It broke — paste the proof', aspect:'wide', fmt:'gif',
+    personas:['MNT','DRA'],
+    job:'Drop a clean, art-directed reproduction of a failing command + stack trace onto a GitHub issue or PR.',
+    reg:'An all-red error cascade — the polar opposite of the green agent hero. Plain chrome, issue-native. Screenshot-bait in a feed of green clips.' },
+  { id:'card3-launch-vertical', title:'Launch clip, vertical', aspect:'portrait', fmt:'mp4',
+    personas:['DRA','FDR'],
+    job:'A 6–8s scroll-stopping vertical clip of your product shipping — sized for X / LinkedIn / a story or reel.',
+    reg:'The only 9:16, wrapped in a violet social gutter. Snap-reveal cadence, brand-color accent. The dimension platforms actually want.' },
+  { id:'card4-ambient-loop', title:'Ambient loop behind your talk', aspect:'wide', fmt:'webm',
+    personas:['DRA'],
+    job:'A seamless, muted, never-ending terminal loop for b-roll behind a slide, a hero section, or a stream standby.',
+    reg:'Matrix mono-green, no chrome, seamless loopOffset cycle. The one thing recorders structurally cannot do.' },
+  { id:'card5-benchmark', title:'Benchmark bake-off: we win', aspect:'square', fmt:'gif',
+    personas:['DRA','FDR'],
+    job:'A flattering head-to-head benchmark table — your tool decisively beating the alternatives — as a social-proof clip.',
+    reg:'Codex austere data look, square + gutter. Competitors dim, your row streams in green and wins. The numbers are the template.' },
+  { id:'card6-lesson', title:'Teach one command', aspect:'square', fmt:'gif',
+    personas:['EDU'],
+    job:'A clean light-mode clip (or PNG still) explaining one command/concept, matched in look across a lesson or course.',
+    reg:'The only light card. Slow narrated typing, before/after reveal. Doubles as a still for slides.' },
+];
+const pchips = ps => ps.map(p=>`<span class="pchip">${p}</span>`).join('');
+document.getElementById('cards').innerHTML = CARDS.map(c=>`
+  <article class="card">
+    <div class="thumb ${c.aspect}">
+      <video src="clips/${c.id}.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <span class="fmt">${c.aspect} · ${c.fmt}</span>
+    </div>
+    <div class="cbody">
+      <h3>${c.title}</h3>
+      <div class="personas">${pchips(c.personas)}</div>
+      <p class="job">${c.job}</p>
+      <p class="reg"><b>Register:</b> ${c.reg}</p>
+      <div class="cfoot">
+        <a class="editlink" href="#">Make this mine →</a>
+      </div>
+    </div>
+  </article>`).join('');
+</script>
+</body>
+</html>

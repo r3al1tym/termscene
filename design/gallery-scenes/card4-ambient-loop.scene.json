@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "aspect": "wide",
+    "theme": { "preset": "matrix" },
+    "window": { "chrome": "none" },
+    "prompt": ">",
+    "loopOffset": "35%"
+  },
+  "steps": [
+    { "cmd": "./watch --stream" },
+    { "out": "[ok] watcher attached · 3 sources", "style": "dim" },
+    { "out": "→ ingest us-east-1   142 evt/s", "stream": 0.6 },
+    { "out": "→ ingest eu-west-1    98 evt/s", "stream": 0.6 },
+    { "out": "→ ingest ap-south-1  61 evt/s", "stream": 0.6 },
+    { "out": "Σ 301 evt/s · lag 0ms", "style": "ok" },
+    { "wait": 0.8 },
+    { "div": true },
+    { "out": "· flush ok · flush ok · flush ok", "style": "dim" },
+    { "wait": 1.0 }
+  ]
+}

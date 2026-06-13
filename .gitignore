@@ -8,6 +8,10 @@ dist/
 !docs/clips/*.mp4
 !docs/clips/*.gif
 !docs/clips/*.webm
+# Design-mock gallery clips (use-case gallery preview) are tracked.
+!design/gallery-preview/clips/*.mp4
+!design/gallery-preview/clips/*.gif
+!design/gallery-preview/clips/*.webm
 .DS_Store
 *.log
 workbench/out/

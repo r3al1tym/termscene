@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "aspect": "square",
+    "theme": { "preset": "paper" },
+    "window": { "chrome": "mac", "title": "lesson — git rebase" },
+    "align": "center",
+    "typeSpeed": 16,
+    "marginPad": 56,
+    "marginFill": "#e7e2d6"
+  },
+  "steps": [
+    { "out": "# replay your commits on top of main — no merge bubble", "style": "dim" },
+    { "wait": 0.5 },
+    { "cmd": "git rebase main", "holdBeforeEnter": 0.5 },
+    { "out": ["Successfully rebased and updated refs/heads/feature.", ""], "style": "ok" },
+    { "div": true },
+    { "out": "# now the history is a straight line:", "style": "dim" },
+    { "cmd": "git log --oneline --graph -4", "holdBeforeEnter": 0.5 },
+    { "out": [
+        "* 4a1c9f2  feat: add export button",
+        "* 9c3b1a7  feat: csv writer",
+        "* e7d22f0  chore: deps",
+        "* 1b9f034  (main) docs: readme"
+      ], "style": "accent" },
+    { "wait": 1.2 }
+  ]
+}
