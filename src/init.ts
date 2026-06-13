@@ -43,7 +43,7 @@ For a richer, always-loaded guide, install the termscene skill into your agent:
 3. **No emoji** — the bundled mono renders emoji (🦀🐍🍺✅) as tofu boxes. Use text
    labels or geometric glyphs (●▸✦⬢→✓). \`lint\` flags violations.
 4. Themes: claude · midnight · matrix · paper · gemini · codex · warp · iterm2 ·
-   macos · ubuntu · starship. Override any color on \`meta.theme\`.
+   macos · ubuntu · starship · kiro. Override any color on \`meta.theme\`.
 5. Pick aspect by destination: wide/landscape (README/desktop), square (feed),
    portrait (stories/reels). Use \`meta.loopOffset\` for seamless looping clips.
 `

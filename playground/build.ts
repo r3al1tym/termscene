@@ -69,6 +69,7 @@ const THEME_SW: Record<string, string> = {
   midnight: "#58a6ff",
   matrix: "#37d837",
   paper: "#a8442a",
+  kiro: "#9046ff",
 }
 
 async function main() {

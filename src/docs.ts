@@ -39,7 +39,7 @@ You never write timecodes — the compiler lays them out from the steps.`,
   themes: `THEMES — meta.theme.preset, override any color field on top.
 
   Generic:  claude  midnight  matrix  paper
-  Brands:   gemini  codex  warp  iterm2  macos  ubuntu  starship
+  Brands:   gemini  codex  warp  iterm2  macos  ubuntu  starship  kiro
 
   Override fields:
     bg fg out dim prompt cursor accent ok warn err

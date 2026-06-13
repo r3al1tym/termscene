@@ -128,6 +128,15 @@ export const THEMES: Record<string, SceneTheme> = {
     bar: "#1b1f2a", barText: "#5b616e", barTextStrong: "#a7adba",
     windowShadow: "0 24px 60px -20px rgba(0,0,0,.6)", windowRadius: 12,
   },
+  // Kiro (AWS agentic IDE) — purple-tinted near-black, vivid #9046FF brand purple
+  kiro: {
+    font: 'JBM,"DejaVu Sans Mono",monospace',
+    page: "#141118", bg: "#19161d", fg: "#ece9f1", out: "#a39fad", dim: "#615c6b",
+    prompt: "#c6a0ff", cursor: "#c6a0ff", accent: "#9046ff",
+    ok: "#80ffb5", warn: "#ffcf99", err: "#ff8080",
+    bar: "#28242e", barText: "#938f9b", barTextStrong: "#c2a0fd",
+    windowShadow: "0 24px 60px -20px rgba(0,0,0,.62)", windowRadius: 12,
+  },
   // light — for docs / light-mode landing pages
   paper: {
     font: 'JBM,"DejaVu Sans Mono",monospace',
