@@ -103,10 +103,34 @@
   .inst .copy:hover{color:var(--ink)}
 
   /* hero clip — large centered preview below the copy */
-  .stage{position:relative;z-index:1;margin-top:42px;padding:0 24px}
+  .stage{position:relative;z-index:1;margin-top:34px;padding:0 24px}
+  /* use-case strip: minimal text links that swap the hero clip below */
+  .usecases{max-width:1180px;margin:0 auto 16px;display:flex;justify-content:center;align-items:center;
+    flex-wrap:wrap;gap:4px}
+  .uc{appearance:none;background:transparent;border:0;cursor:pointer;font-family:inherit;
+    color:var(--muted);font-size:13px;letter-spacing:-.01em;padding:7px 13px;border-radius:8px;
+    transition:.18s;white-space:nowrap;position:relative}
+  .uc:hover{color:var(--soft)}
+  .uc[aria-selected="true"]{color:var(--ink)}
+  .uc .dot{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:7px;
+    vertical-align:middle;background:var(--swatch,var(--accent));opacity:.55;transition:.18s}
+  .uc[aria-selected="true"] .dot,.uc:hover .dot{opacity:1}
+  /* trailing CTA — make-your-own → playground; reads as an action, not a clip tab */
+  .uc-cta{color:var(--accent);text-decoration:none;font-size:13px;letter-spacing:-.01em;
+    padding:7px 13px;border-radius:8px;transition:.18s;white-space:nowrap;margin-left:4px}
+  .uc-cta:hover{color:var(--accent-soft);background:rgba(217,119,87,.08)}
+  .uc-cta .ar{transition:transform .18s}
+  .uc-cta:hover .ar{transform:translateX(2px)}
+  /* faint divider before the CTA so the demo set reads as one group */
+  .uc-sep{width:1px;height:14px;background:var(--line-2);margin:0 4px;flex:none}
+  @media (max-width:560px){ .uc-sep{display:none} }
   .hero-clip{max-width:1180px;margin:0 auto;border:1px solid var(--line-2);border-radius:15px;overflow:hidden;background:#000;
     box-shadow:0 56px 130px -42px rgba(0,0,0,.95),0 0 0 1px rgba(217,119,87,.05)}
-  .hero-clip video{display:block;width:100%;height:auto}
+  /* fixed 16:9 box so swapping clips never shifts layout */
+  .hero-clip .screen{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+  .hero-clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+    opacity:0;transition:opacity .35s ease}
+  .hero-clip video.show{opacity:1}
 
   /* ---------- sections ---------- */
   section{padding:74px 0;position:relative}
@@ -238,8 +262,9 @@
   </div>
 </section>
 <div class="stage">
+  <div class="usecases reveal" id="usecases" role="tablist" aria-label="What you can make"></div>
   <div class="hero-clip reveal">
-    <video src="clips/claude-code.mp4" autoplay muted loop playsinline></video>
+    <div class="screen" id="hero-screen"></div>
   </div>
 </div>
 
@@ -322,6 +347,56 @@
 </footer>
 
 <script>
+  // ---- hero use-case strip: 5 jobs, each its own clip + visual register ----
+  const USECASES = [
+    { id:'agent',      label:'Coding agent',  sw:'#d97757' },
+    { id:'ai-product', label:'Product demo', sw:'#34d399' },
+    { id:'launch',     label:'Launch clip',   sw:'#7c5cff' },
+    { id:'repro',      label:'Bug repro',     sw:'#f87171' },
+    { id:'benchmark',  label:'Benchmark',     sw:'#10a37f' },
+  ];
+  (function heroStrip(){
+    const strip = document.getElementById('usecases');
+    const screen = document.getElementById('hero-screen');
+    // build tabs + one preloaded looping video per use case (only active is shown)
+    USECASES.forEach((u,i) => {
+      const b = document.createElement('button');
+      b.className = 'uc'; b.type = 'button'; b.role = 'tab';
+      b.dataset.i = i; b.style.setProperty('--swatch', u.sw);
+      b.innerHTML = `<span class="dot"></span>${u.label}`;
+      strip.appendChild(b);
+      const v = document.createElement('video');
+      v.src = `clips/hero/${u.id}.mp4`;
+      v.muted = true; v.loop = true; v.playsInline = true;
+      v.preload = i === 0 ? 'auto' : 'metadata';
+      screen.appendChild(v);
+    });
+    // trailing "create your own" → playground (a CTA, not a clip tab)
+    const sep = document.createElement('span'); sep.className = 'uc-sep'; strip.appendChild(sep);
+    const cta = document.createElement('a'); cta.className = 'uc-cta'; cta.href = 'playground/';
+    cta.innerHTML = 'Create your own <span class="ar">→</span>'; strip.appendChild(cta);
+    const tabs = [...strip.querySelectorAll('.uc')], vids = [...screen.children];
+    let active = -1, timer = null, paused = false;
+    const ADVANCE = 7000;
+    function show(i){
+      if (i === active) return;
+      tabs.forEach((t,k)=>t.setAttribute('aria-selected', k===i));
+      vids.forEach((v,k)=>{
+        if (k===i){ v.classList.add('show'); v.currentTime = 0; v.play().catch(()=>{}); }
+        else { v.classList.remove('show'); v.pause(); }
+      });
+      active = i;
+    }
+    function next(){ show((active+1) % USECASES.length); }
+    function arm(){ clearTimeout(timer); if(!paused) timer = setTimeout(()=>{ next(); arm(); }, ADVANCE); }
+    tabs.forEach((t,i)=> t.addEventListener('click', ()=>{ show(i); arm(); }));
+    // pause auto-advance while the visitor is reading/hovering the strip or stage
+    const stage = strip.closest('.stage');
+    stage.addEventListener('mouseenter', ()=>{ paused = true; clearTimeout(timer); });
+    stage.addEventListener('mouseleave', ()=>{ paused = false; arm(); });
+    show(0); arm();
+  })();
+
   const TERMINALS = [
     { id:'claude-code', name:'Claude Code', sw:'#d97757', blurb:'warm dark · terracotta ❯ · ✻ thinking · ● tool calls' },
     { id:'gemini-cli', name:'Gemini CLI', sw:'#a78bfa', blurb:'dark slate · blue→violet · ✦ sparkle accents' },

@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "aspect": "wide",
+    "theme": { "preset": "codex" },
+    "window": { "chrome": "plain", "title": "bench" },
+    "align": "top",
+    "fontSize": 24,
+    "prompt": "$"
+  },
+  "steps": [
+    { "cmd": "hyperfine --warmup 3 'ripgrep-x' 'tool-a' 'tool-b' 'tool-c'" },
+    { "out": "Benchmarking 1.2M-line monorepo · 50 runs each", "style": "dim" },
+    { "progress": "running 200 measurements", "duration": 2.0 },
+    { "div": true },
+    { "out": [
+        "Tool             mean        vs ours",
+        "─────────────────────────────────────",
+        "tool-c          812 ms       8.4× slower",
+        "tool-b          410 ms       4.2× slower",
+        "tool-a          189 ms       1.9× slower"
+      ], "style": "dim", "lineDelay": 0.35 },
+    { "out": "ripgrep-x        97 ms       ◀ fastest", "style": "ok", "stream": 1.0 },
+    { "div": true },
+    { "out": "2× faster than the next best. Same results, half the wait.", "style": "accent", "stream": 1.4 }
+  ]
+}
