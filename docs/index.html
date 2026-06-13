@@ -75,21 +75,23 @@
   .tbreak{display:inline}
   .lede{color:var(--soft);margin:16px auto 0;max-width:64ch;font-size:15.5px;line-height:1.6}
 
-  /* primary CTA — the playground is the zero-install "value in 10s" path */
+  /* primary CTA — the SKILL is the lead: add it and your agent builds the clip */
   .cta-row{margin-top:24px;display:flex;gap:11px;justify-content:center;align-items:center;flex-wrap:wrap}
   .cta{display:inline-flex;align-items:center;gap:9px;text-decoration:none;border-radius:9px;
     font-weight:600;font-size:14px;letter-spacing:-.01em;transition:.18s;padding:9px 18px}
-  .cta-primary{background:var(--accent);color:#1a1108;border:1px solid var(--accent);
-    box-shadow:0 12px 30px -14px rgba(217,119,87,.7)}
-  .cta-primary:hover{background:var(--accent-soft);transform:translateY(-2px);
-    box-shadow:0 18px 40px -14px rgba(217,119,87,.8)}
-  .cta-primary .play{font-size:12px}
-  .cta-ghost{background:var(--panel);color:var(--soft);border:1px solid var(--line-2)}
-  .cta-ghost:hover{color:var(--ink);border-color:var(--accent-dim)}
-  .cta-sub{margin-top:11px;font-size:12.5px;color:var(--faint)}
+  /* the skill install pill, given primary weight — accent ring + glow */
+  .inst-primary{border-color:var(--accent);background:var(--panel-2);
+    box-shadow:0 12px 30px -14px rgba(217,119,87,.55);padding:11px 16px}
+  .inst-primary:hover{border-color:var(--accent-soft)}
+  .inst-primary .cmd{font-size:13.5px}
+  /* secondary CTA — the playground button, demoted to a quiet ghost */
+  .cta-secondary{background:var(--panel);color:var(--ink);border:1px solid var(--line-2)}
+  .cta-secondary:hover{color:var(--accent-soft);border-color:var(--accent-dim);transform:translateY(-2px)}
+  .cta-secondary .play{font-size:12px}
+  .cta-sub{margin-top:13px;font-size:12.5px;color:var(--faint);max-width:60ch;margin-left:auto;margin-right:auto;line-height:1.55}
   .cta-sub b{color:var(--soft);font-weight:500}
 
-  /* secondary door: the agent/skill path — clearly the second of two choices */
+  /* secondary door: the no-install browser path — clearly the second of two choices */
   .skill-door{margin-top:34px;max-width:560px;margin-left:auto;margin-right:auto}
   /* "or, in your editor" rule — visually separates the two doors */
   .door-or{display:flex;align-items:center;gap:14px;color:var(--faint);font-size:11.5px;
@@ -210,8 +212,9 @@
     .tbreak{display:none}                       /* let the title wrap naturally on small screens */
   }
   @media (max-width:520px){
-    .inst-skill{display:flex;width:100%;max-width:380px}
+    .inst-primary{display:flex;width:100%;max-width:400px}
     .inst .cmd{flex:1;min-width:0;white-space:normal;word-break:break-word;align-items:flex-start}
+    .cta-secondary{width:100%;max-width:400px;justify-content:center}
   }
 </style>
 </head>
@@ -235,22 +238,22 @@
 <section class="hero">
   <div class="wrap">
     <h1 class="reveal">Show the terminal experience<br class="tbreak"> <span class="g">before you build it.</span></h1>
-    <p class="lede reveal">Write the commands and the output in a few lines of script; termscene renders a clean, frame-perfect terminal video — for the experience you want to show, even one that doesn't exist yet.</p>
+    <p class="lede reveal">termscene renders a clean, frame-perfect terminal video from a few lines of script — for the experience you want to show, even one that doesn't exist yet. <b>Add the skill and just describe the clip; your coding agent builds it.</b></p>
 
     <div class="cta-row reveal">
-      <a class="cta cta-primary" href="playground/"><span class="play">▶</span> Open the playground</a>
-    </div>
-    <p class="cta-sub reveal">No install, no signup — <b>author a scene and export an mp4/gif right in your browser.</b></p>
-
-    <div class="skill-door reveal">
-      <p class="door-or"><span>or, in your editor</span></p>
-      <p class="door-label"><b>Add the skill, then describe the clip you want.</b> It teaches your agent the termscene loop — author the scene, lint, preview, render — so it builds the video for you.</p>
-      <div class="inst inst-skill">
+      <div class="inst inst-primary">
         <span class="lbl">skill</span>
         <div class="cmd"><span class="p">$</span> npx skills add r3al1tym/termscene</div>
         <button class="copy" data-copy="npx skills add r3al1tym/termscene">copy</button>
       </div>
-      <p class="door-hint">Works with <b>Claude Code</b>, Cursor, Gemini CLI, Codex &amp; other agents that support skills · also on <a href="https://github.com/r3al1tym/termscene" rel="noopener" target="_blank">npm</a> as the reference renderer for CI &amp; byte-stable output</p>
+    </div>
+    <p class="cta-sub reveal">It teaches your agent the loop — author the scene, lint, preview, render — so it makes the video for you. Works with <b>Claude Code</b>, Cursor, Gemini CLI, Codex &amp; other agents that support skills.</p>
+
+    <div class="skill-door reveal">
+      <p class="door-or"><span>or, no install</span></p>
+      <p class="door-label"><b>Make one yourself in the browser playground.</b> Author a scene in a live editor and export an mp4/gif right there — no install, no signup, nothing leaves the page.</p>
+      <a class="cta cta-secondary" href="playground/"><span class="play">▶</span> Open the playground</a>
+      <p class="door-hint">Also on <a href="https://github.com/r3al1tym/termscene" rel="noopener" target="_blank">npm</a> as the reference renderer for CI &amp; byte-stable output.</p>
     </div>
   </div>
 </section>
