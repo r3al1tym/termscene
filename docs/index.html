@@ -90,7 +90,9 @@
     background:var(--panel);padding:7px 12px;transition:.18s;cursor:pointer}
   .inst:hover{border-color:var(--accent-dim)}
   /* match the primary button's height: same vertical padding + cmd text size */
-  .inst-skill-min{padding:11px 14px}
+  /* accent border — flag this as the agent-first path, not just a muted tag */
+  .inst-skill-min{padding:11px 14px;border-color:var(--accent-dim)}
+  .inst-skill-min:hover{border-color:var(--accent)}
   .inst-skill-min .cmd{font-size:14px}
   .inst .lbl{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
   .inst .cmd{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);white-space:nowrap}
@@ -223,7 +225,7 @@
 <section class="hero">
   <div class="wrap">
     <h1 class="reveal">Show the terminal experience<br class="tbreak"> <span class="g">before you build it.</span></h1>
-    <p class="lede reveal">Describe the demo and your coding assistant scripts and renders it, even a flow that doesn't exist yet.</p>
+    <p class="lede reveal">Script a mock terminal you fully control and render it to a video or gif. Built for a coding agent to drive.</p>
 
     <div class="cta-row reveal">
       <div class="inst inst-skill-min">
@@ -244,13 +246,9 @@
 <!-- GALLERY -->
 <section id="gallery" class="divtop">
   <div class="wrap">
-    <div class="gallery-head">
-      <div>
-        <div class="kicker reveal">eight terminals, one engine</div>
-        <h2 class="reveal">Pick a look, <span class="g">tell your story.</span></h2>
-      </div>
-      <p class="sub reveal" style="max-width:36ch">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes — hover any clip to <b style="color:var(--accent);font-weight:500">open it in the playground</b> and make it yours.</p>
-    </div>
+    <div class="kicker reveal">eight terminals, one engine</div>
+    <h2 class="reveal">Pick a look, <span class="g">tell your story.</span></h2>
+    <p class="sub reveal">Each clip is a short scene file on a built-in theme. Mock a session in the terminal your audience already recognizes — hover any clip to <b style="color:var(--accent);font-weight:500">open it in the playground</b> and make it yours.</p>
     <div class="grid" id="grid"></div>
   </div>
 </section>
