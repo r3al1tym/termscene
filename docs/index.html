@@ -92,7 +92,9 @@
   .inst{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;
     background:var(--panel);padding:7px 12px;transition:.18s;cursor:pointer}
   .inst:hover{border-color:var(--accent-dim)}
-  .inst-skill-min{padding:9px 12px}
+  /* match the primary button's height: same vertical padding + cmd text size */
+  .inst-skill-min{padding:11px 14px}
+  .inst-skill-min .cmd{font-size:14px}
   .inst .lbl{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
   .inst .cmd{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);white-space:nowrap}
   .inst .cmd .p{flex:none;color:var(--accent)}
