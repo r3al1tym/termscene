@@ -3,120 +3,321 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>termscene · playground</title>
+<title>termscene Composer — make a terminal clip</title>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=1">
-<meta name="description" content="Author a terminal scene in the browser, scrub the timeline, and export to mp4, webm, gif, or png — entirely client-side.">
+<meta name="description" content="Compose a terminal clip line by line, pick a look, and export to mp4, gif, webm or png — entirely in your browser.">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
-    --bg:#0a0a0b;--panel:#111113;--panel-2:#16161a;--line:#232326;--line-2:#2e2e33;
+    --bg:#0a0a0b;--panel:#111113;--panel-2:#16161a;--panel-3:#1c1c21;--line:#222226;--line-2:#2c2c31;
     --ink:#fafafa;--soft:#a1a1aa;--muted:#6b6b73;--faint:#46464d;
     --accent:#d97757;--accent-soft:#e89478;--accent-dim:#a8543a;
     --ok:#4ade80;--warn:#fbbe2e;--err:#f25f57;
     --mono:'JBM','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --r:9px;
   }
   @font-face{font-family:JBM;src:url(fonts/jbm-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
   @font-face{font-family:JBM;src:url(fonts/jbm-Bold.woff2) format("woff2");font-weight:700;font-display:swap}
   html,body{height:100%}
-  /* ultra-minimal scrollbars — 4px, barely visible, everywhere */
   *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
-  *::-webkit-scrollbar{width:4px;height:4px}
+  *::-webkit-scrollbar{width:6px;height:6px}
   *::-webkit-scrollbar-track{background:transparent}
-  *::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+  *::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px}
   *::-webkit-scrollbar-thumb:hover{background:var(--faint)}
-  *::-webkit-scrollbar-corner{background:transparent}
   body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.6;
     -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
   .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
     background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-    background-size:54px 54px;opacity:.16;mask-image:radial-gradient(ellipse 90% 60% at 50% -10%,#000,transparent 75%)}
+    background-size:54px 54px;opacity:.13;mask-image:radial-gradient(ellipse 90% 60% at 50% -10%,#000,transparent 75%)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button{font-family:inherit}
 
-  /* nav */
-  header{position:relative;z-index:2;border-bottom:1px solid var(--line);flex:none}
-  header .in{display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 18px}
-  .brand{display:flex;align-items:center;gap:9px;font-weight:700}
-  .brand a{color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:9px}
-  .brand .d{width:9px;height:9px;background:var(--accent);border-radius:2px}
-  .brand .tag{color:var(--muted);font-weight:400;font-size:12px}
-  header .right{display:flex;gap:14px;align-items:center}
-  header a.lnk{color:var(--soft);text-decoration:none;font-size:12px}
-  header a.lnk:hover{color:var(--ink)}
+  /* ===================== icons (Lucide, inlined as SVG) ===================== */
+  /* stroke icons inherit currentColor; size via --sz. Brand marks (.ic-brand) are
+     filled instead of stroked. */
+  .ic{width:var(--sz,15px);height:var(--sz,15px);flex:none;display:inline-block;vertical-align:middle;
+    stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none}
+  .ic-brand{stroke:none;fill:currentColor}
+  .ic-sm{--sz:13px} .ic-lg{--sz:17px}
+  .ic-tile{color:var(--muted);flex:none}
 
-  /* layout: editor | preview */
-  main{flex:1;display:grid;grid-template-columns:minmax(360px,440px) 1fr;min-height:0;position:relative;z-index:1}
+  /* ===================== top bar ===================== */
+  header{position:relative;z-index:20;border-bottom:1px solid var(--line);flex:none;background:var(--bg)}
+  header .in{display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 18px;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand a{color:var(--soft);text-decoration:none;display:flex;align-items:center;gap:9px;font-weight:700}
+  .brand a:hover{color:var(--ink)}
+  .brand .d{width:9px;height:9px;background:var(--accent);border-radius:2px;flex:none}
+  .brand .sep{width:1px;height:18px;background:var(--line-2);flex:none}
+  /* the Composer wordmark — its own top-level mark */
+  .wordmark{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
+  .wordmark .sub{font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  header .right{display:flex;gap:9px;align-items:center}
+  .ghost{background:transparent;color:var(--soft);border:1px solid transparent;border-radius:8px;
+    padding:7px 12px;font-size:12px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+  .ghost:hover{color:var(--ink);background:var(--panel)}
+  .lnk{color:var(--muted);text-decoration:none;font-size:12px;padding:7px 6px;white-space:nowrap}
+  .lnk:hover{color:var(--ink)}
+  /* icon-only GitHub link */
+  .iconlnk{display:inline-flex;align-items:center;justify-content:center;color:var(--muted);width:32px;height:32px;
+    border-radius:8px;transition:.15s}
+  .iconlnk:hover{color:var(--ink);background:var(--panel)}
+  /* a faint vertical divider in the header right cluster */
+  .hsep{width:1px;height:18px;background:var(--line-2);flex:none;margin:0 2px}
+
+  /* export split-button (primary CTA) */
+  .export-cta{position:relative;display:inline-flex}
+  .export-cta .go{background:var(--accent);color:#1a1108;border:1px solid var(--accent);border-radius:8px 0 0 8px;
+    padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+  .export-cta .go:hover:not(:disabled){background:var(--accent-soft)}
+  .export-cta .go:disabled,.export-cta .caret:disabled{opacity:.45;cursor:not-allowed}
+  .export-cta .go .fmt{font-size:10px;opacity:.7;font-weight:600;letter-spacing:.04em}
+  .export-cta .caret{background:var(--accent);color:#1a1108;border:1px solid var(--accent);border-left:1px solid rgba(0,0,0,.2);
+    border-radius:0 8px 8px 0;padding:8px 9px;cursor:pointer;transition:.15s;font-size:10px;display:flex;align-items:center}
+  .export-cta .caret:hover:not(:disabled){background:var(--accent-soft)}
+  .export-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;background:var(--panel-2);border:1px solid var(--line-2);
+    border-radius:11px;padding:6px;min-width:230px;box-shadow:0 24px 60px -20px rgba(0,0,0,.85);display:none}
+  .export-menu.show{display:block}
+  .export-menu .opt{display:flex;align-items:center;gap:11px;width:100%;background:transparent;border:0;border-radius:7px;
+    padding:9px 11px;cursor:pointer;color:var(--soft);text-align:left;transition:.12s}
+  .export-menu .opt:hover{background:var(--panel-3);color:var(--ink)}
+  .export-menu .opt[disabled]{opacity:.4;cursor:not-allowed}
+  .export-menu .opt .ofmt{font-weight:700;font-size:12.5px;color:var(--ink);min-width:42px;text-transform:uppercase}
+  .export-menu .opt .ouse{font-size:11px;color:var(--muted)}
+  .export-menu .opt .odot{margin-left:auto;color:var(--accent);font-size:11px;opacity:0}
+  .export-menu .opt.active .odot{opacity:1}
+  .export-menu .mhint{font-size:10.5px;color:var(--faint);padding:7px 11px 4px;line-height:1.5}
+
+  /* ===================== layout ===================== */
+  main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0;position:relative;z-index:1}
   .col{display:flex;flex-direction:column;min-height:0;min-width:0}
-  .col.left{border-right:1px solid var(--line)}
+  .left{border-right:1px solid var(--line);background:var(--bg)}
 
-  .bar{flex:none;display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);
-    background:var(--panel);min-height:44px;flex-wrap:wrap}
-  .bar .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .bar .grow{flex:1}
-  select{background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:6px;
-    padding:5px 8px;font-family:inherit;font-size:12px;cursor:pointer}
-  select:hover{border-color:var(--accent-dim)}
+  /* command bar atop the left panel: Look · Aspect · options as popovers */
+  .cmdbar{flex:none;display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .chip{position:relative;display:inline-flex}
+  .chip>button{background:var(--panel-2);color:var(--soft);border:1px solid var(--line-2);border-radius:8px;
+    padding:6px 10px;font-size:11.5px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+  .chip>button:hover{border-color:var(--accent-dim);color:var(--ink)}
+  .chip>button .v{color:var(--ink);font-weight:600}
+  .chip>button .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .chip>button .car{color:var(--muted);display:inline-flex;align-items:center;margin-left:-2px}
+  .cmdbar .spacer{flex:1}
+  .cmdbar .codetoggle{background:transparent;border:1px solid var(--line-2);color:var(--muted);border-radius:8px;
+    padding:6px 8px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center}
+  .cmdbar .codetoggle[aria-pressed="true"]{border-color:var(--accent-dim);color:var(--accent-soft)}
+  .cmdbar .codetoggle:hover{color:var(--ink)}
 
-  /* editor */
-  #editor{flex:1;width:100%;resize:none;border:0;background:#0c0c0e;color:#e6e6e6;
-    font-family:var(--mono);font-size:12.5px;line-height:1.65;padding:14px 16px;tab-size:2;outline:none;
-    white-space:pre;overflow:auto}
-  #editor:focus{box-shadow:inset 0 0 0 1px var(--accent-dim)}
+  /* popover */
+  .pop{position:absolute;top:calc(100% + 7px);left:0;z-index:25;background:var(--panel-2);border:1px solid var(--line-2);
+    border-radius:11px;padding:11px;box-shadow:0 24px 60px -20px rgba(0,0,0,.85);display:none;min-width:210px}
+  .pop.show{display:block}
+  .pop .ph{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:2px 2px 9px}
+  .pop .grid-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .opt-tile{appearance:none;background:var(--panel-3);border:1px solid transparent;border-radius:8px;padding:9px 10px;
+    cursor:pointer;color:var(--soft);text-align:left;transition:.12s;font-size:11.5px;display:flex;align-items:center;gap:8px}
+  .opt-tile:hover{border-color:var(--accent-dim);color:var(--ink)}
+  .opt-tile[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:rgba(217,119,87,.08)}
+  .opt-tile .sw{width:11px;height:11px;border-radius:3px;flex:none}
+  .opt-tile .shape{width:18px;height:18px;border:1.5px solid currentColor;border-radius:3px;flex:none;opacity:.8}
+  .swgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-height:230px;overflow:auto}
 
-  /* lint panel */
-  #lint{flex:none;max-height:34%;overflow:auto;border-top:1px solid var(--line);background:var(--panel);
-    padding:10px 14px;font-size:12px}
+  /* ===================== lines (the core of the left panel) ===================== */
+  /* Designed for density: typical scenes run 8–13 steps. Each row is ONE line at
+     rest ([kindtag][field]); secondary controls disclose below only on hover/focus. */
+  .lines-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px}
+  .lines-head .t{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .lines-head .n{font-size:11px;color:var(--faint)}
+  /* soft right-edge fade so wide lines condense gracefully instead of guillotining
+     through glyphs at the panel edge (the panel is only 340px wide). */
+  .lines{flex:1;overflow:auto;padding:0 8px 8px;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 16px),transparent);
+    mask-image:linear-gradient(90deg,#000 calc(100% - 16px),transparent)}
+  /* a row — compact single line */
+  .row{position:relative;display:flex;align-items:flex-start;gap:0;border-radius:7px;
+    background:transparent;transition:background .12s}
+  .row:hover{background:var(--panel)}
+  .row.sel{background:var(--panel-2)}
+  .row.dragging{opacity:.5}
+  .row.dragover::before{content:"";position:absolute;top:-2px;left:6px;right:6px;height:2px;background:var(--accent);border-radius:2px}
+  .row .handle{flex:none;width:18px;align-self:stretch;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--faint);
+    opacity:0;transition:.12s;font-size:12px;touch-action:none}
+  .row:hover .handle,.row.sel .handle{opacity:1}
+  .row .handle:active{cursor:grabbing}
+  .row .main{flex:1;min-width:0;padding:3px 2px 3px 0;display:flex;flex-direction:column;gap:4px}
+  .row .toprow{display:flex;align-items:center;gap:7px;min-height:28px}
+  .kindtag{flex:none;width:46px;text-align:center;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+    background:var(--panel-3);border-radius:5px;padding:4px 0;cursor:pointer;border:1px solid transparent;transition:.12s}
+  .kindtag:hover{border-color:var(--line-2);color:var(--soft)}
+  .kindtag.cmd{color:var(--accent-soft)} .kindtag.out{color:var(--soft)}
+  .kindtag.prog{color:var(--warn)} .kindtag.wait,.kindtag.div{color:var(--faint)}
+  .row .ipt{flex:1;min-width:0;background:transparent;color:#eaeaea;border:1px solid transparent;border-radius:6px;
+    padding:4px 7px;font-family:var(--mono);font-size:12px;outline:none;transition:.12s}
+  .row:hover .ipt,.row.sel .ipt{background:var(--panel-3);border-color:var(--line)}
+  .row .ipt:focus{border-color:var(--accent-dim);background:#0e0e10}
+  /* output is pre-formatted terminal text — don't wrap it into a mush; keep each
+     line intact and let wide lines scroll horizontally (matches the real render).
+     resize:none — rows auto-size from the line count, no native OS grip. */
+  textarea.ipt{resize:none;line-height:1.5;min-height:28px;white-space:pre;overflow:hidden}
+  textarea.ipt:focus,textarea.ipt:hover{overflow:auto}
+  .row .ml{color:var(--faint);font-size:11px;flex:none}
+  /* progressive disclosure: secondary controls (style, duration) only when the
+     row is hovered, focused-within, or selected — resting state stays minimal */
+  .row .meta-line{display:none;gap:6px;align-items:center;flex-wrap:wrap;padding-left:53px}
+  .row:hover .meta-line,.row:focus-within .meta-line,.row.sel .meta-line{display:flex}
+  .row .mini{background:var(--panel-3);color:var(--soft);border:1px solid var(--line);border-radius:6px;
+    padding:3px 7px;font-family:inherit;font-size:11px;cursor:pointer}
+  .row .mini:hover{border-color:var(--line-2);color:var(--ink)}
+  .row .del{flex:none;width:22px;background:transparent;border:0;color:var(--faint);cursor:pointer;opacity:0;
+    transition:.12s;font-size:14px;align-self:flex-start;padding-top:6px}
+  .row:hover .del,.row.sel .del{opacity:1}
+  .row .del:hover{color:var(--err)}
+  .blankrow{color:var(--faint);font-size:11.5px;font-style:normal}
+
+  /* insert affordance between rows — a faint resting hairline hints the insert
+     point exists; hovering grows it into a tappable "+ insert" pill. The button
+     itself stays a real, focusable target (keyboard + touch reach it). */
+  .insert{height:10px;position:relative;display:flex;align-items:center;justify-content:center;transition:.12s}
+  .insert::before{content:"";position:absolute;left:30px;right:30px;height:1px;background:var(--line);opacity:.55;transition:.12s}
+  .insert:hover{height:20px}
+  .insert:hover::before{opacity:0}
+  .insert button{position:relative;background:var(--panel-2);border:1px solid var(--line-2);color:var(--muted);border-radius:20px;
+    font-size:10.5px;line-height:1;padding:3px 10px 3px 7px;cursor:pointer;transition:.12s;white-space:nowrap;opacity:0;
+    display:inline-flex;align-items:center;gap:3px}
+  .insert:hover button,.insert button:focus-visible{opacity:1}
+  .insert button:hover,.insert button:focus-visible{border-color:var(--accent-dim);color:var(--accent-soft)}
+
+  /* add bar at the bottom of the list */
+  .addbar{flex:none;display:flex;gap:8px;padding:11px 14px;border-top:1px solid var(--line)}
+  .addbar button{flex:1;background:var(--panel-2);border:1px dashed var(--line-2);color:var(--soft);border-radius:8px;
+    padding:9px;font-size:12px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .addbar button .ic{color:var(--muted)}
+  .addbar button:hover{border-color:var(--accent-dim);color:var(--accent-soft);border-style:solid}
+  .addbar button:hover .ic{color:var(--accent-soft)}
+
+  /* code mode (progressive disclosure — hidden until toggled) */
+  .codepane{flex:1;display:none;flex-direction:column;min-height:0}
+  .codepane.show{display:flex}
+  .left.codeon .lines-head,.left.codeon .lines,.left.codeon .addbar{display:none}
+  .editorwrap{flex:1;display:flex;min-height:0;background:#0c0c0e}
+  #gutter{flex:none;padding:11px 8px 11px 12px;text-align:right;color:var(--faint);background:#0a0a0c;
+    font-family:var(--mono);font-size:12.5px;line-height:1.6;user-select:none;overflow:hidden;border-right:1px solid var(--line);min-width:34px;white-space:pre}
+  /* the highlight overlay (#hl) and the textarea (#editor) share identical box
+     metrics so the colored text sits exactly under the caret. */
+  .codescroll{flex:1;position:relative;min-width:0;overflow:hidden}
+  #hl,#editor{margin:0;border:0;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+    padding:11px 14px 11px 10px;tab-size:2;white-space:pre;word-wrap:normal;letter-spacing:0}
+  #hl{position:absolute;inset:0;overflow:auto;color:#e6e6e6;background:#0c0c0e;pointer-events:none;z-index:0}
+  #editor{position:absolute;inset:0;width:100%;height:100%;resize:none;background:transparent;
+    color:transparent;caret-color:var(--accent);outline:none;overflow:auto;z-index:1}
+  #editor::selection{background:rgba(217,119,87,.28);color:transparent}
+  /* JSON token colors */
+  #hl .tk{color:var(--accent-soft)}      /* keys */
+  #hl .ts{color:#9bd89b}                  /* strings */
+  #hl .tn{color:#d9a05b}                  /* numbers */
+  #hl .tb{color:#7ab8e6}                   /* booleans / null */
+  #hl .tp{color:var(--muted)}             /* punctuation */
+  #lint{flex:none;max-height:36%;overflow:auto;border-top:1px solid var(--line);background:var(--panel);padding:9px 13px;font-size:12px}
   .linthead{margin-bottom:6px;display:flex;gap:14px}
   #lint .ok{color:var(--ok)} #lint .err{color:var(--err)} #lint .warn{color:var(--warn)}
-  .finding{display:grid;grid-template-columns:54px 60px 1fr;gap:8px;padding:3px 0;align-items:start;border-top:1px solid var(--line)}
+  .finding{display:grid;grid-template-columns:50px 58px 1fr;gap:8px;padding:4px 0;align-items:start;border-top:1px solid var(--line);
+    width:100%;text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0;color:inherit;font-family:inherit;font-size:inherit;cursor:pointer}
+  .finding:hover{background:var(--panel-2)}
   .finding .lv{text-transform:uppercase;font-size:10px;letter-spacing:.06em;padding-top:2px}
   .finding.error .lv{color:var(--err)} .finding.warn .lv{color:var(--warn)} .finding.info .lv{color:var(--soft)}
-  .finding .wh{color:var(--muted);font-size:11px;padding-top:1px}
+  .finding .wh{color:var(--muted);font-size:11px}
   .finding .msg{color:var(--soft);line-height:1.5}
+  .finding .msg .det{color:var(--faint);text-decoration:underline;font-size:11px}
 
-  /* preview */
-  #frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:24px;background:
-    radial-gradient(60% 50% at 50% 30%,rgba(217,119,87,.05),transparent 70%)}
-  #stage{background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px var(--line-2);border-radius:4px;
-    max-width:100%;max-height:100%}
+  /* ===================== preview (right) ===================== */
+  .right{position:relative}
+  #frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:30px;position:relative;
+    background:radial-gradient(60% 50% at 50% 28%,rgba(217,119,87,.05),transparent 70%)}
+  .canvaswrap{position:relative;max-width:100%;max-height:100%;line-height:0}
+  #stage{background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px var(--line-2);border-radius:6px;
+    max-width:100%;max-height:100%;display:block}
+  #pausechip{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;display:none;align-items:center;gap:6px;
+    background:rgba(242,95,87,.14);border:1px solid var(--err);color:#ffd9d6;border-radius:999px;padding:6px 14px;font-size:12px;white-space:nowrap}
+  #pausechip.show{display:inline-flex}
+  #emptyhint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:4;color:var(--muted);
+    font-size:13px;text-align:center;padding:24px;pointer-events:none}
+  #emptyhint.show{display:flex}
 
-  /* controls + export */
-  .controls{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:11px 16px;
-    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  button.pill{background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:7px;
-    padding:7px 14px;font-family:inherit;font-size:12px;cursor:pointer;transition:.15s}
-  button.pill:hover:not(:disabled){border-color:var(--accent-dim);color:var(--accent-soft)}
-  button.pill:disabled{opacity:.38;cursor:not-allowed}
-  #scrub{flex:1;min-width:120px;accent-color:var(--accent);cursor:pointer}
-  #time{color:var(--muted);font-variant-numeric:tabular-nums;min-width:108px;text-align:right;font-size:12px}
-  #export{display:flex;gap:7px}
-  #export button{background:var(--panel-2);color:var(--soft);border:1px solid var(--line-2);border-radius:7px;
-    padding:7px 12px;font-family:inherit;font-size:11.5px;cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:.05em}
-  #export button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-soft);background:rgba(217,119,87,.07)}
-  #export button:disabled{opacity:.32;cursor:not-allowed}
-  #export button.primary{border-color:var(--accent-dim);color:var(--accent-soft)}
+  /* transport controls under the preview */
+  .controls{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:11px 18px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+  .pill{background:var(--panel-2);color:var(--ink);border:1px solid var(--line-2);border-radius:8px;padding:7px 14px 7px 12px;font-size:12px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .pill:hover:not(:disabled){border-color:var(--accent-dim);color:var(--accent-soft)}
+  .pill:disabled{opacity:.4;cursor:not-allowed}
+  .scrubwrap{flex:1;min-width:120px;position:relative;display:flex;align-items:center}
+  #scrubticks{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);pointer-events:none;z-index:0}
+  #scrubticks i{position:absolute;width:2px;height:8px;background:var(--line-2);border-radius:1px;top:0}
+  /* restrained scrub: thin neutral rail, a DIM played portion (so it doesn't rival
+     the Export CTA for the eye at rest), and only the thumb in full accent. The
+     played fill is driven by --pct, set from renderCurrent() as t/duration. */
+  #scrub{position:relative;z-index:1;width:100%;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;--pct:0}
+  #scrub::-webkit-slider-runnable-track{height:4px;border-radius:3px;
+    background:linear-gradient(90deg,var(--accent-dim) calc(var(--pct)*1%),var(--line-2) 0)}
+  #scrub::-moz-range-track{height:4px;border-radius:3px;background:var(--line-2)}
+  #scrub::-moz-range-progress{height:4px;border-radius:3px;background:var(--accent-dim)}
+  #scrub::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;
+    background:var(--accent);border:2px solid var(--bg);margin-top:-5px;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+  #scrub::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+  #scrub:disabled{opacity:.4;cursor:not-allowed}
+  #time{color:var(--muted);font-variant-numeric:tabular-nums;min-width:104px;text-align:right;font-size:12px}
+  .modeseg{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;background:var(--panel-2)}
+  .modeseg button{appearance:none;background:transparent;border:0;color:var(--muted);font-family:inherit;font-size:11.5px;padding:6px 11px;cursor:pointer;transition:.15s}
+  .modeseg button[aria-pressed="true"]{background:var(--accent);color:#1a1108;font-weight:600}
+  .modeseg button:not([aria-pressed="true"]):hover{color:var(--ink)}
 
-  .statusrow{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:8px 16px;
-    display:flex;align-items:center;gap:14px;min-height:38px;font-size:12px}
-  #status{color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #examples{display:flex;gap:6px;flex-wrap:wrap}
-  .ex{background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--soft);
-    padding:4px 9px;font-family:inherit;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
-  .ex:hover{border-color:var(--line-2);color:var(--ink)}
-  .ex .sw{width:8px;height:8px;border-radius:2px;flex:none}
-
-  /* progress */
   #progressbar{flex:none;height:0;overflow:hidden;background:var(--panel-2);transition:height .2s;border-top:1px solid transparent}
   #progressbar.show{height:34px;border-top-color:var(--line)}
-  #progressbar .in{display:flex;align-items:center;gap:12px;padding:7px 16px;height:34px}
+  #progressbar .in{display:flex;align-items:center;gap:12px;padding:7px 18px;height:34px}
   #progressfill{height:5px;background:var(--accent);border-radius:3px;width:0;transition:width .12s;flex:none;min-width:5px}
   .ptrack{flex:1;height:5px;background:var(--line);border-radius:3px;overflow:hidden;display:flex}
   #progresslabel{color:var(--soft);font-size:11.5px;min-width:160px;font-variant-numeric:tabular-nums}
 
-  .note{font-size:11px;color:var(--faint);padding:7px 16px;border-top:1px solid var(--line);background:var(--panel);flex:none}
-  .note b{color:var(--muted);font-weight:500}
+  .statusrow{flex:none;border-top:1px solid var(--line);background:var(--panel);padding:8px 18px;display:flex;align-items:center;gap:14px;min-height:36px;font-size:11.5px}
+  #status{color:var(--soft);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #status.good{color:var(--ok)} #status.bad{color:var(--err)}
+  #status .codenote{color:var(--faint)}
+  #status .warnnote{color:var(--warn);display:none}
+  #status .warnnote.show{display:inline}
 
+  /* ===================== template picker ===================== */
+  #picker{position:fixed;inset:0;z-index:40;background:rgba(8,8,9,.86);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:24px;overflow:auto}
+  #picker.show{display:flex}
+  .picker-card{background:var(--panel);border:1px solid var(--line-2);border-radius:16px;max-width:860px;width:100%;padding:28px;box-shadow:0 40px 120px -40px rgba(0,0,0,.9)}
+  .picker-card h2{font-size:21px;font-weight:700;letter-spacing:-.02em}
+  .picker-card .psub{color:var(--soft);font-size:13px;margin-top:6px}
+  .jobs{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .job{appearance:none;text-align:left;background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:16px;cursor:pointer;transition:.16s;color:var(--soft)}
+  .job:hover{border-color:var(--accent);transform:translateY(-2px);background:rgba(217,119,87,.06)}
+  .job .jt{font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .job .jt .sw{width:9px;height:9px;border-radius:2px;flex:none}
+  .job .jd{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .picker-foot{margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .picker-foot .blank{color:var(--muted);font-size:12.5px}
+  .picker-foot button.link{color:var(--accent);background:none;border:0;font-family:inherit;font-size:12.5px;cursor:pointer}
+  .picker-foot button.link:hover{color:var(--accent-soft)}
+  .picker-foot .muted{color:var(--muted)}
+
+  #mobileEdit{display:none}
+
+  /* ===================== responsive ===================== */
   @media (max-width:860px){
-    main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
-    .col.left{border-right:0;border-bottom:1px solid var(--line)}
+    main{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    .left{border-right:0;border-bottom:1px solid var(--line);order:2;max-height:46vh}
+    .right{order:1}
+  }
+  @media (max-width:640px){
+    main{grid-template-rows:1fr auto}
+    .left{max-height:0;overflow:hidden;border-bottom:0}
+    body.editing .left{max-height:64vh;border-bottom:1px solid var(--line)}
+    #frame{padding:12px}
+    #mobileEdit{display:inline-flex}
+    .jobs{grid-template-columns:1fr}
+    /* keep editor + highlight overlay + gutter on one shared `pre` metric (they
+       scroll horizontally together) so the caret/tokens never drift on mobile. */
   }
 </style>
 </head>
@@ -125,51 +326,132 @@
 
 <header>
   <div class="in">
-    <div class="brand"><a href="../"><span class="d"></span>termscene</a><span class="tag">· playground</span></div>
+    <div class="brand">
+      <a href="../"><span class="d"></span>termscene</a>
+      <span class="sep"></span>
+      <span class="wordmark">Composer <span class="sub">beta</span></span>
+    </div>
     <div class="right">
-      <a class="lnk" href="../#gallery">Gallery</a>
-      <a class="lnk" href="https://github.com/r3al1tym/termscene" target="_blank" rel="noopener">GitHub ↗</a>
+      <button class="ghost" id="mobileEdit" aria-pressed="false">Edit</button>
+      <a class="iconlnk" href="https://github.com/r3al1tym/termscene" target="_blank" rel="noopener" title="termscene on GitHub" aria-label="termscene on GitHub">
+        <svg class="ic ic-brand" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      <span class="hsep"></span>
+      <button class="ghost" id="templatesBtn">
+        <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="7" x="3" y="3" rx="1"/><rect width="9" height="7" x="3" y="14" rx="1"/><rect width="5" height="7" x="16" y="14" rx="1"/></svg>Templates
+      </button>
+      <!-- Share: secondary button, sits next to the Export CTA -->
+      <button class="ghost" id="shareBtn" title="Copy a link to this scene">
+        <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>Share
+      </button>
+      <!-- primary CTA: export split-button, mp4 default -->
+      <div class="export-cta">
+        <button class="go" id="exportGo">
+          <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Export <span class="fmt" id="exportFmtLabel">MP4</span>
+        </button>
+        <button class="caret" id="exportCaret" aria-haspopup="true" aria-expanded="false" aria-label="Choose export format">
+          <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="export-menu" id="exportMenu" role="menu"></div>
+      </div>
     </div>
   </div>
 </header>
 
 <main>
-  <!-- EDITOR -->
-  <section class="col left">
-    <div class="bar">
-      <span class="label">scene.json</span>
-      <span class="grow"></span>
-      <span class="label">theme</span>
-      <select id="theme"></select>
-      <span class="label">aspect</span>
-      <select id="aspect"></select>
+  <!-- LEFT: minimal, lines-first -->
+  <section class="col left" id="leftcol" aria-label="Scene editor">
+    <!-- command bar: minimal by default — one Customize disclosure holds Look /
+         Aspect / Window. Code stays tucked at the far right. -->
+    <div class="cmdbar">
+      <div class="chip">
+        <button id="customizeBtn" aria-haspopup="true" aria-expanded="false">
+          <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>Customize<span class="car"><svg class="ic" style="--sz:13px" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+        </button>
+        <div class="pop pop-wide" id="customizePop">
+          <div class="ph">Look</div>
+          <div class="swgrid" id="lookGrid" style="margin-bottom:13px"></div>
+          <div class="ph">Aspect</div>
+          <div class="grid-opts" id="aspectGrid" style="margin-bottom:13px"></div>
+          <div class="ph">Window</div>
+          <div class="grid-opts" id="chromeGrid" style="margin-bottom:10px"></div>
+          <input class="ipt" id="titleInput" style="width:100%" placeholder="window title" aria-label="window title">
+        </div>
+      </div>
+      <span class="spacer"></span>
+      <button class="codetoggle" id="codeToggle" aria-pressed="false" title="Edit raw JSON" aria-label="Edit raw JSON">
+        <svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+      </button>
     </div>
-    <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
-    <div id="lint"></div>
+
+    <!-- the lines (visual editor) -->
+    <div class="lines-head"><span class="t">Lines</span><span class="n" id="lineCount"></span></div>
+    <div class="lines" id="lines"></div>
+    <div class="addbar">
+      <button id="addCmd"><svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>command</button>
+      <button id="addOut"><svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>output</button>
+      <button id="addMore" aria-haspopup="true">more<svg class="ic" style="--sz:13px" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="pop" id="morePop2" style="left:auto;right:14px;bottom:54px;top:auto"></div>
+    </div>
+
+    <!-- CODE pane (progressive disclosure) — syntax-highlighted JSON.
+         A colored <pre> overlay sits behind a transparent-text <textarea>; the
+         textarea keeps all native editing (caret, selection, keyboard, scroll). -->
+    <div class="codepane" id="codepane">
+      <div class="editorwrap">
+        <div id="gutter" aria-hidden="true">1</div>
+        <div class="codescroll">
+          <pre id="hl" aria-hidden="true"></pre>
+          <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off" aria-label="Scene JSON"></textarea>
+        </div>
+      </div>
+      <div id="lint" aria-live="polite"></div>
+    </div>
   </section>
 
-  <!-- PREVIEW -->
-  <section class="col">
-    <div id="frame"><canvas id="stage" width="1080" height="1080"></canvas></div>
+  <!-- RIGHT: preview -->
+  <section class="col right" aria-label="Preview">
+    <div id="frame">
+      <div class="canvaswrap" id="canvaswrap">
+        <canvas id="stage" width="1080" height="1080" role="img" aria-label="Scene preview"></canvas>
+        <div id="pausechip"><svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>preview paused — fix the error to continue</div>
+        <div id="emptyhint">Nothing here yet.<br>Add a command or output on the left to begin.</div>
+      </div>
+    </div>
     <div class="controls">
-      <button class="pill" id="play">▶ play</button>
-      <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
+      <button class="pill" id="play" aria-label="Play"><svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>play</button>
+      <span class="scrubwrap"><span id="scrubticks" aria-hidden="true"></span>
+        <input id="scrub" type="range" min="0" max="1" step="0.001" value="0" aria-label="Scrub timeline"></span>
       <span id="time">0.00 / 0.00s</span>
-      <div id="export">
-        <button class="primary" data-fmt="mp4">mp4</button>
-        <button data-fmt="webm">webm</button>
-        <button data-fmt="gif">gif</button>
-        <button data-fmt="png">png</button>
+      <div class="modeseg" role="group" aria-label="Preview mode">
+        <button id="composeBtn" aria-pressed="true" title="Static, fully-settled">Compose</button>
+        <button id="playBtn2" aria-pressed="false" title="Timed playback">Play</button>
       </div>
     </div>
     <div id="progressbar"><div class="in"><div class="ptrack"><div id="progressfill"></div></div><span id="progresslabel"></span></div></div>
     <div class="statusrow">
-      <span id="status">loading…</span>
-      <div id="examples"></div>
+      <span id="status">loading…
+        <span class="warnnote" id="webcodecsNote"> · mp4/webm need WebCodecs (Chrome/Edge, Safari 16.4+) — gif &amp; png always work.</span>
+      </span>
     </div>
-    <div class="note">Browser export is visually faithful but not byte-identical to the CLI. For reproducible, diffable renders use <b>termscene render</b>. mp4/webm need WebCodecs (Chrome/Edge/Safari 16.4+/Firefox 130+); png &amp; gif work everywhere.</div>
   </section>
 </main>
+
+<!-- TEMPLATE PICKER -->
+<div id="picker" role="dialog" aria-modal="true" aria-label="Pick a template">
+  <div class="picker-card">
+    <h2>What do you want to make?</h2>
+    <p class="psub">Start from a finished clip and make it yours — edit the lines, pick a look, export.</p>
+    <div class="jobs" id="jobs"></div>
+    <div class="picker-foot">
+      <span class="blank">Know exactly what you want?</span>
+      <div style="display:flex;gap:16px;align-items:center">
+        <button class="link" id="startBlank">Start from blank →</button>
+        <button class="link muted" id="closePicker">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module" src="playground.js"></script>
 </body>

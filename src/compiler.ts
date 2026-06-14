@@ -61,7 +61,9 @@ export function compile(scene: Scene): CompiledScene {
   const events: CompiledEvent[] = []
   let t = 0.2 // small lead-in so the first frame isn't mid-keystroke
 
+  let stepIndex = -1
   for (const step of scene.steps) {
+    stepIndex++ // source-step ordinal; carried onto each event for click-to-edit
     if (isWait(step)) {
       t += step.wait
       continue
@@ -71,23 +73,25 @@ export function compile(scene: Scene): CompiledScene {
       const fillEnd = appearAt + step.duration
       events.push({
         kind: "progress",
-        label: step.progress,
+        label: typeof step.progress === "string" ? step.progress : String(step.progress ?? ""),
         appearAt: round(appearAt),
         fillEnd: round(fillEnd),
         width: step.width ?? 22,
         cls: step.style,
         pct: step.pct ?? true,
+        stepIndex,
       })
       t = fillEnd + DEFAULTS.lineDelay
       continue
     }
     if (isDiv(step)) {
-      events.push({ kind: "div", appearAt: round(t) })
+      events.push({ kind: "div", appearAt: round(t), stepIndex })
       continue
     }
     if (isCmd(step)) {
       const speed = step.typeSpeed ?? defaultTypeSpeed
-      const text = step.cmd
+      // coerce: a non-string cmd is a lint error, but never throw the renderer
+      const text = typeof step.cmd === "string" ? step.cmd : String(step.cmd ?? "")
       const typeStart = t
       const typeDur = Math.max(0.12, text.length / speed)
       const typeEnd = typeStart + typeDur
@@ -100,18 +104,24 @@ export function compile(scene: Scene): CompiledScene {
         typeStart: round(typeStart),
         typeEnd: round(typeEnd),
         commitAt: round(commitAt),
+        stepIndex,
       })
       t = commitAt + DEFAULTS.outGap
       continue
     }
     if (isOut(step)) {
-      const lines = Array.isArray(step.out) ? step.out : [step.out]
+      // coerce each line to a string — a non-string out is a lint error, but the
+      // renderer iterates text char-by-char and must never throw on bad input.
+      const rawLines = Array.isArray(step.out) ? step.out : [step.out]
+      const lines = rawLines.map((l) => (typeof l === "string" ? l : String(l ?? "")))
       const lineDelay = step.lineDelay ?? DEFAULTS.lineDelay
       const cls = step.style
       // a single `stream` budget is spread across the block's characters
       const totalChars = lines.reduce((n, l) => n + l.length, 0) || 1
       let charsSoFar = 0
+      let outLineIndex = -1
       for (const line of lines) {
+        outLineIndex++
         const appearAt = t
         let streamEnd: number | null = null
         if (step.stream && step.stream > 0) {
@@ -127,6 +137,8 @@ export function compile(scene: Scene): CompiledScene {
           streamEnd: streamEnd != null ? round(streamEnd) : null,
           cls,
           html: step.html,
+          stepIndex,
+          outLineIndex,
         })
         charsSoFar += line.length
         if (!step.stream) t += lineDelay

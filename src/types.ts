@@ -115,6 +115,10 @@ export interface Scene {
 
 // ---- compiled output (what the engine consumes on window.SCENE) ----
 
+// `stepIndex` (and `outLineIndex` for a multi-line `out`) tie each compiled event
+// back to the source step it came from. The CLI ignores these; the playground
+// Composer uses them to map a canvas click → the editable step. Optional so older
+// callers / tests that construct events by hand stay valid.
 export interface CmdEvent {
   kind: "cmd"
   prompt: string | null
@@ -122,6 +126,7 @@ export interface CmdEvent {
   typeStart: number
   typeEnd: number
   commitAt: number | null
+  stepIndex?: number
 }
 export interface OutEvent {
   kind: "out"
@@ -130,10 +135,13 @@ export interface OutEvent {
   streamEnd: number | null
   cls?: string
   html?: boolean
+  stepIndex?: number
+  outLineIndex?: number
 }
 export interface DivEvent {
   kind: "div"
   appearAt: number
+  stepIndex?: number
 }
 export interface ProgressEvent {
   kind: "progress"
@@ -143,6 +151,7 @@ export interface ProgressEvent {
   width: number
   cls?: string
   pct: boolean
+  stepIndex?: number
 }
 export type CompiledEvent = CmdEvent | OutEvent | DivEvent | ProgressEvent
 

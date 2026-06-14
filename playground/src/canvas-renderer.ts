@@ -115,25 +115,37 @@ interface RenderedLine {
   spans: Span[]
   cursor: boolean // append a cursor block after the spans
   cursorOpacity: number
+  stepIndex?: number // source step this line came from (for click-to-edit)
 }
+
+/** Compose mode renders the scene FULLY SETTLED — every line shown in its final
+ *  state, no typing, no streaming, no blinking cursor — so editing happens against
+ *  a static "document" rather than a moving playhead. Play mode is the timed render. */
+export type RenderMode = "play" | "compose"
 
 // Produce the visible lines for time t — the canvas analogue of building the
 // transcript innerHTML. Timing math is lifted verbatim from engine.html renderEvent.
-function visibleLines(events: CompiledEvent[], t: number, V: ResolvedVars): RenderedLine[] {
+// In "compose" mode, t is ignored: every event is shown complete (no typing/stream/cursor).
+function visibleLines(events: CompiledEvent[], t: number, V: ResolvedVars, mode: RenderMode = "play"): RenderedLine[] {
   const lines: RenderedLine[] = []
+  const compose = mode === "compose"
   const blinkOpacity = Math.floor(t * 1.6) % 2 ? 1 : 0.25
 
   for (const ev of events as any[]) {
+    const si = ev.stepIndex
     if (ev.kind === "div") {
-      if (t >= ev.appearAt) lines.push({ spans: [{ text: " ", color: V.out }], cursor: false, cursorOpacity: 1 })
+      if (compose || t >= ev.appearAt) lines.push({ spans: [{ text: " ", color: V.out }], cursor: false, cursorOpacity: 1, stepIndex: si })
       continue
     }
     if (ev.kind === "cmd") {
-      if (t < ev.typeStart) continue
+      if (!compose && t < ev.typeStart) continue
       const full: string = ev.text || ""
       let shown: string
       let active: boolean
-      if (t < ev.typeEnd) {
+      if (compose) {
+        shown = full
+        active = false // settled: no cursor
+      } else if (t < ev.typeEnd) {
         const f = ev.typeEnd > ev.typeStart ? clamp((t - ev.typeStart) / (ev.typeEnd - ev.typeStart), 0, 1) : 1
         shown = full.slice(0, Math.floor(f * full.length))
         active = true
@@ -144,12 +156,12 @@ function visibleLines(events: CompiledEvent[], t: number, V: ResolvedVars): Rend
       const spans: Span[] = []
       if (ev.prompt != null) spans.push({ text: ev.prompt + " ", color: V.prompt })
       spans.push({ text: shown, color: V.fg })
-      lines.push({ spans, cursor: active, cursorOpacity: blinkOpacity })
+      lines.push({ spans, cursor: active, cursorOpacity: blinkOpacity, stepIndex: si })
       continue
     }
     if (ev.kind === "progress") {
-      if (t < ev.appearAt) continue
-      const pf = ev.fillEnd > ev.appearAt ? clamp((t - ev.appearAt) / (ev.fillEnd - ev.appearAt), 0, 1) : 1
+      if (!compose && t < ev.appearAt) continue
+      const pf = compose ? 1 : ev.fillEnd > ev.appearAt ? clamp((t - ev.appearAt) / (ev.fillEnd - ev.appearAt), 0, 1) : 1
       const w = ev.width || 22
       const filled = Math.round(pf * w)
       const bar = "█".repeat(filled) + "░".repeat(w - filled)
@@ -163,20 +175,21 @@ function visibleLines(events: CompiledEvent[], t: number, V: ResolvedVars): Rend
         ],
         cursor: false,
         cursorOpacity: 1,
+        stepIndex: si,
       })
       continue
     }
     if (ev.kind === "out") {
-      if (t < ev.appearAt) continue
+      if (!compose && t < ev.appearAt) continue
       const cls = ev.cls && SEMANTIC[ev.cls] ? (V[SEMANTIC[ev.cls]] as string) : V.out
       let txt: string = ev.text || ""
       let streaming = false
-      if (ev.streamEnd != null && ev.streamEnd > ev.appearAt) {
+      if (!compose && ev.streamEnd != null && ev.streamEnd > ev.appearAt) {
         const sf = clamp((t - ev.appearAt) / (ev.streamEnd - ev.appearAt), 0, 1)
         txt = txt.slice(0, Math.floor(sf * txt.length))
         streaming = sf < 1
       }
-      lines.push({ spans: [{ text: txt, color: cls }], cursor: streaming, cursorOpacity: blinkOpacity })
+      lines.push({ spans: [{ text: txt, color: cls }], cursor: streaming, cursorOpacity: blinkOpacity, stepIndex: si })
       continue
     }
   }
@@ -195,11 +208,29 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
+/** A clickable region in CANVAS pixel coords, tied to the source step. The app
+ *  scales these by the canvas display ratio to place an inline editor on click. */
+export interface HitRect {
+  stepIndex: number
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+export interface DrawOptions {
+  mode?: RenderMode
+  /** if provided, drawFrame pushes one HitRect per visible line into this array */
+  hits?: HitRect[]
+}
+
 /**
  * Draw one frame of the scene at time t onto ctx. The canvas must be sized to
  * scene.meta.width × scene.meta.height (device pixels). Pure function of t.
+ * In compose mode (opts.mode==="compose") t is ignored and the scene is drawn
+ * fully settled. Pass opts.hits to collect per-line click targets.
  */
-export function drawFrame(ctx: CanvasRenderingContext2D, scene: CompiledScene, t: number): void {
+export function drawFrame(ctx: CanvasRenderingContext2D, scene: CompiledScene, t: number, opts: DrawOptions = {}): void {
   const V = resolveVars(scene)
   const W = scene.meta.width
   const H = scene.meta.height
@@ -265,7 +296,7 @@ export function drawFrame(ctx: CanvasRenderingContext2D, scene: CompiledScene, t
   const charW = ctx.measureText("M").width
   const maxCols = Math.max(1, Math.floor(sw / charW))
 
-  drawTranscript(ctx, scene, t, V, { sx, sTop, sw, sh, sBottom, lineStep, fontPx, charW, maxCols })
+  drawTranscript(ctx, scene, t, V, { sx, sTop, sw, sh, sBottom, lineStep, fontPx, charW, maxCols }, opts)
 }
 
 interface ScrollBox {
@@ -310,7 +341,7 @@ function wrapLine(line: RenderedLine, maxCols: number): RenderedLine[] {
       if (last && last.color === c.color) last.text += c.ch
       else spans.push({ text: c.ch, color: c.color })
     }
-    out.push({ spans, cursor: false, cursorOpacity: line.cursorOpacity })
+    out.push({ spans, cursor: false, cursorOpacity: line.cursorOpacity, stepIndex: line.stepIndex })
     start = end
   }
   // cursor belongs only on the final visual line
@@ -324,9 +355,10 @@ function drawTranscript(
   t: number,
   V: ResolvedVars,
   box: ScrollBox,
+  opts: DrawOptions = {},
 ): void {
   const events = (scene as any).events as CompiledEvent[]
-  const logical = visibleLines(events, t, V)
+  const logical = visibleLines(events, t, V, opts.mode)
 
   // wrap all lines
   let visual: RenderedLine[] = []
@@ -373,6 +405,16 @@ function drawTranscript(
       const ch = box.fontPx * 1.05
       ctx.fillRect(x, baseline - box.fontPx * 0.82, cw, ch)
       ctx.globalAlpha = 1
+    }
+    // record a click target for this visual row (one per step; later wrapped rows
+    // of the same step extend the existing rect so a long line is one target).
+    if (opts.hits && ln.stepIndex != null && slotTop >= box.sTop - box.lineStep && slotTop <= box.sBottom) {
+      const prev = opts.hits[opts.hits.length - 1]
+      if (prev && prev.stepIndex === ln.stepIndex && Math.abs(prev.y + prev.h - slotTop) < box.lineStep * 0.6) {
+        prev.h = slotTop + box.lineStep - prev.y // merge wrapped continuation
+      } else {
+        opts.hits.push({ stepIndex: ln.stepIndex, x: box.sx, y: slotTop, w: box.sw, h: box.lineStep })
+      }
     }
   })
   ctx.restore()

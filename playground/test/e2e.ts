@@ -196,8 +196,10 @@ async function main() {
 
     for (const c of cases) {
       const before = new Set(safeList(TMP))
-      // click the export button
-      await page.click(`#export button[data-fmt="${c.fmt}"]`)
+      // open the export split-button dropdown and click the format option
+      await page.click("#exportCaret")
+      await new Promise((r) => setTimeout(r, 120))
+      await page.click(`#exportMenu .opt[data-fmt="${c.fmt}"]`)
       // wait for a new file to appear and stop growing
       const file = await waitForDownload(TMP, before, 90000)
       if (!file) {

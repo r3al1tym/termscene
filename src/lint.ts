@@ -110,6 +110,21 @@ export function lint(scene: Scene): LintFinding[] {
         message: `powerline glyph won't render in the bundled font — fake the segment with spaces/color`,
       })
     }
+    // cmd/progress must be strings; out must be a string or array of strings —
+    // a non-string slips past JSON validation but blows up the char-by-char renderer.
+    const cmd = (s as any).cmd
+    if (cmd != null && typeof cmd !== "string") {
+      f.push({ level: "error", step: i, code: "bad-cmd", message: `cmd must be text (a string)` })
+    }
+    const prog = (s as any).progress
+    if (prog != null && typeof prog !== "string") {
+      f.push({ level: "error", step: i, code: "bad-progress-label", message: `progress label must be text (a string)` })
+    }
+    const out = (s as any).out
+    if (out != null) {
+      const bad = Array.isArray(out) ? out.some((l) => typeof l !== "string") : typeof out !== "string"
+      if (bad) f.push({ level: "error", step: i, code: "bad-out", message: `out must be text — a string, or an array of strings` })
+    }
     const wait = (s as any).wait
     if (wait != null && (typeof wait !== "number" || wait < 0)) {
       f.push({ level: "error", step: i, code: "bad-wait", message: `wait must be a non-negative number` })
