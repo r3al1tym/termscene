@@ -9,6 +9,16 @@
     "typeSpeed": 46
   },
   "steps": [
+    { "out": [
+        " █████╗ ████████╗██╗      █████╗ ███████╗",
+        "██╔══██╗╚══██╔══╝██║     ██╔══██╗██╔════╝",
+        "███████║   ██║   ██║     ███████║███████╗",
+        "██╔══██║   ██║   ██║     ██╔══██║╚════██║",
+        "██║  ██║   ██║   ███████╗██║  ██║███████║",
+        "╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚══════╝"
+      ], "style": "accent", "lineDelay": 0.08 },
+    { "out": "  support agent  ·  v2.4  ·  ready", "style": "dim" },
+    { "div": true },
     { "cmd": "atlas \"refund order 80421 and tell the customer why it was late\"" },
     { "wait": 0.3 },
     { "out": "✦ Pulling the order, the shipment trace, and the refund policy.", "style": "dim", "stream": 1.4 },
