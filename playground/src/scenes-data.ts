@@ -696,6 +696,100 @@ export interface JobTemplate {
 // JOB-FIRST templates — the primary on-ramp shown on first load.
 export const JOB_TEMPLATES: JobTemplate[] = [
   {
+    "id": "product-demo",
+    "name": "Product demo",
+    "tagline": "An ASCII-splash product boots and nails the task",
+    "destination": "social",
+    "sw": "#58a6ff",
+    "scene": {
+      "meta": {
+        "aspect": "square",
+        "theme": {
+          "preset": "midnight",
+          "accent": "#34d399",
+          "ok": "#34d399"
+        },
+        "window": {
+          "chrome": "mac",
+          "title": "atlas — support agent"
+        },
+        "align": "top",
+        "prompt": "❯",
+        "fontSize": 22,
+        "typeSpeed": 46
+      },
+      "steps": [
+        {
+          "out": [
+            " █████╗ ████████╗██╗      █████╗ ███████╗",
+            "██╔══██╗╚══██╔══╝██║     ██╔══██╗██╔════╝",
+            "███████║   ██║   ██║     ███████║███████╗",
+            "██╔══██║   ██║   ██║     ██╔══██║╚════██║",
+            "██║  ██║   ██║   ███████╗██║  ██║███████║",
+            "╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚══════╝"
+          ],
+          "style": "accent",
+          "lineDelay": 0.08
+        },
+        {
+          "out": "  support agent  ·  v2.4  ·  ready",
+          "style": "dim"
+        },
+        {
+          "div": true
+        },
+        {
+          "cmd": "atlas \"refund order 80421 and tell the customer why it was late\""
+        },
+        {
+          "wait": 0.3
+        },
+        {
+          "out": "✦ Pulling the order, the shipment trace, and the refund policy.",
+          "style": "dim",
+          "stream": 1.4
+        },
+        {
+          "out": [
+            "┌─ check ──────────────┬─ result ───────────────────────────",
+            "● order   80421        │  $74.00 · 2 items",
+            "● trace   shipment     │  stuck 3d at MEM hub",
+            "● policy  late_delivery│  eligible · full refund",
+            "└──────────────────────┴────────────────────────────────────"
+          ],
+          "style": "accent",
+          "lineDelay": 0.18
+        },
+        {
+          "wait": 0.4
+        },
+        {
+          "out": [
+            "Carrier held it 3 days at the Memphis hub — that's on us, so a full",
+            "refund qualifies. Issuing it and drafting the apology now."
+          ],
+          "stream": 2
+        },
+        {
+          "out": [
+            "● refund(order 80421)   $74.00 → card ···4417   ✓",
+            "● email(customer)       sent · \"sorry it ran late\""
+          ],
+          "style": "accent",
+          "lineDelay": 0.18
+        },
+        {
+          "div": true
+        },
+        {
+          "out": "✦ Done. Refunded $74.00 and emailed the customer the reason. Avg handle time: 9s.",
+          "style": "ok",
+          "stream": 1.6
+        }
+      ]
+    }
+  },
+  {
     "id": "agent-demo",
     "name": "Agent demo",
     "tagline": "An AI coding agent finishes a real task",
@@ -758,81 +852,6 @@ export const JOB_TEMPLATES: JobTemplate[] = [
             "● Fixed. The fee was subtracted after rounding, double-counting it;",
             "  rounding now happens last. All 48 tests green."
           ],
-          "style": "ok",
-          "stream": 1.6
-        }
-      ]
-    }
-  },
-  {
-    "id": "product-demo",
-    "name": "Product demo",
-    "tagline": "Show your AI product doing its job perfectly",
-    "destination": "social",
-    "sw": "#58a6ff",
-    "scene": {
-      "meta": {
-        "aspect": "square",
-        "theme": {
-          "preset": "midnight",
-          "accent": "#34d399",
-          "ok": "#34d399"
-        },
-        "window": {
-          "chrome": "mac",
-          "title": "atlas — support agent"
-        },
-        "align": "top",
-        "prompt": "❯",
-        "fontSize": 24,
-        "typeSpeed": 46
-      },
-      "steps": [
-        {
-          "cmd": "atlas \"refund order 80421 and tell the customer why it was late\""
-        },
-        {
-          "wait": 0.3
-        },
-        {
-          "out": "✦ Pulling the order, the shipment trace, and the refund policy.",
-          "style": "dim",
-          "stream": 1.4
-        },
-        {
-          "out": [
-            "┌─ check ──────────────┬─ result ───────────────────────────",
-            "● order   80421        │  $74.00 · 2 items",
-            "● trace   shipment     │  stuck 3d at MEM hub",
-            "● policy  late_delivery│  eligible · full refund",
-            "└──────────────────────┴────────────────────────────────────"
-          ],
-          "style": "accent",
-          "lineDelay": 0.18
-        },
-        {
-          "wait": 0.4
-        },
-        {
-          "out": [
-            "Carrier held it at the Memphis hub for 3 days — that's on us, so a full",
-            "refund qualifies. Issuing it and drafting the apology now."
-          ],
-          "stream": 2
-        },
-        {
-          "out": [
-            "● refund(order 80421)   $74.00 → card ···4417   ✓",
-            "● email(customer)       sent · \"sorry it ran late\""
-          ],
-          "style": "accent",
-          "lineDelay": 0.18
-        },
-        {
-          "div": true
-        },
-        {
-          "out": "✦ Done. Refunded $74.00 and emailed the customer the reason. Avg handle time: 9s.",
           "style": "ok",
           "stream": 1.6
         }
