@@ -316,6 +316,7 @@
   .picker-foot .muted{color:var(--muted)}
 
   #mobileEdit{display:none}
+  #drawerScrim{display:none}
 
   /* ===================== responsive ===================== */
   @media (max-width:860px){
@@ -324,18 +325,26 @@
     .right{order:1}
   }
   @media (max-width:640px){
-    main{grid-template-rows:1fr auto}
-    .left{max-height:0;overflow:hidden;border-bottom:0}
-    /* editing: the preview row HUGS the canvas (JS sizes #frame to the scene's
-       aspect ratio so there's no letterbox band), and the editor fills the rest.
-       Not-editing keeps the preview filling the screen (1fr) as the showcase. */
-    body.editing main{grid-template-rows:auto 1fr;min-height:0}
-    /* the preview box itself adopts the scene's aspect ratio (--ar) and is sized by
-       width — so it shrink-wraps the canvas with no surrounding empty band. Capped
-       at 46vh so a portrait scene still leaves room for the editor below. */
-    body.editing #frame{flex:none;width:100%;aspect-ratio:var(--ar,1);max-height:46vh;margin:0 auto}
-    body.editing .left{max-height:none;min-height:0;border-bottom:0;border-top:1px solid var(--line)}
+    /* Mobile: the preview is the whole screen; editing opens the line editor as a
+       full-height SLIDE-OUT DRAWER from the right (not a cramped split-band). The
+       drawer owns the full height below the header, so the lines list gets real
+       room to scroll instead of a sliver. */
+    main{grid-template-columns:1fr;grid-template-rows:1fr auto}
+    .right{order:1}
     #frame{padding:10px}
+    .left{
+      position:fixed;top:54px;right:0;bottom:0;z-index:30;
+      width:min(92vw,420px);max-height:none;
+      border-right:0;border-bottom:0;border-left:1px solid var(--line-2);
+      box-shadow:-24px 0 60px -20px rgba(0,0,0,.85);
+      transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+      will-change:transform;
+    }
+    body.editing .left{transform:translateX(0)}
+    /* scrim behind the drawer — tap to dismiss; preview stays visible underneath */
+    #drawerScrim{display:block;position:fixed;inset:54px 0 0;z-index:25;
+      background:rgba(8,8,9,.55);opacity:0;pointer-events:none;transition:opacity .26s}
+    body.editing #drawerScrim{opacity:1;pointer-events:auto}
     #mobileEdit{display:inline-flex}
     .jobs{grid-template-columns:1fr}
     .picker-card{padding:22px 18px}
@@ -487,6 +496,9 @@
     </div>
   </section>
 </main>
+
+<!-- mobile drawer scrim — tap to close the editor drawer -->
+<div id="drawerScrim" aria-hidden="true"></div>
 
 <!-- TEMPLATE PICKER -->
 <div id="picker" role="dialog" aria-modal="true" aria-label="Pick a template">

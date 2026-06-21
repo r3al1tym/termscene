@@ -811,7 +811,7 @@ async function boot() {
   document.body.addEventListener("keydown", (e) => {
     const ae = document.activeElement as HTMLElement
     if (e.code === "Space" && ae && !ae.matches?.("input,textarea,select,button")) { e.preventDefault(); playing ? pause() : play() }
-    if (e.code === "Escape") { closePops(); closeExportMenu(); if (pickerEl.classList.contains("show")) closePicker() }
+    if (e.code === "Escape") { closePops(); closeExportMenu(); if (pickerEl.classList.contains("show")) closePicker(); if (document.body.classList.contains("editing")) setEditing(false) }
     trapPickerTab(e)
   })
 
@@ -847,12 +847,15 @@ async function boot() {
   pickerEl.addEventListener("click", (e) => { if (e.target === pickerEl) closePicker() })
 
   const mobileEdit = $("mobileEdit")
-  mobileEdit.addEventListener("click", () => {
-    const on = document.body.classList.toggle("editing")
+  const setEditing = (on: boolean) => {
+    document.body.classList.toggle("editing", on)
     mobileEdit.setAttribute("aria-pressed", String(on))
     const lbl = mobileEdit.querySelector(".elbl"); if (lbl) lbl.textContent = on ? "Done" : "Edit"
     requestAnimationFrame(fitCanvas)
-  })
+  }
+  mobileEdit.addEventListener("click", () => setEditing(!document.body.classList.contains("editing")))
+  // tap the scrim to dismiss the drawer (preview stays visible underneath)
+  $("drawerScrim").addEventListener("click", () => setEditing(false))
 
   window.addEventListener("resize", fitCanvas)
   window.addEventListener("hashchange", () => {
