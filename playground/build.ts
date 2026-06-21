@@ -208,8 +208,8 @@ export const THEME_ACCENT: Record<string, string> = ${JSON.stringify(THEME_SW, n
 const THEME_SW: Record<string, string> = {
   claude: "#d97757",
   gemini: "#a78bfa",
-  codex: "#10a37f",
-  warp: "#4c8dff",
+  codex: "#56c2d6",
+  warp: "#00c2ff",
   iterm2: "#00d7af",
   macos: "#cfcfcf",
   ubuntu: "#8ae234",

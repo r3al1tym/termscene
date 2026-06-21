@@ -19,6 +19,8 @@ export async function buildScrubber(scene: CompiledScene): Promise<string> {
     "jbm-Regular.woff2": await fontData("jbm-Regular.woff2"),
     "jbm-Bold.woff2": await fontData("jbm-Bold.woff2"),
     "jbm-Italic.woff2": await fontData("jbm-Italic.woff2"),
+    // technical-glyph fallback (braille, ⎿, ✻ ✦ ↳, box/block) JBM/DejaVu lack
+    "symbols-Regular.woff2": await fontData("symbols-Regular.woff2"),
   }
   for (const [name, b64] of Object.entries(fonts)) {
     engine = engine.replaceAll(`url(fonts/${name})`, `url(data:font/woff2;base64,${b64})`)

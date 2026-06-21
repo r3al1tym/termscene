@@ -17,7 +17,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "claude-code",
     "name": "Claude Code",
-    "blurb": "warm dark · terracotta ❯ · ✻ thinking · ● tool calls",
+    "blurb": "✻ welcome + tips · ❯ input box · ● tools · ⎿ results",
     "sw": "#d97757",
     "scene": {
       "meta": {
@@ -30,69 +30,104 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
           "title": "claude code"
         },
         "prompt": "❯",
-        "fontSize": 24,
+        "fontSize": 22,
         "align": "top",
-        "loopOffset": "80%"
+        "loopOffset": "82%"
       },
       "steps": [
         {
-          "cmd": "add a Retry-After header to the 429 responses in the rate limiter",
-          "prompt": "❯",
-          "typeSpeed": 42
+          "out": "<span style=\"color:#d97757\">✻</span> <span style=\"color:#d97757\">Welcome to Claude Code</span> <span style=\"color:#7f7b71\">v2.1.177</span>",
+          "html": true
         },
         {
-          "out": "✻ Thinking… locating the rate-limit middleware, then setting the header on the 429 branch.",
+          "div": true
+        },
+        {
+          "out": "Tips for getting started",
           "style": "dim"
         },
         {
-          "out": [
-            "● Grep(pattern: \"429\", glob: \"src/**/*.ts\")",
-            "  └─ 3 matches in src/middleware/rateLimit.ts"
-          ],
-          "style": "accent"
-        },
-        {
-          "out": [
-            "● Read(src/middleware/rateLimit.ts)",
-            "  └─ Read 84 lines"
-          ],
-          "style": "accent"
-        },
-        {
-          "wait": 1
-        },
-        {
-          "out": [
-            "● Edit(src/middleware/rateLimit.ts +4 -1)",
-            "  └─ Set Retry-After from limiter.msBeforeNext on the 429 branch"
-          ],
-          "style": "accent"
-        },
-        {
-          "out": "● Bash(npm test -- rateLimit)",
-          "style": "accent"
-        },
-        {
-          "progress": "jest src/middleware/rateLimit.test.ts",
-          "duration": 2.4
-        },
-        {
-          "out": [
-            "  PASS  src/middleware/rateLimit.test.ts",
-            "  Tests: 9 passed, 9 total"
-          ],
-          "style": "ok"
+          "out": "Run /init to create a CLAUDE.md file with instructions for Claude",
+          "style": "dim"
         },
         {
           "div": true
         },
         {
           "out": [
-            "● Done. 429 responses now send Retry-After in seconds, computed from the",
-            "  limiter's reset window, with a test asserting the header value."
+            "<span style=\"color:#888\">╭────────────────────────────────────────────────────────────╮</span>",
+            "<span style=\"color:#888\">│</span> <span style=\"color:#d97757\">❯</span> <span style=\"color:#5d5a52\">Try \"fix lint errors\"</span>                                      <span style=\"color:#888\">│</span>",
+            "<span style=\"color:#888\">╰────────────────────────────────────────────────────────────╯</span>"
           ],
+          "html": true
+        },
+        {
+          "out": "  ? for shortcuts",
+          "style": "dim"
+        },
+        {
+          "wait": 1.4
+        },
+        {
+          "div": true
+        },
+        {
+          "cmd": "add a Retry-After header to the 429 responses in the rate limiter",
+          "prompt": "❯",
+          "typeSpeed": 42
+        },
+        {
+          "wait": 0.3
+        },
+        {
+          "out": "✻ Simmering… (esc to interrupt · 6s · ↓ 1.2k tokens)",
+          "style": "dim"
+        },
+        {
+          "out": "  Locating the rate-limit middleware, then setting the header on the 429 branch.",
+          "style": "dim",
+          "stream": 1.2
+        },
+        {
+          "out": [
+            "<span style=\"color:#28c93f\">●</span> Grep(pattern: \"429\", glob: \"src/**/*.ts\")",
+            "  <span style=\"color:#5d5a52\">⎿  3 matches in src/middleware/rateLimit.ts</span>"
+          ],
+          "html": true
+        },
+        {
+          "out": [
+            "<span style=\"color:#28c93f\">●</span> Read(src/middleware/rateLimit.ts)",
+            "  <span style=\"color:#5d5a52\">⎿  Read 84 lines</span>"
+          ],
+          "html": true
+        },
+        {
+          "wait": 0.7
+        },
+        {
+          "out": [
+            "<span style=\"color:#28c93f\">●</span> Update(src/middleware/rateLimit.ts)",
+            "  <span style=\"color:#5d5a52\">⎿  Updated with 4 additions and 1 removal</span>",
+            "  <span style=\"color:#5d5a52\">     set Retry-After from limiter.msBeforeNext on the 429 branch</span>"
+          ],
+          "html": true
+        },
+        {
+          "out": [
+            "<span style=\"color:#28c93f\">●</span> Bash(npm test -- rateLimit)",
+            "  <span style=\"color:#5d5a52\">⎿  PASS  src/middleware/rateLimit.test.ts</span>",
+            "  <span style=\"color:#5d5a52\">     Tests: 9 passed, 9 total</span>"
+          ],
+          "html": true
+        },
+        {
+          "div": true
+        },
+        {
+          "out": "● Done. 429 responses now send Retry-After in seconds, computed from the limiter's reset window, with a test asserting the header value.",
           "style": "ok",
-          "stream": 1.6
+          "stream": 1.8
         }
       ]
     }
@@ -100,75 +135,102 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "gemini-cli",
     "name": "Gemini CLI",
-    "blurb": "dark slate · blue→violet · ✦ sparkle accents",
+    "blurb": "block GEMINI logo · blue→violet→rose gradient · ✦ replies",
     "sw": "#a78bfa",
     "scene": {
       "meta": {
         "aspect": "wide",
         "theme": {
-          "preset": "gemini"
+          "preset": "gemini",
+          "bg": "#000000",
+          "fg": "#ffffff"
         },
         "window": {
           "chrome": "mac",
           "title": "gemini"
         },
-        "prompt": ">",
-        "fontSize": 24
+        "prompt": "> ",
+        "fontSize": 18,
+        "align": "top"
       },
       "steps": [
         {
           "out": [
-            "",
-            "  ✦  G E M I N I",
-            "  ─────────────",
-            "  gemini-2.5-pro  ·  ~/projects/api  ·  ctrl+c to quit",
-            ""
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">   █████████  ██████████ ██████   ██████ █████ ██████   █████ █████</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">  ███░░░░░███░░███░░░░░█░░██████ ██████ ░░███ ░░██████ ░░███ ░░███</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\"> ███     ░░░  ░███  █ ░  ░███░█████░███  ░███  ░███░███ ░███  ░███</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">░███          ░██████    ░███░░███ ░███  ░███  ░███░░███░███  ░███</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">░███    █████ ░███░░█    ░███ ░░░  ░███  ░███  ░███ ░░██████  ░███</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">░░███  ░░███  ░███ ░   █ ░███      ░███  ░███  ░███  ░░█████  ░███</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\"> ░░█████████  ██████████ █████     █████ █████ █████  ░░█████ █████</span>",
+            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">  ░░░░░░░░░  ░░░░░░░░░░ ░░░░░     ░░░░░ ░░░░░ ░░░░░    ░░░░░ ░░░░░</span>"
           ],
-          "style": "accent"
+          "html": true,
+          "lineDelay": 0.06
+        },
+        {
+          "div": true
+        },
+        {
+          "out": "Tips for getting started:",
+          "style": "dim"
+        },
+        {
+          "out": [
+            "1. Create GEMINI.md files to customize your interactions",
+            "2. /help for more information",
+            "3. Ask coding questions, edit code or run commands",
+            "4. Be specific for the best results"
+          ],
+          "style": "dim",
+          "lineDelay": 0.04
+        },
+        {
+          "div": true
         },
         {
           "cmd": "explain why my rate limiter lets bursts through, then fix it",
           "prompt": "> "
         },
         {
-          "progress": "Reading middleware/ratelimit.go",
-          "duration": 1.6
+          "wait": 0.3
+        },
+        {
+          "out": "<span style=\"color:#D7AFFF\">✦</span> The bug is a classic fixed-window reset. You count requests per",
+          "html": true,
+          "stream": 0.5
         },
         {
           "out": [
-            "✦ The bug is a classic fixed-window reset. You count requests per",
             "  calendar minute, so a client can fire N requests at 0:59 and another",
             "  N at 1:00 — 2N within two seconds, all \"within limits.\"",
             "",
             "  A token-bucket fixes this: refill at a steady rate, cap the burst."
           ],
-          "stream": 1.6
-        },
-        {
-          "out": [
-            "  ┌─ middleware/ratelimit.go",
-            "  │  - if reqs[ip].minute != now.Minute() { reqs[ip].n = 0 }",
-            "  │  - reqs[ip].n++; if reqs[ip].n > limit { return Deny }",
-            "  │  + b := buckets[ip]; b.refill(now, rate, burst)",
-            "  │  + if !b.take(1) { return Deny }",
-            "  └─"
-          ],
-          "style": "ok"
+          "stream": 1.2,
+          "lineDelay": 0
         },
         {
           "cmd": "apply it and add a table test",
           "prompt": "> "
         },
         {
-          "progress": "Writing ratelimit.go, ratelimit_test.go",
-          "duration": 2
+          "wait": 0.3
         },
         {
           "out": [
-            "  ✓ ratelimit.go      (+22 -6)",
-            "  ✓ ratelimit_test.go (+41 new)"
+            "<span style=\"color:#D7FFD7\">✓</span>  <b>WriteFile</b> middleware/ratelimit.go",
+            "<span style=\"color:#5ee6a8\">  │</span> <span style=\"color:#FF87AF\">- if reqs[ip].minute != now.Minute() { reqs[ip].n = 0 }</span>",
+            "<span style=\"color:#5ee6a8\">  │</span> <span style=\"color:#FF87AF\">- reqs[ip].n++; if reqs[ip].n > limit { return Deny }</span>",
+            "<span style=\"color:#5ee6a8\">  │</span> <span style=\"color:#D7FFD7\">+ b := buckets[ip]; b.refill(now, rate, burst)</span>",
+            "<span style=\"color:#5ee6a8\">  │</span> <span style=\"color:#D7FFD7\">+ if !b.take(1) { return Deny }</span>"
           ],
-          "style": "ok"
+          "html": true,
+          "lineDelay": 0.12
+        },
+        {
+          "out": "<span style=\"color:#D7FFD7\">✓</span>  <b>WriteFile</b> middleware/ratelimit_test.go",
+          "html": true
         },
         {
           "cmd": "!go test ./middleware/ -run RateLimit",
@@ -180,11 +242,11 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         },
         {
           "out": [
-            "✦ Tip: the burst is now configurable via RATELIMIT_BURST.",
+            "<span style=\"color:#D7AFFF\">✦</span> The burst is now configurable via RATELIMIT_BURST.",
             "  Set it to 1 for strict per-request pacing."
           ],
-          "style": "accent",
-          "stream": 1.4
+          "html": true,
+          "stream": 1.2
         }
       ]
     }
@@ -192,63 +254,108 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "codex-cli",
     "name": "Codex CLI",
-    "blurb": "near-black · sparse green/white · minimal chrome",
-    "sw": "#10a37f",
+    "blurb": "›_ OpenAI Codex box · cyan accent · • Edited / • Ran",
+    "sw": "#56c2d6",
     "scene": {
       "meta": {
         "aspect": "wide",
         "theme": {
-          "preset": "codex"
+          "preset": "codex",
+          "accent": "#56c2d6"
         },
         "window": {
           "chrome": "mac",
           "title": "codex"
         },
         "prompt": "›",
-        "fontSize": 24
+        "fontSize": 20,
+        "align": "top"
       },
       "steps": [
         {
-          "cmd": "fix the retry backoff in fetcher.py — it caps too early, should be exponential up to 30s"
-        },
-        {
-          "out": "reading fetcher.py, found the backoff loop",
-          "style": "dim"
-        },
-        {
-          "out": "● apply patch  src/fetcher.py  +6 -3",
-          "style": "accent"
-        },
-        {
           "out": [
-            "    delay = min(base * 2 ** attempt, 30.0)",
-            "    delay += random.uniform(0, delay * 0.1)"
+            "<span style=\"color:#5c5c5c\">╭───────────────────────────────────────────────────────╮</span>",
+            "<span style=\"color:#5c5c5c\">│</span> <span style=\"color:#5c5c5c\">&gt;_</span> <b>OpenAI Codex</b> <span style=\"color:#5c5c5c\">(v0.140.0)</span>                          <span style=\"color:#5c5c5c\">│</span>",
+            "<span style=\"color:#5c5c5c\">│</span>                                                       <span style=\"color:#5c5c5c\">│</span>",
+            "<span style=\"color:#5c5c5c\">│</span> model:     gpt-5.5  <span style=\"color:#56c2d6\">/model</span> <span style=\"color:#5c5c5c\">to change</span>                  <span style=\"color:#5c5c5c\">│</span>",
+            "<span style=\"color:#5c5c5c\">│</span> directory: ~/projects/api                             <span style=\"color:#5c5c5c\">│</span>",
+            "<span style=\"color:#5c5c5c\">╰───────────────────────────────────────────────────────╯</span>"
           ],
+          "html": true,
+          "lineDelay": 0.05
+        },
+        {
+          "div": true
+        },
+        {
+          "out": "  To get started, describe a task or try one of these commands:",
           "style": "dim"
         },
         {
           "div": true
         },
         {
-          "cmd": "pytest tests/test_fetcher.py -q"
+          "out": [
+            "  /init      <span style=\"color:#5c5c5c\">- create an AGENTS.md file with instructions for Codex</span>",
+            "  /status    <span style=\"color:#5c5c5c\">- show current session configuration</span>",
+            "  /model     <span style=\"color:#5c5c5c\">- choose what model and reasoning effort to use</span>",
+            "  /review    <span style=\"color:#5c5c5c\">- review any changes and find issues</span>"
+          ],
+          "html": true,
+          "lineDelay": 0.04
         },
         {
-          "progress": "running 14 tests",
-          "duration": 2.2
+          "div": true
+        },
+        {
+          "cmd": "fix the retry backoff in fetcher.py — it caps too early, should be exponential up to 30s",
+          "prompt": "›"
+        },
+        {
+          "wait": 0.3
+        },
+        {
+          "out": "<span style=\"color:#56c2d6\">⠹</span> <b>Working</b> <span style=\"color:#5c5c5c\">(3s • esc to interrupt)</span>",
+          "html": true
+        },
+        {
+          "out": "<span style=\"color:#5c5c5c\">• Reading fetcher.py — found the backoff loop</span>",
+          "html": true,
+          "stream": 0.8
         },
         {
           "out": [
-            "..............",
-            "14 passed in 0.91s"
+            "<span style=\"color:#5c5c5c\">•</span> <b>Edited</b> src/fetcher.py <span style=\"color:#5c5c5c\">(</span><span style=\"color:#10a37f\">+6</span> <span style=\"color:#ef5350\">-3</span><span style=\"color:#5c5c5c\">)</span>",
+            "  <span style=\"color:#10a37f\">+    delay = min(base * 2 ** attempt, 30.0)</span>",
+            "  <span style=\"color:#10a37f\">+    delay += random.uniform(0, delay * 0.1)</span>",
+            "  <span style=\"color:#ef5350\">-    delay = min(base + attempt, 5.0)</span>"
           ],
-          "style": "ok"
+          "html": true,
+          "lineDelay": 0.12
         },
         {
-          "wait": 0.6
+          "div": true
         },
         {
-          "out": "Backoff now doubles per attempt, caps at 30s, and adds 10% jitter. Tests green.",
-          "stream": 1.6
+          "cmd": "pytest tests/test_fetcher.py -q",
+          "prompt": "›"
+        },
+        {
+          "out": [
+            "<span style=\"color:#10a37f\">•</span> <b>Ran</b> pytest tests/test_fetcher.py -q",
+            "  <span style=\"color:#5c5c5c\">└</span> ..............",
+            "    14 passed in 0.91s"
+          ],
+          "html": true,
+          "lineDelay": 0.1
+        },
+        {
+          "wait": 0.5
+        },
+        {
+          "out": "<span style=\"color:#5c5c5c\">•</span> Backoff now doubles per attempt, caps at 30s, and adds 10% jitter. Tests green.",
+          "html": true,
+          "stream": 1.4
         }
       ]
     }
@@ -257,7 +364,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
     "id": "warp",
     "name": "Warp",
     "blurb": "dark · rounded block output · modern GUI terminal",
-    "sw": "#4c8dff",
+    "sw": "#00c2ff",
     "scene": {
       "meta": {
         "aspect": "wide",
@@ -342,7 +449,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "iterm2-p10k",
     "name": "iTerm2 · Powerlevel10k",
-    "blurb": "powerline segments · two-line git prompt",
+    "blurb": "lean segments · transparent bg · git status by color",
     "sw": "#00d7af",
     "scene": {
       "meta": {
@@ -360,7 +467,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
       "steps": [
         {
           "cmd": "git status",
-          "prompt": " ~/projects/brand-engine   main ✔   node v20 "
+          "prompt": " ~/projects/brand-engine   main   node v20 "
         },
         {
           "out": [
@@ -373,18 +480,18 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         },
         {
           "cmd": "git checkout -b feat/streaming-tokens",
-          "prompt": " ~/projects/brand-engine   main ✔   node v20 "
+          "prompt": " ~/projects/brand-engine   main   node v20 "
         },
         {
           "out": "Switched to a new branch 'feat/streaming-tokens'"
         },
         {
           "cmd": "nvim src/pipeline/stream.ts",
-          "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✔   node v20 "
+          "prompt": " ~/projects/brand-engine   feat/streaming-tokens   node v20 "
         },
         {
           "cmd": "git status -s",
-          "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✚1   node v20 "
+          "prompt": " ~/projects/brand-engine   feat/streaming-tokens +1   node v20 "
         },
         {
           "out": " M src/pipeline/stream.ts",
@@ -392,7 +499,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         },
         {
           "cmd": "git commit -am 'feat: stream Opus tokens via SSE'",
-          "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✚1   node v20 "
+          "prompt": " ~/projects/brand-engine   feat/streaming-tokens +1   node v20 "
         },
         {
           "out": [
@@ -403,7 +510,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         },
         {
           "cmd": "git push -u origin feat/streaming-tokens",
-          "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✔   node v20 "
+          "prompt": " ~/projects/brand-engine   feat/streaming-tokens   node v20 "
         },
         {
           "progress": "Writing objects to origin",
@@ -422,7 +529,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         },
         {
           "cmd": "gh pr create --fill --web",
-          "prompt": " ~/projects/brand-engine   feat/streaming-tokens ✔   node v20 "
+          "prompt": " ~/projects/brand-engine   feat/streaming-tokens   node v20 "
         },
         {
           "out": "Opening github.com/santos/brand-engine/pull/247 in your browser  ✓",
@@ -445,9 +552,9 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         },
         "window": {
           "chrome": "mac",
-          "title": "zsh — 80×24"
+          "title": "~ — -zsh — 80×24"
         },
-        "prompt": "dev@mac ~ %",
+        "prompt": "dev@Devs-MacBook-Pro ~ %",
         "fontSize": 24
       },
       "steps": [
@@ -677,6 +784,124 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
           ],
           "style": "accent",
           "stream": 1.4
+        }
+      ]
+    }
+  },
+  {
+    "id": "kiro-cli",
+    "name": "Kiro CLI",
+    "blurb": "purple KIRO banner · magenta › · ● tools · ↳ purpose · ✓",
+    "sw": "#9046ff",
+    "scene": {
+      "meta": {
+        "aspect": "wide",
+        "theme": {
+          "preset": "kiro"
+        },
+        "window": {
+          "chrome": "mac",
+          "title": "kiro-cli"
+        },
+        "prompt": "> ",
+        "fontSize": 20,
+        "align": "top"
+      },
+      "steps": [
+        {
+          "out": [
+            "<span style=\"color:#9046ff\">██╗  ██╗██╗██████╗  ██████╗ </span>",
+            "<span style=\"color:#9046ff\">██║ ██╔╝██║██╔══██╗██╔═══██╗</span>",
+            "<span style=\"color:#9046ff\">█████╔╝ ██║██████╔╝██║   ██║</span>",
+            "<span style=\"color:#9046ff\">██╔═██╗ ██║██╔══██╗██║   ██║</span>",
+            "<span style=\"color:#9046ff\">██║  ██╗██║██║  ██║╚██████╔╝</span>",
+            "<span style=\"color:#9046ff\">╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ </span>"
+          ],
+          "html": true,
+          "lineDelay": 0.06
+        },
+        {
+          "out": "<span style=\"color:#615c6b\">  Welcome to Kiro — agentic coding in your terminal</span>",
+          "html": true
+        },
+        {
+          "div": true
+        },
+        {
+          "out": [
+            "<span style=\"color:#615c6b\">╭─ Did you know? ───────────────────────────────────────────╮</span>",
+            "<span style=\"color:#615c6b\">│</span>  Kiro turns a request into a spec — requirements, design,  <span style=\"color:#615c6b\">│</span>",
+            "<span style=\"color:#615c6b\">│</span>  then a task list it works through. Try /spec to see it.   <span style=\"color:#615c6b\">│</span>",
+            "<span style=\"color:#615c6b\">╰───────────────────────────────────────────────────────────╯</span>"
+          ],
+          "html": true,
+          "lineDelay": 0.04
+        },
+        {
+          "out": "<span style=\"color:#615c6b\">/help all commands  •  ctrl + j new lines  •  ctrl + s fuzzy search</span>",
+          "html": true
+        },
+        {
+          "div": true
+        },
+        {
+          "cmd": "add rate limiting to the /api/login endpoint",
+          "prompt": "> "
+        },
+        {
+          "wait": 0.3
+        },
+        {
+          "out": "<span style=\"color:#c6a0ff\">●</span> <b>Reading</b> src/routes/auth.ts",
+          "html": true
+        },
+        {
+          "out": "  <span style=\"color:#615c6b\">↳ Purpose: locate the login handler</span>",
+          "html": true
+        },
+        {
+          "out": [
+            "<span style=\"color:#c6a0ff\">●</span> <b>Searching</b> codebase: \"express middleware\"",
+            "  <span style=\"color:#615c6b\">⋮  src/middleware/ — 4 files</span>",
+            "  <span style=\"color:#80ffb5\">✓</span> <span style=\"color:#615c6b\">found the middleware chain</span>"
+          ],
+          "html": true,
+          "lineDelay": 0.1
+        },
+        {
+          "out": [
+            "<span style=\"color:#c6a0ff\">●</span> <b>Updating</b> src/middleware/rateLimit.ts",
+            "  <span style=\"color:#80ffb5\">+  12  12: import rateLimit from \"express-rate-limit\";</span>",
+            "  <span style=\"color:#80ffb5\">+  13  13: export const loginLimiter = rateLimit({ windowMs: 9e5, max: 5 });</span>",
+            "  <span style=\"color:#80ffb5\">✓</span>"
+          ],
+          "html": true,
+          "lineDelay": 0.1
+        },
+        {
+          "out": [
+            "<span style=\"color:#c6a0ff\">●</span> <b>Updating</b> src/routes/auth.ts",
+            "  <span style=\"color:#80ffb5\">+  8   8: router.post(\"/login\", loginLimiter, loginHandler);</span>",
+            "  <span style=\"color:#80ffb5\">✓</span>"
+          ],
+          "html": true,
+          "lineDelay": 0.1
+        },
+        {
+          "out": [
+            "<span style=\"color:#c6a0ff\">●</span> <b>Running</b> npm test -- auth",
+            "  <span style=\"color:#615c6b\">⋮  running 14 tests…</span>",
+            "  <span style=\"color:#80ffb5\">✓ 14 passing</span>"
+          ],
+          "html": true,
+          "lineDelay": 0.12
+        },
+        {
+          "div": true
+        },
+        {
+          "out": "Added a 5-attempts-per-15-min limiter on /api/login and wired it into the route. 2 files changed, tests green.",
+          "stream": 1.8
         }
       ]
     }
@@ -1057,8 +1282,8 @@ export const JOB_TEMPLATES: JobTemplate[] = [
 export const THEME_ACCENT: Record<string, string> = {
   "claude": "#d97757",
   "gemini": "#a78bfa",
-  "codex": "#10a37f",
-  "warp": "#4c8dff",
+  "codex": "#56c2d6",
+  "warp": "#00c2ff",
   "iterm2": "#00d7af",
   "macos": "#cfcfcf",
   "ubuntu": "#8ae234",

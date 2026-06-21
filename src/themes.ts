@@ -6,7 +6,7 @@ import type { SceneTheme, AspectPreset } from "./types.js"
 export const THEMES: Record<string, SceneTheme> = {
   // warm dark — the loop-videos terminal register, de-branded
   claude: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#0c0b09",
     bg: "#15140f",
     fg: "#ece9e1",
@@ -26,7 +26,7 @@ export const THEMES: Record<string, SceneTheme> = {
   },
   // neutral cool dark
   midnight: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#0a0c10",
     bg: "#0d1117",
     fg: "#e6edf3",
@@ -46,7 +46,7 @@ export const THEMES: Record<string, SceneTheme> = {
   },
   // classic green-on-black
   matrix: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#000000",
     bg: "#020402",
     fg: "#37d837",
@@ -67,52 +67,53 @@ export const THEMES: Record<string, SceneTheme> = {
   // ---- brand-recognizable terminal presets (for the showcase / demo page) ----
   // gemini CLI — dark slate, blue→violet accents
   gemini: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#070a12", bg: "#0b0f1a", fg: "#e8ecf6", out: "#9aa6c2", dim: "#566180",
     prompt: "#7aa2ff", cursor: "#c4b5fd", accent: "#a78bfa",
     ok: "#5ee6a8", warn: "#ffd24a", err: "#ff6b7d",
     bar: "#11162400", barText: "#566180", barTextStrong: "#a78bfa",
     windowShadow: "0 24px 60px -20px rgba(0,0,0,.6)", windowRadius: 12,
   },
-  // OpenAI Codex CLI — near-black, sparse, green/white minimal
+  // OpenAI Codex CLI — near-black ANSI-palette TUI: cyan accent, green reserved
+  // strictly for +N diffs / passing tests (kept as inline spans in the scene).
   codex: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#000000", bg: "#0a0a0a", fg: "#f2f2f2", out: "#b9b9b9", dim: "#5c5c5c",
-    prompt: "#10a37f", cursor: "#f2f2f2", accent: "#10a37f",
+    prompt: "#56c2d6", cursor: "#f2f2f2", accent: "#56c2d6",
     ok: "#10a37f", warn: "#e0a23a", err: "#ef5350",
     bar: "#111111", barText: "#5c5c5c", barTextStrong: "#b9b9b9",
     windowShadow: "0 24px 60px -20px rgba(0,0,0,.7)", windowRadius: 8,
   },
-  // Warp — dark with a cool blue accent, soft rounded window
+  // Warp — the shipped "Warp Dark" theme: cyan accent on true black, white fg
   warp: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
-    page: "#0a0e16", bg: "#0f1420", fg: "#e6ebf4", out: "#9aa4ba", dim: "#5a6478",
-    prompt: "#4c8dff", cursor: "#4c8dff", accent: "#4c8dff",
-    ok: "#4ade80", warn: "#fbbf24", err: "#fb7185",
-    bar: "#161c2b", barText: "#5a6478", barTextStrong: "#9aa4ba",
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
+    page: "#06080c", bg: "#000000", fg: "#ffffff", out: "#bcc3d0", dim: "#6b7280",
+    prompt: "#00c2ff", cursor: "#00c2ff", accent: "#00c2ff",
+    ok: "#b4fa72", warn: "#fbbf24", err: "#fb7185",
+    bar: "#0c0f16", barText: "#6b7280", barTextStrong: "#bcc3d0",
     windowShadow: "0 30px 70px -24px rgba(0,0,0,.65)", windowRadius: 14,
   },
   // iTerm2 + Powerlevel10k — dark, the powerline-prompt look (segments via output styling)
   iterm2: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#101010", bg: "#1a1a1a", fg: "#e8e8e8", out: "#b0b0b0", dim: "#6a6a6a",
     prompt: "#00d7af", cursor: "#e8e8e8", accent: "#00afff",
     ok: "#5fd700", warn: "#ffaf00", err: "#ff5f5f",
     bar: "#252525", barText: "#6a6a6a", barTextStrong: "#b0b0b0",
     windowShadow: "0 24px 60px -20px rgba(0,0,0,.6)", windowRadius: 10,
   },
-  // macOS Terminal (zsh default) — white, black SF-mono-ish text, no color
+  // macOS Terminal (Basic profile, zsh default) — white bg, pure-black text, no accent
   macos: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
-    page: "#d9d9d9", bg: "#ffffff", fg: "#1a1a1a", out: "#2c2c2c", dim: "#8a8a8a",
-    prompt: "#1a1a1a", cursor: "#1a1a1a", accent: "#1a6fd4",
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
+    page: "#d9d9d9", bg: "#ffffff", fg: "#000000", out: "#000000", dim: "#8a8a8a",
+    prompt: "#000000", cursor: "#000000", accent: "#000000",
     ok: "#1f8a2f", warn: "#b5851a", err: "#c0392b",
     bar: "#e4e4e4", barText: "#8a8a8a", barTextStrong: "#3a3a3a",
     windowShadow: "0 18px 50px -22px rgba(0,0,0,.3)", windowRadius: 8,
   },
   // Ubuntu GNOME Terminal (bash) — iconic aubergine bg, green user@host
   ubuntu: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#1d0712", bg: "#300a24", fg: "#eeeeec", out: "#d3d7cf", dim: "#8a7f86",
     prompt: "#8ae234", cursor: "#eeeeec", accent: "#ad7fa8",
     ok: "#8ae234", warn: "#fce94f", err: "#ef2929",
@@ -121,7 +122,7 @@ export const THEMES: Record<string, SceneTheme> = {
   },
   // Starship cross-shell prompt — dark, segmented multicolor prompt
   starship: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#0c0e14", bg: "#13161e", fg: "#e6e6e6", out: "#a7adba", dim: "#5b616e",
     prompt: "#a3be8c", cursor: "#e6e6e6", accent: "#88c0d0",
     ok: "#a3be8c", warn: "#ebcb8b", err: "#bf616a",
@@ -130,7 +131,7 @@ export const THEMES: Record<string, SceneTheme> = {
   },
   // Kiro (AWS agentic IDE) — purple-tinted near-black, vivid #9046FF brand purple
   kiro: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#141118", bg: "#19161d", fg: "#ece9f1", out: "#a39fad", dim: "#615c6b",
     prompt: "#c6a0ff", cursor: "#c6a0ff", accent: "#9046ff",
     ok: "#80ffb5", warn: "#ffcf99", err: "#ff8080",
@@ -139,7 +140,7 @@ export const THEMES: Record<string, SceneTheme> = {
   },
   // light — for docs / light-mode landing pages
   paper: {
-    font: 'JBM,"DejaVu Sans Mono",monospace',
+    font: 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     page: "#efece4",
     bg: "#faf8f3",
     fg: "#23211c",

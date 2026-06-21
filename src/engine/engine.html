@@ -21,6 +21,10 @@
 @font-face{font-family:JBM;src:url(fonts/jbm-Regular.woff2) format("woff2");font-weight:400;font-display:block}
 @font-face{font-family:JBM;src:url(fonts/jbm-Bold.woff2) format("woff2");font-weight:700;font-display:block}
 @font-face{font-family:JBM;src:url(fonts/jbm-Italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:block}
+/* Technical-glyph fallback (subset of JuliaMono): braille, U+23BF ⎿, ✻ ✦ ↳, box/block,
+   powerline — glyphs JBM/DejaVu lack or render weakly. Listed AFTER JBM in the stack so
+   JBM owns the body type and this only fills the gaps. */
+@font-face{font-family:TSSym;src:url(fonts/symbols-Regular.woff2) format("woff2");font-display:block}
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{font-family:var(--font);font-variant-emoji:text;background:var(--page,#0c0b09)}
@@ -122,7 +126,7 @@ function boot(){
 
   // ---- apply theme as CSS variables (everything is themeable, nothing hardcoded) ----
   var V = {
-    '--font': TH.font || 'JBM,"DejaVu Sans Mono",monospace',
+    '--font': TH.font || 'JBM,TSSym,"DejaVu Sans Mono",monospace',
     '--page': TH.page || '#0c0b09',
     '--term': TH.bg || '#15140f',
     '--fg': TH.fg || '#ece9e1',

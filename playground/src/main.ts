@@ -117,6 +117,8 @@ async function loadFonts(): Promise<boolean> {
     new FontFace("JBM", "url(fonts/jbm-Regular.woff2)", { weight: "400" }),
     new FontFace("JBM", "url(fonts/jbm-Bold.woff2)", { weight: "700" }),
     new FontFace("JBM", "url(fonts/jbm-Italic.woff2)", { style: "italic" }),
+    // technical-glyph fallback (braille, ⎿, ✻ ✦ ↳, box/block) — see engine.html
+    new FontFace("TSSym", "url(fonts/symbols-Regular.woff2)", {}),
   ]
   const results = await Promise.all(
     faces.map((f) => f.load().then((ff) => { (document as any).fonts.add(ff); return true }).catch(() => false)),
@@ -341,13 +343,14 @@ function setPlayBtn(isPlaying: boolean) {
   playBtn.innerHTML = isPlaying ? `${ic("pause", 13)}pause` : `${ic("play", 13)}play`
   playBtn.setAttribute("aria-label", isPlaying ? "Pause" : "Play")
 }
+// Sizing lives in CSS: the wrap declares the scene's aspect ratio and grows to the
+// largest box that fits the frame on both axes (container-query units). All JS does
+// is publish the ratio so there's no fixed-pixel scaling to drift or letterbox.
 function fitCanvas() {
   if (!compiled) return
-  const box = $("frame").getBoundingClientRect()
-  const pad = window.innerWidth <= 640 ? 24 : 60
-  const s = Math.min((box.width - pad) / compiled.meta.width, (box.height - pad) / compiled.meta.height, 1)
-  canvas.style.width = Math.max(1, compiled.meta.width * s) + "px"
-  canvas.style.height = Math.max(1, compiled.meta.height * s) + "px"
+  // set on #frame (the parent) so both the frame box (mobile edit mode) and the
+  // .canvaswrap inside it inherit the same ratio.
+  $("frame").style.setProperty("--ar", String(compiled.meta.width / compiled.meta.height))
 }
 function setPreviewMode(m: "compose" | "play") {
   if (previewMode === m) { renderCurrent(); return }
@@ -692,7 +695,7 @@ function disableExport(_reason: "scene" | "browser" = "scene") {
 // ============================================================
 function buildPicker() {
   jobsEl.innerHTML = JOB_TEMPLATES.map((j) =>
-    `<button class="job" data-id="${j.id}"><span class="jt"><span class="sw" style="background:${j.sw}"></span>${escapeHtml(j.name)}</span><span class="jd">${escapeHtml(j.tagline)}</span></button>`).join("")
+    `<button class="job" data-id="${j.id}"><span class="jt">${escapeHtml(j.name)}</span><span class="jd">${escapeHtml(j.tagline)}</span></button>`).join("")
   jobsEl.querySelectorAll<HTMLButtonElement>(".job").forEach((b) =>
     b.addEventListener("click", () => { loadJob(b.dataset.id!); closePicker() }))
 }
@@ -846,7 +849,8 @@ async function boot() {
   const mobileEdit = $("mobileEdit")
   mobileEdit.addEventListener("click", () => {
     const on = document.body.classList.toggle("editing")
-    mobileEdit.setAttribute("aria-pressed", String(on)); mobileEdit.textContent = on ? "Done" : "Edit"
+    mobileEdit.setAttribute("aria-pressed", String(on))
+    const lbl = mobileEdit.querySelector(".elbl"); if (lbl) lbl.textContent = on ? "Done" : "Edit"
     requestAnimationFrame(fitCanvas)
   })
 

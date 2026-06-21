@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>termscene · showcase fidelity audit</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --mut:#6b6b6b; --faint:#9a9a9a; --line:#e6e3dc;
+    --bg:#faf8f3; --card:#fff; --wrong:#b3402f; --imp:#9a7a1a; --ok:#2f7d4a;
+    --code:#f3f0e9; --accent:#a8442a;
+  }
+  *{box-sizing:border-box}
+  body{font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);margin:0;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:56px 24px 96px}
+  h1{font-size:30px;line-height:1.2;letter-spacing:-.02em;margin:0 0 6px;font-weight:700}
+  .sub{color:var(--mut);font-size:15px;margin:0 0 4px}
+  .meta{color:var(--faint);font-size:13px;margin:0 0 36px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);
+    margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line);font-weight:600}
+  h3{font-size:20px;margin:34px 0 4px;letter-spacing:-.01em}
+  .tool-sub{color:var(--mut);font-size:14px;margin:0 0 14px}
+  code,.mono{font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;
+    font-size:.88em;background:var(--code);padding:1px 5px;border-radius:4px;color:#3a352c}
+  pre{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;line-height:1.5;
+    background:#15140f;color:#ece9e1;padding:14px 16px;border-radius:8px;overflow-x:auto;margin:10px 0}
+  .verdict{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:16px 18px;margin:0 0 8px;font-size:15px}
+  .verdict b{color:var(--accent)}
+  .finding{margin:0 0 14px;padding-left:14px;border-left:2px solid var(--line)}
+  .finding.w{border-color:var(--wrong)}
+  .finding.i{border-color:var(--imp)}
+  .finding.o{border-color:var(--ok)}
+  .tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;padding:2px 6px;border-radius:4px;vertical-align:middle;margin-right:6px}
+  .tag.w{background:#f7e3df;color:var(--wrong)}
+  .tag.i{background:#f5ecd2;color:var(--imp)}
+  .tag.o{background:#dcefe2;color:var(--ok)}
+  .fname{font-weight:600;font-size:14px}
+  .finding p{margin:4px 0 0;font-size:14px;color:#3a3a3a}
+  .finding .mv{color:var(--mut)}
+  .src{font-size:11px;color:var(--faint);word-break:break-all}
+  .src a{color:var(--faint)}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;
+    background:var(--code);color:var(--mut);margin-left:8px;vertical-align:middle}
+  .pill.data{background:#dcefe2;color:var(--ok)}
+  .pill.eng{background:#e6e0f0;color:#6b4ea8}
+  .lead{font-size:15px;color:#333}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:600}
+  td .mono{font-size:12px}
+  .scoredot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:7px}
+  .s-low{background:var(--wrong)}.s-mid{background:var(--imp)}.s-hi{background:var(--ok)}
+  hr{border:0;border-top:1px solid var(--line);margin:40px 0}
+  .foot{color:var(--faint);font-size:12px;margin-top:48px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Showcase fidelity audit</h1>
+  <p class="sub">termscene · the 8 named-terminal examples in <code>SHOWCASE_INDEX</code>, checked against each tool's real on-screen conventions.</p>
+  <p class="meta">2026-06-17 · sources are primary (tool source repos, shipped theme files, official docs) · one research pass per tool</p>
+
+  <div class="verdict">
+    <b>Bottom line.</b> Every example is the right <i>flavor</i>, but none is pixel-faithful — each has 2–4 tells a user of that tool would catch instantly. The misses split cleanly: most are <span class="pill data">data</span> edits to <code>scenes-data.ts</code> / <code>themes.ts</code> I can apply now; a recurring set are <span class="pill eng">engine</span> gaps — the renderer's prompt is a <i>single-line, single-color string</i>, so it can't yet do split-color prompts (Ubuntu, p10k), two-line prompts (p10k, Starship), persistent footers (Gemini), or Warp's command Blocks. Those four are the least faithful precisely because their identity lives in the prompt/chrome the engine can't express.
+  </div>
+
+  <h2>Fidelity at a glance</h2>
+  <table>
+    <tr><th>Tool</th><th>Read</th><th>Top tell to fix</th><th>Layer</th></tr>
+    <tr><td><b>Claude Code</b></td><td><span class="scoredot s-mid"></span>Close</td><td>Result connector <code>└─</code> → <code>⎿</code>; literal "Thinking…"; fake test progress bar</td><td><span class="pill data">data</span></td></tr>
+    <tr><td><b>Gemini CLI</b></td><td><span class="scoredot s-mid"></span>Half</td><td>Banner is the wrong shape; corner-box diff; no footer</td><td><span class="pill data">data</span> <span class="pill eng">eng</span></td></tr>
+    <tr><td><b>Codex CLI</b></td><td><span class="scoredot s-low"></span>Low</td><td>Wrong brand color (green, not cyan); invented "apply patch" line</td><td><span class="pill data">data</span></td></tr>
+    <tr><td><b>Warp</b></td><td><span class="scoredot s-low"></span>Low</td><td>No Blocks; periwinkle-on-navy instead of cyan-on-black</td><td><span class="pill data">data</span> <span class="pill eng">eng</span></td></tr>
+    <tr><td><b>iTerm2 · p10k</b></td><td><span class="scoredot s-low"></span>Low</td><td>One-line prompt (real is two-line + <code>❯</code>); fake <code>✔</code>/<code>✚</code> glyphs</td><td><span class="pill data">data</span> <span class="pill eng">eng</span></td></tr>
+    <tr><td><b>macOS Terminal</b></td><td><span class="scoredot s-hi"></span>Good</td><td>Bare <code>@mac</code> host; off-black fg; truncated title</td><td><span class="pill data">data</span></td></tr>
+    <tr><td><b>Ubuntu</b></td><td><span class="scoredot s-hi"></span>Good</td><td>All-green prompt (real splits green host / blue path)</td><td><span class="pill data">data</span> <span class="pill eng">eng</span></td></tr>
+    <tr><td><b>Starship</b></td><td><span class="scoredot s-low"></span>Low</td><td>One-line, no <code>via</code>/<code>on</code>/<code>took</code> keywords; literal lang names</td><td><span class="pill data">data</span> <span class="pill eng">eng</span></td></tr>
+  </table>
+
+  <!-- ============ CLAUDE CODE ============ -->
+  <h3>Claude Code <span class="pill">structurally close</span></h3>
+  <p class="tool-sub">The flavor is right — <code>●</code> tool calls, capitalized names, the <code>✻</code> spinner glyph. Four catchable tells.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Result connector glyph</span>
+    <p><span class="mv">Mock <code>└─</code> · Real <code>⎿</code> (U+23BF, two leading spaces, dim).</span> Fix: <code>&nbsp;&nbsp;⎿&nbsp;&nbsp;3 matches in src/middleware/rateLimit.ts</code> on every result line.</p>
+    <p class="src">figures.ts — collection-claude-code-source-code</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Literal "Thinking…" + no status meta</span>
+    <p><span class="mv">Real spinner cycles 187 whimsical gerunds (Simmering, Pondering, Noodling, Clauding…); the status line carries a token/timer/interrupt hint and the reasoning sentence sits on its own dim line.</span> Fix: <code>✻ Simmering… (esc to interrupt · 8s · ↓ 1.2k tokens)</code>, with the "locating the middleware" sentence demoted to a separate dim line.</p>
+    <p class="src">spinnerVerbs.ts; anthropics/claude-code#14630</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Fake jest progress bar</span>
+    <p><span class="mv">Claude Code has no progress-bar widget for command output — Bash output streams inline under the <code>●</code>/<code>⎿</code> tool line. The only animated UI is the thinking spinner.</span> Fix: delete the progress step; stream the jest lines on <code>⎿</code>-connected lines.</p>
+    <p class="src">ToolUseLoader.tsx</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Tool bullets are all orange</span>
+    <p><span class="mv">Bullet color is state-driven — dim while running, green on success, red on failure — not the terracotta accent.</span> Fix: render completed tool bullets in ok-green. (Also: input area has a top/bottom border rule, not a bare floating <code>❯</code>.)</p>
+    <p class="src">MessageResponse.tsx; PromptInput.tsx</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv"><code>✻</code> spinner glyph · <code>●</code>-bulleted capitalized tool names with parenthesized args · <code>Grep(pattern:…, glob:…)</code> keyword args · <code>●</code>-prefixed final summary · accent <code>#d97757</code> (brand-correct; TUI token is <code>#d77757</code>, 1 unit off — cosmetic).</span></p></div>
+
+  <!-- ============ GEMINI ============ -->
+  <h3>Gemini CLI <span class="pill">half-right</span></h3>
+  <p class="tool-sub">Glyph (<code>✦</code>), shell <code>!</code>, <code>></code> prompt, and model id are spot-on; the headline chrome is invented.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Startup banner shape</span>
+    <p><span class="mv">Mock: single line <code>✦ G E M I N I</code> + dash rule. Real: a multi-line block-character (<code>█</code>/<code>░</code>) ASCII wordmark, width-tiered, no sparkle/dash.</span> Fix: render the real <code>shortAsciiLogo</code> block.</p>
+    <p class="src">AsciiArt.ts — google-gemini/gemini-cli</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Banner gradient hexes</span>
+    <p><span class="mv">Mock blue→violet (#7aa2ff/#a78bfa). Real 3-stop ink-gradient.</span> Fix: <code>#4796E4 → #847ACE → #C3677F</code> (blue → blue-violet → rose).</p>
+    <p class="src">theme.ts</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Diff is a corner-box</span>
+    <p><span class="mv">Mock: <code>┌─ │ └─</code> framed box. Real: right-aligned line-number gutter + single-char <code>+</code>/<code>-</code>/space prefixes, green/red line backgrounds; the full box only appears in an edit <i>confirmation</i>.</span> Fix: drop the corners; numbered <code>+</code>/<code>-</code> lines.</p>
+    <p class="src">DiffRenderer.tsx</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Banner sub-line + missing footer</span>
+    <p><span class="mv">Real launch shows a "Tips for getting started" box, not a <code>model · cwd · ctrl+c</code> sub-line; model/cwd live in a persistent footer (<code>~/dir · branch · sandbox · model · ctx%</code>).</span> Fix: drop the sub-line; <span class="pill eng">eng</span> add a footer row.</p>
+    <p class="src">Tips.tsx; footerItems.ts</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Theme + glyph colors</span>
+    <p><span class="mv">Stock default theme is black bg / white fg (the slate palette is custom). <code>✦</code> prefix is accent purple <code>#D7AFFF</code>; <code>></code> prompt is accent blue <code>#87AFFF</code>.</span></p>
+    <p class="src">theme.ts; GeminiMessage.tsx; InputPrompt.tsx</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv">Shell passthrough <code>!</code> · signature glyph <code>✦</code> (U+2726) · default model <code>gemini-2.5-pro</code> (still literal in stable v0.46.0) · <code>></code>+space prompt.</span></p></div>
+
+  <!-- ============ CODEX ============ -->
+  <h3>Codex CLI <span class="pill">low</span></h3>
+  <p class="tool-sub">Borderless <code>›</code> prompt is right — but the brand color is inverted and the two most visible actions use invented formats.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Brand color is green</span>
+    <p><span class="mv">Mock: <code>#10a37f</code> OpenAI green for prompt + actions. Real: the Rust TUI is ANSI-palette — accent is terminal <b>cyan</b> (bold); green is reserved strictly for <code>+N</code> diff counts and passing tests; "Codex" branding lines are <b>magenta</b>. No <code>#10a37f</code> anywhere.</span> Fix: drop the green theme; cyan prompt/status, green only on success.</p>
+    <p class="src">styles.md; style.rs</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">"apply patch" line is invented</span>
+    <p><span class="mv">Mock: <code>● apply patch&nbsp;&nbsp;src/fetcher.py&nbsp;&nbsp;+6 -3</code>. Real: <code>• Edited src/fetcher.py (+6 -3)</code> — a <i>dim</i> <code>•</code> (U+2022, not <code>●</code>), bold verb <b>Edited</b>, single spaces, <code>+6</code> green / <code>-3</code> red. The string "apply patch" never shows.</span></p>
+    <p class="src">diff_render.rs</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Status + command rendering</span>
+    <p><span class="mv">Mock: progress bar "running 14 tests". Real status widget: <code>Working (2s • esc to interrupt)</code>; a shell command is its own cell — <code>• Running pytest …</code> (active) → <code>• Ran pytest …</code> (done, green bullet), output gutter-prefixed <code>&nbsp;&nbsp;└ </code>.</span></p>
+    <p class="src">status_indicator_widget.rs; exec_cell/render.rs</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Missing startup box + summary prefix</span>
+    <p><span class="mv">Real launch: bordered box <code>>_ OpenAI Codex (vX.Y.Z)</code> + <code>model:</code> / <code>directory:</code> rows. Final summary is markdown with a dim <code>• </code> first-line bullet.</span></p>
+    <p class="src">session.rs; history_cell/messages.rs</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv">Input glyph <code>›</code> (bold) · borderless composer (a bordered input box would be <i>wrong</i>) · placeholder "Ask Codex to do anything".</span></p>
+    <p class="src">chat_composer.rs</p></div>
+
+  <!-- ============ WARP ============ -->
+  <h3>Warp <span class="pill">low</span></h3>
+  <p class="tool-sub">Gets mac chrome + rounded window right; misses all three signals that say "Warp".</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">No Blocks <span class="pill eng">eng</span></span>
+    <p><span class="mv">Warp's defining visual: each command + its output is a discrete block, divider lines between, a failed command gets a red left-bar + red-tinted bg.</span> Fix: render each step as a block — divider, left gutter, red accent for non-zero exit. <b>This is the #1 change to make it read as Warp.</b></p>
+    <p class="src">docs.warp.dev/terminal/blocks/block-basics</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Prompt + input model <span class="pill eng">eng</span></span>
+    <p><span class="mv">Warp's default prompt isn't a chevron — it's configurable context chips (cwd, git branch), and input lives in a persistent multi-line editor pinned to the bottom, not inline per command.</span> Fix: chip-style prompt + a fixed bottom input box (or label the <code>❯</code> as an explicit classic-shell choice).</p>
+    <p class="src">docs.warp.dev/terminal/appearance/prompt, /input-position</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Palette off (Warp Dark)</span>
+    <p><span class="mv">Mock: periwinkle <code>#4c8dff</code> on navy <code>#0f1420</code>, fg <code>#e6ebf4</code>, ok <code>#4ade80</code>. Real Warp Dark: accent cyan <code>#00c2ff</code>, bg <code>#000000</code>, fg <code>#ffffff</code>, green <code>#b4fa72</code>.</span></p>
+    <p class="src">warpdotdev/themes — warp_dark.yaml</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Add a tab bar</span>
+    <p><span class="mv">Traffic lights are right, but Warp shows a horizontal tab bar (+ new-tab button) by default. A thin tab bar labeled <code>~/app</code> would help it read as Warp.</span></p>
+    <p class="src">docs.warp.dev/terminal/appearance/tabs-behavior</p></div>
+
+  <!-- ============ P10K ============ -->
+  <h3>iTerm2 · Powerlevel10k <span class="pill">low</span></h3>
+  <p class="tool-sub">The "no-triangle, transparent-bg" instinct correctly matches p10k <b>lean</b> — but three signatures are wrong.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">One-line prompt <span class="pill eng">eng</span></span>
+    <p><span class="mv">p10k is two-line by default: dir/git on line 1, a standalone <code>❯</code> (green/red) on line 2 with the command after it. The mock crams it on one line with no <code>❯</code>.</span> Fix: split to two lines + green <code>❯</code>. <b>#1 change.</b></p>
+    <p class="src">p10k-lean.zsh</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Fake clean/staged glyphs</span>
+    <p><span class="mv">Mock: <code>main ✔</code> clean, <code>✚1</code> staged. Real p10k: clean is conveyed by <i>color</i> (green branch), no checkmark; staged is plain ASCII <code>+1</code>. Symbol set: modified <code>!N</code>, untracked <code>?N</code>, staged <code>+N</code>, ahead <code>⇡N</code>, behind <code>⇣N</code>.</span> Fix: drop <code>✔</code>; <code>✚1</code> → <code>+1</code>.</p>
+    <p class="src">p10k-lean.zsh; p10k-rainbow.zsh</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Node segment + title</span>
+    <p><span class="mv">Node segment is off by default; when on it's <code> v20</code> (glyph + bare version), never the word "node". iTerm2 title defaults to job/path (e.g. <code>brand-engine — -zsh</code>), not the literal "iTerm2".</span></p>
+    <p class="src">icons.zsh; iterm2.com/documentation</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv">Transparent segment backgrounds + no powerline triangles correctly matches lean style · dark bg/fg is fine · teal dir is acceptable as a custom recolor.</span></p></div>
+
+  <!-- ============ MACOS ============ -->
+  <h3>macOS Terminal <span class="pill">good</span></h3>
+  <p class="tool-sub">Prompt skeleton, white bg, and Homebrew paths are right; three small data tells.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Bare lowercase host</span>
+    <p><span class="mv">Mock <code>dev@mac</code>. <code>%m</code> expands to the auto-generated capitalized host — never bare <code>mac</code>.</span> Fix: <code>dev@Devs-MacBook-Pro ~ %</code> or <code>dev@Mac-Studio ~ %</code>.</p>
+    <p class="src">zsh prompt-expansion docs (<code>%m</code>)</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Truncated window title</span>
+    <p><span class="mv">Mock <code>zsh — 80×24</code>. Real: three segments <code>&lt;dir&gt; — -zsh — 80×24</code> (login shell shows leading-dash <code>-zsh</code>; <code>×</code> is U+00D7).</span> Fix: <code>~ — -zsh — 80×24</code>.</p>
+    <p class="src">Terminal AXTitle dumps</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Off-black fg + stray accent</span>
+    <p><span class="mv">Basic profile renders pure black <code>#000000</code> (mock uses <code>#1a1a1a</code>); the uncustomized shell has no blue accent (only the selection highlight <code>#B5D5FF</code>).</span></p>
+    <p class="src">Basic/"Builtin Light" .terminal profile</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv">Prompt skeleton <code>%n@%m %1~ %#</code> → <code>user@host ~ %</code> · white bg <code>#ffffff</code> · Basic profile, no output color · traffic lights · Apple-Silicon Homebrew paths (<code>/opt/homebrew/Cellar</code>, <code>==></code> prefixes, <code>🍺</code> summary).</span></p></div>
+
+  <!-- ============ UBUNTU ============ -->
+  <h3>Ubuntu GNOME Terminal <span class="pill">good</span></h3>
+  <p class="tool-sub">~80% faithful — palette, prompt shape, title, and systemctl styling all correct.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">All-green prompt <span class="pill eng">eng</span></span>
+    <p><span class="mv">Real default PS1: <code>user@host</code> bold green, <code>:</code> default fg, <code>~</code> (path) <b>bold blue</b> <code>#729FCF</code>, <code>$</code> default fg. The mock paints the whole string one green.</span> Fix: split colors — green host / blue path. <b>#1 tell every Ubuntu user catches.</b></p>
+    <p class="src">launchpad bash skel.bashrc</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">fg + chrome</span>
+    <p><span class="mv">Body fg is pure white <code>#ffffff</code> (mock <code>#eeeeec</code> is the bright-white ANSI slot). Real GNOME Terminal has a dark Yaru header bar with right-side min/max/close — not chromeless.</span> <span class="pill eng">eng</span> for header bar.</p>
+    <p class="src">Gogh "Clone Of Ubuntu" theme</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv">Aubergine bg <code>#300A24</code> (unchanged in 24.04) · green <code>#8AE234</code> · magenta <code>#AD7FA8</code> · prompt shape <code>user@host:path$ </code> · title <code>user@host: dir</code> · systemctl green <code>●</code> + "active (running)".</span></p></div>
+
+  <!-- ============ STARSHIP ============ -->
+  <h3>Starship <span class="pill">low</span></h3>
+  <p class="tool-sub">Reproduces a couple of glyphs but misses the prompt's defining grammar.</p>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">One-line, no keywords <span class="pill eng">eng</span></span>
+    <p><span class="mv">Real default is two-line with literal connector words: <code>~/rust-svc on  main via 🦀 v1.84.0</code> on line 1, <code>❯</code> (bold green/red) on line 2. The mock drops <code>on</code>/<code>via</code>/<code>took</code> and the line break.</span> Fix: restructure to two lines with keywords. <b>#1 change.</b></p>
+    <p class="src">starship.rs/config; starship_root.rs</p></div>
+
+  <div class="finding w"><span class="tag w">wrong</span><span class="fname">Language modules</span>
+    <p><span class="mv">Mock shows literal names (<code>rust</code>, <code>node</code>, <code>py</code>). Real shows <code>via</code> + icon + version, no name: Rust <code>via 🦀 v1.84.0</code> (red), Node <code>via  v22.14.0</code> (green nerd-glyph U+E718, not the <code>⬢</code> hexagon), Python <code>via 🐍 v3.13.0</code> (yellow).</span></p>
+    <p class="src">rust.rs / nodejs.rs / python.rs</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">git_status + cmd_duration</span>
+    <p><span class="mv">Modified is bracketed bold-red <code>[!]</code> (no count by default), not bare <code>!1</code>. Duration shows <code>took 42s</code> (bold yellow, &gt;2s), not bare <code>42s</code>.</span></p>
+    <p class="src">starship.rs/config (git_status, cmd_duration)</p></div>
+
+  <div class="finding i"><span class="tag i">imprecise</span><span class="fname">Invented palette</span>
+    <p><span class="mv">Starship default uses ANSI named colors (bold cyan dir, purple branch, red git/rust, green node/<code>❯</code>, yellow python/duration) resolved by the terminal — not a fixed Nord hex set.</span></p>
+    <p class="src">starship.rs/config per-module styles</p></div>
+
+  <div class="finding o"><span class="tag o">accurate</span><span class="fname">Confirmed right</span>
+    <p><span class="mv">Base glyph <code>❯</code> · git-branch glyph (U+E0A0) bold purple before the branch.</span></p></div>
+
+  <hr>
+
+  <h2>What this means for the fix</h2>
+  <p class="lead">Two distinct jobs. <b>Data-layer</b> (most findings) — corrected glyphs, output formats, model ids, banner art, and theme hexes I can apply to <code>scenes-data.ts</code> and <code>themes.ts</code> in one pass; macOS, Ubuntu, Claude Code, Codex, and Gemini reach high fidelity this way. <b>Engine-layer</b> — the renderer's single-line / single-color prompt is the shared blocker behind the four weakest examples: p10k and Starship need a two-line prompt with a colored <code>❯</code>; Ubuntu and p10k need per-segment prompt colors; Gemini wants a persistent footer; Warp wants command Blocks. These are the higher-leverage frontier work — they'd lift the whole showcase, not just one tile.</p>
+
+  <p class="foot">termscene · showcase fidelity audit · generated 2026-06-17</p>
+
+</div>
+</body>
+</html>

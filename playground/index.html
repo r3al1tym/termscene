@@ -18,6 +18,7 @@
   }
   @font-face{font-family:JBM;src:url(fonts/jbm-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
   @font-face{font-family:JBM;src:url(fonts/jbm-Bold.woff2) format("woff2");font-weight:700;font-display:swap}
+  @font-face{font-family:TSSym;src:url(fonts/symbols-Regular.woff2) format("woff2");font-display:swap}
   html,body{height:100%}
   *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
   *::-webkit-scrollbar{width:6px;height:6px}
@@ -56,6 +57,15 @@
   .ghost{background:transparent;color:var(--soft);border:1px solid transparent;border-radius:8px;
     padding:7px 12px;font-size:12px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
   .ghost:hover{color:var(--ink);background:var(--panel)}
+  /* mobile Edit toggle — a clearly-bordered button (not a faint ghost) so the
+     one control that opens the editor reads as a real affordance on a phone. Goes
+     accent when active (editing). Icon swaps pencil↔check via aria-pressed. */
+  .editbtn{background:var(--panel-2);border-color:var(--line-2);color:var(--ink);font-weight:600}
+  .editbtn:hover{background:var(--panel-3);color:var(--ink)}
+  .editbtn[aria-pressed="true"]{border-color:var(--accent-dim);color:var(--accent-soft);background:rgba(217,119,87,.10)}
+  .editbtn .done-ico{display:none}
+  .editbtn[aria-pressed="true"] .edit-ico{display:none}
+  .editbtn[aria-pressed="true"] .done-ico{display:inline-block}
   .lnk{color:var(--muted);text-decoration:none;font-size:12px;padding:7px 6px;white-space:nowrap}
   .lnk:hover{color:var(--ink)}
   /* icon-only GitHub link */
@@ -230,12 +240,17 @@
   .finding .msg .det{color:var(--faint);text-decoration:underline;font-size:11px}
 
   /* ===================== preview (right) ===================== */
+  /* the wrap hugs the canvas: it adopts the scene's aspect ratio (--ar, set from
+     JS on compile) and grows to the largest box that fits the frame on BOTH axes
+     (container-query units). The canvas then fills the wrap exactly — so there's
+     no letterbox band inside the wrap, only the symmetric centering gutter. */
   .right{position:relative}
   #frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:30px;position:relative;
+    container-type:size;
     background:radial-gradient(60% 50% at 50% 28%,rgba(217,119,87,.05),transparent 70%)}
-  .canvaswrap{position:relative;max-width:100%;max-height:100%;line-height:0}
+  .canvaswrap{position:relative;aspect-ratio:var(--ar,1);width:min(100cqw,calc(100cqh * var(--ar,1)));line-height:0}
   #stage{background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px var(--line-2);border-radius:6px;
-    max-width:100%;max-height:100%;display:block}
+    width:100%;height:100%;display:block}
   #pausechip{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;display:none;align-items:center;gap:6px;
     background:rgba(242,95,87,.14);border:1px solid var(--err);color:#ffd9d6;border-radius:999px;padding:6px 14px;font-size:12px;white-space:nowrap}
   #pausechip.show{display:inline-flex}
@@ -292,8 +307,7 @@
   .jobs{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   .job{appearance:none;text-align:left;background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:16px;cursor:pointer;transition:.16s;color:var(--soft)}
   .job:hover{border-color:var(--accent);transform:translateY(-2px);background:rgba(217,119,87,.06)}
-  .job .jt{font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
-  .job .jt .sw{width:9px;height:9px;border-radius:2px;flex:none}
+  .job .jt{font-weight:700;font-size:14px;color:var(--ink)}
   .job .jd{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
   .picker-foot{margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
   .picker-foot .blank{color:var(--muted);font-size:12.5px}
@@ -312,8 +326,16 @@
   @media (max-width:640px){
     main{grid-template-rows:1fr auto}
     .left{max-height:0;overflow:hidden;border-bottom:0}
-    body.editing .left{max-height:64vh;border-bottom:1px solid var(--line)}
-    #frame{padding:12px}
+    /* editing: the preview row HUGS the canvas (JS sizes #frame to the scene's
+       aspect ratio so there's no letterbox band), and the editor fills the rest.
+       Not-editing keeps the preview filling the screen (1fr) as the showcase. */
+    body.editing main{grid-template-rows:auto 1fr;min-height:0}
+    /* the preview box itself adopts the scene's aspect ratio (--ar) and is sized by
+       width — so it shrink-wraps the canvas with no surrounding empty band. Capped
+       at 46vh so a portrait scene still leaves room for the editor below. */
+    body.editing #frame{flex:none;width:100%;aspect-ratio:var(--ar,1);max-height:46vh;margin:0 auto}
+    body.editing .left{max-height:none;min-height:0;border-bottom:0;border-top:1px solid var(--line)}
+    #frame{padding:10px}
     #mobileEdit{display:inline-flex}
     .jobs{grid-template-columns:1fr}
     .picker-card{padding:22px 18px}
@@ -357,7 +379,11 @@
       <span class="wordmark">Composer <span class="sub">beta</span></span>
     </div>
     <div class="right">
-      <button class="ghost" id="mobileEdit" aria-pressed="false">Edit</button>
+      <button class="ghost editbtn" id="mobileEdit" aria-pressed="false">
+        <svg class="ic ic-sm edit-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <svg class="ic ic-sm done-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <span class="elbl">Edit</span>
+      </button>
       <a class="iconlnk" href="https://github.com/r3al1tym/termscene" target="_blank" rel="noopener" title="termscene on GitHub" aria-label="termscene on GitHub">
         <svg class="ic ic-brand" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
       </a>

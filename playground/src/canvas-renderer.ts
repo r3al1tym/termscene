@@ -97,7 +97,7 @@ export function resolveVars(scene: CompiledScene): ResolvedVars {
     barH: chrome !== "none" ? Math.round(fontSize * 1.9) : 0,
     chrome,
     title: (m.window && m.window.title) || "",
-    font: TH.font || 'JBM,"DejaVu Sans Mono",monospace',
+    font: TH.font || 'JBM,TSSym,"DejaVu Sans Mono",monospace',
   }
 }
 
@@ -116,6 +116,38 @@ interface RenderedLine {
   cursor: boolean // append a cursor block after the spans
   cursorOpacity: number
   stepIndex?: number // source step this line came from (for click-to-edit)
+}
+
+// Parse a raw-HTML output line (out.html) into colored spans for the canvas — the
+// preview analogue of the engine dropping the HTML straight into innerHTML. Walks the
+// DOM, inheriting `color` from inline `style="color:…"`; unstyled text uses `base`.
+// (Bold isn't tracked per-span on the canvas; color carries the visual signal.)
+function htmlToSpans(html: string, base: string): Span[] {
+  const host = document.createElement("div")
+  host.innerHTML = html
+  const spans: Span[] = []
+  const walk = (node: Node, color: string) => {
+    for (const child of Array.from(node.childNodes)) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        const text = child.textContent || ""
+        if (text) spans.push({ text, color })
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        const el = child as HTMLElement
+        // gradient text (background-clip:text; color:transparent) can't be drawn on
+        // canvas — approximate with the gradient's first color stop so the preview
+        // shows the right hue instead of invisible text.
+        let c = el.style?.color || color
+        if (c === "transparent" || c === "") {
+          const grad = el.style?.background || el.style?.backgroundImage || ""
+          const hex = grad.match(/#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)/)
+          c = hex ? hex[0] : color
+        }
+        walk(el, c)
+      }
+    }
+  }
+  walk(host, base)
+  return spans.length ? spans : [{ text: "", color: base }]
 }
 
 /** Compose mode renders the scene FULLY SETTLED — every line shown in its final
@@ -182,6 +214,13 @@ function visibleLines(events: CompiledEvent[], t: number, V: ResolvedVars, mode:
     if (ev.kind === "out") {
       if (!compose && t < ev.appearAt) continue
       const cls = ev.cls && SEMANTIC[ev.cls] ? (V[SEMANTIC[ev.cls]] as string) : V.out
+      // raw-HTML lines (out.html): parse to colored spans, mirroring the engine's
+      // innerHTML path. The engine shows html lines in full (no char-streaming), so
+      // we don't slice them — just render the spans settled.
+      if ((ev as any).html) {
+        lines.push({ spans: htmlToSpans(ev.text || "", cls), cursor: false, cursorOpacity: blinkOpacity, stepIndex: si })
+        continue
+      }
       let txt: string = ev.text || ""
       let streaming = false
       if (!compose && ev.streamEnd != null && ev.streamEnd > ev.appearAt) {
