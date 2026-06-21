@@ -422,7 +422,7 @@
   document.getElementById('grid').innerHTML = TERMINALS.map(t => `
     <figure class="card reveal">
       <div class="frame">
-        <video src="clips/${t.id}.mp4" muted loop playsinline preload="metadata"></video>
+        <video src="clips/${t.id}.mp4" muted playsinline preload="metadata"></video>
         <a class="customize" href="playground/?scene=${t.id}"><span class="btn">Customize in playground →</span></a>
       </div>
       <figcaption class="meta">
@@ -431,13 +431,25 @@
       </figcaption>
     </figure>`).join('');
 
+  // The clips open mid-task on a near-black frame (content types in over the first
+  // seconds) and END on the richest frame (the completed result). So: don't loop —
+  // play through ONCE when scrolled into view (the story unfolds), then REST on the
+  // final frame, never dipping back through the dark intro. Initial poster also sits
+  // on the end frame so above-fold tiles aren't black before the play triggers.
   document.querySelectorAll('.card').forEach(card => {
     const v = card.querySelector('video');
-    card.addEventListener('mouseenter', () => v.play());
-    // click the frame (not the Customize button) replays the clip
+    let posted = false;
+    const poster = () => { if (!posted && v.duration && v.paused) { posted = true; try { v.currentTime = Math.max(0, v.duration - 0.05) } catch(e){} } };
+    v.addEventListener('loadeddata', poster);
+    if (v.readyState >= 2) poster();
+    v.addEventListener('ended', () => { try { v.currentTime = Math.max(0, v.duration - 0.05) } catch(e){} });
+    const playOnce = () => { v.currentTime = 0; v.play().catch(()=>{}); };
+    card.addEventListener('mouseenter', playOnce);
+    card.dataset.playOnce = '1';
+    // click the frame (not the Customize button) replays the clip from the top
     card.querySelector('.frame').addEventListener('click', (e) => {
       if (e.target.closest('.customize')) return;
-      v.currentTime = 0; v.play();
+      playOnce();
     });
   });
 
@@ -452,7 +464,9 @@
   const io = new IntersectionObserver((es)=>es.forEach(e=>{
     if(e.isIntersecting){ e.target.classList.add('in');
       const vv = e.target.querySelector && e.target.querySelector('video');
-      if(vv && vv.loop) vv.play().catch(()=>{});
+      // gallery cards play through once from the top when revealed (then rest on
+      // the final frame via the 'ended' handler); other looping videos just play.
+      if(vv){ if(e.target.dataset.playOnce){ vv.currentTime = 0; vv.play().catch(()=>{}); } else if(vv.loop){ vv.play().catch(()=>{}); } }
       io.unobserve(e.target);
     }
   }), { threshold:.12 });
