@@ -380,7 +380,7 @@
       const v = document.createElement('video');
       v.src = `clips/hero/${u.id}.mp4`;
       v.muted = true; v.loop = true; v.playsInline = true;
-      v.preload = i === 0 ? 'auto' : 'metadata';
+      v.preload = 'none';  // no pre-buffer → no stale playhead to resume from on first show
       screen.appendChild(v);
     });
     // trailing "create your own" → playground (a CTA, not a clip tab)
@@ -394,7 +394,16 @@
       if (i === active) return;
       tabs.forEach((t,k)=>t.setAttribute('aria-selected', k===i));
       vids.forEach((v,k)=>{
-        if (k===i){ v.classList.add('show'); v.currentTime = 0; v.play().catch(()=>{}); }
+        if (k===i){
+          v.classList.add('show');
+          // start the narrative from the top. A preloaded clip that has already played
+          // through can silently reject currentTime=0 (the sync read even lies, returning
+          // 0 while decode resumes near the end), so on its FIRST show force a clean
+          // load() reset; subsequent shows just seek (cheap, already buffered).
+          if (!v.dataset.shown){ v.dataset.shown = '1'; v.load(); }
+          else { try { v.currentTime = 0 } catch(e){} }
+          v.play().catch(()=>{});
+        }
         else { v.classList.remove('show'); v.pause(); }
       });
       active = i;
