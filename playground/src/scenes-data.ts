@@ -17,7 +17,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "claude-code",
     "name": "Claude Code",
-    "blurb": "✻ welcome + tips · ❯ input box · ● tools · ⎿ results",
+    "blurb": "● tool calls · ⎿ results · ✻ thinking spinner",
     "sw": "#d97757",
     "scene": {
       "meta": {
@@ -35,42 +35,6 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         "loopOffset": "82%"
       },
       "steps": [
-        {
-          "out": "<span style=\"color:#d97757\">✻</span> <span style=\"color:#d97757\">Welcome to Claude Code</span> <span style=\"color:#7f7b71\">v2.1.177</span>",
-          "html": true
-        },
-        {
-          "div": true
-        },
-        {
-          "out": "Tips for getting started",
-          "style": "dim"
-        },
-        {
-          "out": "Run /init to create a CLAUDE.md file with instructions for Claude",
-          "style": "dim"
-        },
-        {
-          "div": true
-        },
-        {
-          "out": [
-            "<span style=\"color:#888\">╭────────────────────────────────────────────────────────────╮</span>",
-            "<span style=\"color:#888\">│</span> <span style=\"color:#d97757\">❯</span> <span style=\"color:#5d5a52\">Try \"fix lint errors\"</span>                                      <span style=\"color:#888\">│</span>",
-            "<span style=\"color:#888\">╰────────────────────────────────────────────────────────────╯</span>"
-          ],
-          "html": true
-        },
-        {
-          "out": "  ? for shortcuts",
-          "style": "dim"
-        },
-        {
-          "wait": 1.4
-        },
-        {
-          "div": true
-        },
         {
           "cmd": "add a Retry-After header to the 429 responses in the rate limiter",
           "prompt": "❯",
@@ -135,7 +99,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "gemini-cli",
     "name": "Gemini CLI",
-    "blurb": "block GEMINI logo · blue→violet→rose gradient · ✦ replies",
+    "blurb": "✦ replies · diff-styled WriteFile · ! shell passthrough",
     "sw": "#a78bfa",
     "scene": {
       "meta": {
@@ -154,40 +118,6 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         "align": "top"
       },
       "steps": [
-        {
-          "out": [
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">   █████████  ██████████ ██████   ██████ █████ ██████   █████ █████</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">  ███░░░░░███░░███░░░░░█░░██████ ██████ ░░███ ░░██████ ░░███ ░░███</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\"> ███     ░░░  ░███  █ ░  ░███░█████░███  ░███  ░███░███ ░███  ░███</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">░███          ░██████    ░███░░███ ░███  ░███  ░███░░███░███  ░███</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">░███    █████ ░███░░█    ░███ ░░░  ░███  ░███  ░███ ░░██████  ░███</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">░░███  ░░███  ░███ ░   █ ░███      ░███  ░███  ░███  ░░█████  ░███</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\"> ░░█████████  ██████████ █████     █████ █████ █████  ░░█████ █████</span>",
-            "<span style=\"background:linear-gradient(90deg,#4796E4,#847ACE,#C3677F);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:pre\">  ░░░░░░░░░  ░░░░░░░░░░ ░░░░░     ░░░░░ ░░░░░ ░░░░░    ░░░░░ ░░░░░</span>"
-          ],
-          "html": true,
-          "lineDelay": 0.06
-        },
-        {
-          "div": true
-        },
-        {
-          "out": "Tips for getting started:",
-          "style": "dim"
-        },
-        {
-          "out": [
-            "1. Create GEMINI.md files to customize your interactions",
-            "2. /help for more information",
-            "3. Ask coding questions, edit code or run commands",
-            "4. Be specific for the best results"
-          ],
-          "style": "dim",
-          "lineDelay": 0.04
-        },
-        {
-          "div": true
-        },
         {
           "cmd": "explain why my rate limiter lets bursts through, then fix it",
           "prompt": "> "
@@ -254,7 +184,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "codex-cli",
     "name": "Codex CLI",
-    "blurb": "›_ OpenAI Codex box · cyan accent · • Edited / • Ran",
+    "blurb": "› cyan prompt · • Edited / • Ran · +/- diff counts",
     "sw": "#56c2d6",
     "scene": {
       "meta": {
@@ -272,41 +202,6 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         "align": "top"
       },
       "steps": [
-        {
-          "out": [
-            "<span style=\"color:#5c5c5c\">╭───────────────────────────────────────────────────────╮</span>",
-            "<span style=\"color:#5c5c5c\">│</span> <span style=\"color:#5c5c5c\">&gt;_</span> <b>OpenAI Codex</b> <span style=\"color:#5c5c5c\">(v0.140.0)</span>                          <span style=\"color:#5c5c5c\">│</span>",
-            "<span style=\"color:#5c5c5c\">│</span>                                                       <span style=\"color:#5c5c5c\">│</span>",
-            "<span style=\"color:#5c5c5c\">│</span> model:     gpt-5.5  <span style=\"color:#56c2d6\">/model</span> <span style=\"color:#5c5c5c\">to change</span>                  <span style=\"color:#5c5c5c\">│</span>",
-            "<span style=\"color:#5c5c5c\">│</span> directory: ~/projects/api                             <span style=\"color:#5c5c5c\">│</span>",
-            "<span style=\"color:#5c5c5c\">╰───────────────────────────────────────────────────────╯</span>"
-          ],
-          "html": true,
-          "lineDelay": 0.05
-        },
-        {
-          "div": true
-        },
-        {
-          "out": "  To get started, describe a task or try one of these commands:",
-          "style": "dim"
-        },
-        {
-          "div": true
-        },
-        {
-          "out": [
-            "  /init      <span style=\"color:#5c5c5c\">- create an AGENTS.md file with instructions for Codex</span>",
-            "  /status    <span style=\"color:#5c5c5c\">- show current session configuration</span>",
-            "  /model     <span style=\"color:#5c5c5c\">- choose what model and reasoning effort to use</span>",
-            "  /review    <span style=\"color:#5c5c5c\">- review any changes and find issues</span>"
-          ],
-          "html": true,
-          "lineDelay": 0.04
-        },
-        {
-          "div": true
-        },
         {
           "cmd": "fix the retry backoff in fetcher.py — it caps too early, should be exponential up to 30s",
           "prompt": "›"
@@ -791,7 +686,7 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
   {
     "id": "kiro-cli",
     "name": "Kiro CLI",
-    "blurb": "purple KIRO banner · magenta › · ● tools · ↳ purpose · ✓",
+    "blurb": "● tools · ↳ purpose lines · ✓ green confirmations",
     "sw": "#9046ff",
     "scene": {
       "meta": {
@@ -808,42 +703,6 @@ export const SHOWCASE_INDEX: ShowcaseIndexEntry[] = [
         "align": "top"
       },
       "steps": [
-        {
-          "out": [
-            "<span style=\"color:#9046ff\">██╗  ██╗██╗██████╗  ██████╗ </span>",
-            "<span style=\"color:#9046ff\">██║ ██╔╝██║██╔══██╗██╔═══██╗</span>",
-            "<span style=\"color:#9046ff\">█████╔╝ ██║██████╔╝██║   ██║</span>",
-            "<span style=\"color:#9046ff\">██╔═██╗ ██║██╔══██╗██║   ██║</span>",
-            "<span style=\"color:#9046ff\">██║  ██╗██║██║  ██║╚██████╔╝</span>",
-            "<span style=\"color:#9046ff\">╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ </span>"
-          ],
-          "html": true,
-          "lineDelay": 0.06
-        },
-        {
-          "out": "<span style=\"color:#615c6b\">  Welcome to Kiro — agentic coding in your terminal</span>",
-          "html": true
-        },
-        {
-          "div": true
-        },
-        {
-          "out": [
-            "<span style=\"color:#615c6b\">╭─ Did you know? ───────────────────────────────────────────╮</span>",
-            "<span style=\"color:#615c6b\">│</span>  Kiro turns a request into a spec — requirements, design,  <span style=\"color:#615c6b\">│</span>",
-            "<span style=\"color:#615c6b\">│</span>  then a task list it works through. Try /spec to see it.   <span style=\"color:#615c6b\">│</span>",
-            "<span style=\"color:#615c6b\">╰───────────────────────────────────────────────────────────╯</span>"
-          ],
-          "html": true,
-          "lineDelay": 0.04
-        },
-        {
-          "out": "<span style=\"color:#615c6b\">/help all commands  •  ctrl + j new lines  •  ctrl + s fuzzy search</span>",
-          "html": true
-        },
-        {
-          "div": true
-        },
         {
           "cmd": "add rate limiting to the /api/login endpoint",
           "prompt": "> "
