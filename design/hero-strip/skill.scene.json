@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "aspect": "wide",
+    "theme": { "preset": "claude" },
+    "window": { "chrome": "mac", "title": "claude code" },
+    "align": "top",
+    "prompt": "❯",
+    "fontSize": 22
+  },
+  "steps": [
+    { "cmd": "npx skills add r3al1tym/termscene", "typeSpeed": 40 },
+    { "out": [
+        "<span style=\"color:#28c93f\">✓</span> added <b>termscene</b> · design-forward terminal videos",
+        "  <span style=\"color:#5d5a52\">restart your agent to load the skill</span>"
+      ], "html": true, "lineDelay": 0.2 },
+    { "div": true },
+    { "cmd": "make the hero clip for my landing page — the coding-agent demo, claude theme", "typeSpeed": 44 },
+    { "wait": 0.3 },
+    { "out": "✻ Composing… (esc to interrupt · 5s · ↓ 0.8k tokens)", "style": "dim" },
+    { "out": "  Writing a scene, linting it, then rendering to mp4 with the termscene skill.", "style": "dim", "stream": 1.2 },
+    { "out": [
+        "<span style=\"color:#28c93f\">●</span> Write(hero.scene.json)",
+        "  <span style=\"color:#5d5a52\">⎿  { meta: { theme: \"claude\", chrome: \"mac\" },</span>",
+        "  <span style=\"color:#5d5a52\">       steps: [ cmd: \"fix the failing test in the orders module\",</span>",
+        "  <span style=\"color:#5d5a52\">               out: \"✻ Thinking…\",  out: \"● Edit(refund.py)\",</span>",
+        "  <span style=\"color:#5d5a52\">               out: \"✓ 48 passed\" ] }</span>"
+      ], "html": true, "lineDelay": 0.16 },
+    { "out": [
+        "<span style=\"color:#28c93f\">●</span> Bash(termscene lint hero.scene.json)",
+        "  <span style=\"color:#5d5a52\">⎿  0 errors · 0 warnings · 9 steps</span>"
+      ], "html": true },
+    { "out": "<span style=\"color:#28c93f\">●</span> Bash(termscene render hero.scene.json --out hero.mp4)", "html": true },
+    { "progress": "rendering 132 frames", "duration": 1.8, "style": "accent" },
+    { "out": "  <span style=\"color:#5d5a52\">⎿  hero.mp4 · 1280×720 · 6.2s · 132 frames</span>", "html": true },
+    { "div": true },
+    { "out": "● Done — hero.mp4 is ready. It's the clip you're watching right now.", "style": "ok", "stream": 1.8 }
+  ]
+}

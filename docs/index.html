@@ -360,6 +360,7 @@
 <script>
   // ---- hero use-case strip: 5 jobs, each its own clip + visual register ----
   const USECASES = [
+    { id:'skill',      label:'The skill itself', sw:'#d97757' },
     { id:'agent',      label:'Coding agent',  sw:'#d97757' },
     { id:'ai-product', label:'Product demo', sw:'#34d399' },
     { id:'launch',     label:'Launch clip',   sw:'#7c5cff' },
@@ -399,7 +400,18 @@
       active = i;
     }
     function next(){ show((active+1) % USECASES.length); }
-    function arm(){ clearTimeout(timer); if(!paused) timer = setTimeout(()=>{ next(); arm(); }, ADVANCE); }
+    // Dwell = max(ADVANCE, the active clip's own length) so a longer narrative clip
+    // (e.g. "The skill itself", ~12s) plays to its payoff before the strip rotates,
+    // while the short clips keep the 7s cadence. Duration may not be in yet on a cold
+    // clip — fall back to loadedmetadata, then re-arm with the real length.
+    function arm(){
+      clearTimeout(timer);
+      if (paused) return;
+      const v = vids[active], armed = active;
+      const d = v && v.duration;
+      if (!(isFinite(d) && d)) { v.addEventListener('loadedmetadata', () => { if (active === armed && !paused) arm(); }, { once:true }); return; }
+      timer = setTimeout(()=>{ next(); arm(); }, Math.max(ADVANCE, d * 1000 + 500));
+    }
     tabs.forEach((t,i)=> t.addEventListener('click', ()=>{ show(i); arm(); }));
     // pause auto-advance while the visitor is reading/hovering the strip or stage
     const stage = strip.closest('.stage');
