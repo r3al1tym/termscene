@@ -46,7 +46,7 @@
   "author": "r3al1tym",
   "license": "MIT",
   "dependencies": {
-    "puppeteer-core": "^23.0.0"
+    "puppeteer-core": "^25.2.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
